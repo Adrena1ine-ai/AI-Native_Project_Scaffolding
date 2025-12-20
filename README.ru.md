@@ -18,6 +18,16 @@
 
 ---
 
+## 🌍 Языки / Languages
+
+Инструмент поддерживает **английский** и **русский**:
+- 🇬🇧 CLI and Dashboard in English
+- 🇷🇺 CLI и Dashboard на русском
+- Выбор языка при первом запуске
+- Переключатель языка в Web Dashboard
+
+---
+
 ## 🎯 Что это?
 
 **AI Toolkit** — это инструмент для создания Python-проектов, оптимизированных для работы с AI-ассистентами:
@@ -91,8 +101,8 @@ pip install ai-toolkit
 pip install ai-toolkit[web]
 
 # Из исходников
-git clone https://github.com/mickhael/ai-toolkit.git
-cd ai-toolkit
+git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+cd AI-Native_Project_Scaffolding
 pip install -e ".[web]"
 ```
 
@@ -129,6 +139,9 @@ cd my_bot
 # Активировать venv
 source ../_venvs/my_bot-venv/bin/activate
 
+# Установить зависимости
+pip install -r requirements.txt
+
 # Скопировать .env
 cp .env.example .env
 
@@ -146,12 +159,6 @@ python main.py
 ai-toolkit dashboard
 ```
 
-<div align="center">
-
-![Dashboard Screenshot](docs/assets/dashboard-home.png)
-
-</div>
-
 ### Возможности Dashboard:
 
 | Страница | Функции |
@@ -166,6 +173,7 @@ ai-toolkit dashboard
 ### Особенности:
 
 - 🎨 Красивый тёмный дизайн с анимациями
+- 🌍 **Переключатель языка** (🇬🇧 EN / 🇷🇺 RU)
 - 📱 Адаптивный — работает на телефоне
 - 🔒 Работает локально (127.0.0.1)
 - 📋 Кнопки "Копировать" для команд
@@ -186,14 +194,9 @@ ai-toolkit web
 
 ```bash
 ai-toolkit-gui
+# или
+python -m gui.app
 ```
-
-<details>
-<summary>📸 Скриншот GUI</summary>
-
-![GUI Screenshot](docs/assets/gui-screenshot.png)
-
-</details>
 
 ### 3. Интерактивный CLI
 
@@ -203,11 +206,26 @@ ai-toolkit
 aitk
 ```
 
+**При первом запуске — выбор языка:**
+
 ```
 ═══════════════════════════════════════════════════════════
-🛠️  AI TOOLKIT v3.0.0
+🛠️  AI-NATIVE PROJECT SCAFFOLDING v3.0
 ═══════════════════════════════════════════════════════════
 
+🌍 Select language / Выберите язык:
+
+  1. 🇬🇧 English
+  2. 🇷🇺 Русский
+
+Choice / Выбор (1-2) [1]: 2
+
+  ✅ Язык сохранён: Русский
+```
+
+**Затем выбор IDE и главное меню:**
+
+```
 🖥️  В какой IDE будешь работать?
 
   1. 💜 Cursor (AI-first IDE)
@@ -216,7 +234,7 @@ aitk
   4. 🌊 Windsurf
   5. 🔄 Все сразу (универсальный)
 
-Выбери (1-5): 5
+Выбери (1-5) [5]: 5
 
 Что хочешь сделать?
 
@@ -226,6 +244,7 @@ aitk
   4. 🏥 Health check
   5. ⬆️  Обновить проект
   6. ⚙️  Сменить IDE
+  7. 🌍 Сменить язык
   0. ❌ Выход
 ```
 
@@ -246,6 +265,10 @@ ai-toolkit migrate ./existing_project
 
 # Обновление до новой версии
 ai-toolkit update ./my_project
+
+# Установить язык через CLI
+ai-toolkit --lang ru
+ai-toolkit --lang en
 ```
 
 ---
@@ -316,8 +339,9 @@ python main.py
 |---------|----------|
 | 🎮 **Context Switcher** | Скрыть модули от AI для фокуса |
 | 🔌 **Плагины** | Расширение функционала |
-| 🌐 **Dashboard** | Web-интерфейс |
+| 🌐 **Dashboard** | Web-интерфейс с переключателем языка |
 | 🖥️ **GUI** | Графический интерфейс (Tkinter) |
+| 🌍 **Локализация** | Английский + Русский |
 
 ---
 
@@ -354,33 +378,12 @@ my_project/
 │   ├── __init__.py
 │   ├── main.py
 │   ├── handlers/
-│   │   ├── __init__.py
-│   │   ├── start.py
-│   │   └── common.py
-│   ├── keyboards/
-│   │   ├── __init__.py
-│   │   └── main.py
-│   └── utils/
-│       ├── __init__.py
-│       └── helpers.py
+│   └── keyboards/
 │
-├── 💾 database/
-│   ├── __init__.py
-│   └── db.py
-│
+├── 💾 database/                 # База данных
 ├── 🌐 webapp/                   # Mini App (шаблон webapp)
-│   ├── index.html
-│   ├── style.css
-│   └── app.js
-│
 ├── ⚡ api/                      # FastAPI (шаблон fastapi)
-│   ├── __init__.py
-│   ├── main.py
-│   └── routes/
-│
 ├── 🕷️ parser/                   # Парсер (шаблон parser)
-│   ├── __init__.py
-│   └── scraper.py
 │
 ├── 📂 logs/                     # Логи (в .gitignore)
 ├── 📂 data/                     # Данные (в .gitignore)
@@ -465,7 +468,7 @@ ai-toolkit cleanup ./project --level full
 AI Toolkit поддерживает расширение через плагины:
 
 ```python
-# plugins/my_plugin/__init__.py
+# ~/.ai_toolkit/plugins/my_plugin/__init__.py
 
 def on_project_created(project_path, project_name):
     """Вызывается после создания проекта"""
@@ -492,8 +495,8 @@ def on_cleanup_complete(project_path, level):
 ### Установка для разработки
 
 ```bash
-git clone https://github.com/mickhael/ai-toolkit.git
-cd ai-toolkit
+git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+cd AI-Native_Project_Scaffolding
 
 # Создать venv
 python -m venv .venv
@@ -535,12 +538,11 @@ ruff format src
 
 | Документ | Описание |
 |----------|----------|
-| [📖 Полное руководство](docs/GUIDE.md) | Подробное руководство |
-| [🔌 Плагины](docs/PLUGINS.md) | Создание плагинов |
-| [🎨 Шаблоны](docs/TEMPLATES.md) | Кастомизация шаблонов |
-| [🔧 API](docs/API.md) | Программный API |
-| [❓ FAQ](docs/FAQ.md) | Частые вопросы |
-| [📋 Changelog](CHANGELOG.md) | История изменений |
+| [📖 Полное руководство](docs/GUIDE.ru.md) | Подробное руководство |
+| [❓ FAQ](docs/FAQ.ru.md) | Частые вопросы |
+| [⚡ Быстрый старт](docs/QUICK_START.ru.md) | Начни за 2 минуты |
+| [📋 Changelog](CHANGELOG.ru.md) | История изменений |
+| [🇬🇧 English](README.md) | Английская версия |
 
 ---
 
@@ -555,6 +557,7 @@ ruff format src
 - [x] 🖥️ GUI (Tkinter)
 - [x] 🔌 Система плагинов
 - [x] 🐳 Docker + CI/CD
+- [x] 🌍 Локализация (EN/RU)
 - [ ] 📊 Аналитика и отчёты
 - [ ] 🎨 Кастомные шаблоны
 - [ ] 🔐 Менеджер секретов
@@ -573,13 +576,13 @@ ruff format src
 4. **Push** в branch: `git push origin feature/amazing-feature`
 5. Открой **Pull Request**
 
-Подробнее: [CONTRIBUTING.md](CONTRIBUTING.md)
+Подробнее: [CONTRIBUTING.md](CONTRIBUTING.ru.md)
 
 ---
 
 ## 📄 License
 
-MIT © [Mickhael](https://github.com/mickhael)
+MIT © [Michael Salmin](https://t.me/MichaelSalmin)
 
 Подробнее: [LICENSE](LICENSE)
 
@@ -603,6 +606,6 @@ MIT © [Mickhael](https://github.com/mickhael)
 
 **Made with ❤️ for AI-first development**
 
-[⬆️ Наверх](#-ai-toolkit-v30)
+[⬆️ Наверх](#-ai-native-project-scaffolding-v30)
 
 </div>

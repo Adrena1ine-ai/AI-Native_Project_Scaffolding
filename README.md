@@ -18,6 +18,16 @@
 
 ---
 
+## 🌍 Languages / Языки
+
+This tool supports **English** and **Russian**:
+- 🇬🇧 CLI and Dashboard in English
+- 🇷🇺 CLI и Dashboard на русском
+- Language selection on first launch
+- Language switcher in Web Dashboard
+
+---
+
 ## 🎯 What is this?
 
 **AI-Native Project Scaffolding** is a tool for creating Python projects optimized for AI assistants:
@@ -163,6 +173,7 @@ ai-toolkit dashboard
 ### Features:
 
 - 🎨 Beautiful dark design with animations
+- 🌍 **Language switcher** (🇬🇧 EN / 🇷🇺 RU)
 - 📱 Responsive — works on mobile
 - 🔒 Runs locally (127.0.0.1)
 - 📋 "Copy" buttons for commands
@@ -183,6 +194,8 @@ ai-toolkit web
 
 ```bash
 ai-toolkit-gui
+# or
+python -m gui.app
 ```
 
 ### 3. Interactive CLI
@@ -191,6 +204,46 @@ ai-toolkit-gui
 ai-toolkit
 # or
 aitk
+```
+
+**On first launch — language selection:**
+
+```
+═══════════════════════════════════════════════════════════
+🛠️  AI-NATIVE PROJECT SCAFFOLDING v3.0
+═══════════════════════════════════════════════════════════
+
+🌍 Select language / Выберите язык:
+
+  1. 🇬🇧 English
+  2. 🇷🇺 Русский
+
+Choice / Выбор (1-2) [1]: 
+```
+
+**Then IDE selection and main menu:**
+
+```
+🖥️  Which IDE will you use?
+
+  1. 💜 Cursor (AI-first IDE)
+  2. 💙 VS Code + GitHub Copilot
+  3. 🟢 VS Code + Claude
+  4. 🌊 Windsurf
+  5. 🔄 All (universal)
+
+Choose (1-5) [5]: 5
+
+What would you like to do?
+
+  1. 🆕 Create new project
+  2. 🧹 Cleanup existing project
+  3. 📦 Migrate project
+  4. 🏥 Health check
+  5. ⬆️  Update project
+  6. ⚙️  Change IDE
+  7. 🌍 Change language
+  0. ❌ Exit
 ```
 
 ### 4. CLI commands
@@ -210,6 +263,10 @@ ai-toolkit migrate ./existing_project
 
 # Update to new version
 ai-toolkit update ./my_project
+
+# Set language via CLI
+ai-toolkit --lang en
+ai-toolkit --lang ru
 ```
 
 ---
@@ -224,6 +281,32 @@ ai-toolkit update ./my_project
 | 🕷️ `parser` | Web scraper | aiohttp, BeautifulSoup, database |
 | 🚀 `full` | Everything together | bot + webapp + api + parser |
 | 📦 `monorepo` | Multiple projects | apps/, packages/, shared/ |
+
+### Example: creating Telegram bot
+
+```bash
+# Create project
+ai-toolkit create my_telegram_bot --template bot
+
+# Go to project
+cd my_telegram_bot
+
+# Create venv
+./scripts/bootstrap.sh
+
+# Activate
+source ../_venvs/my_telegram_bot-venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure .env
+cp .env.example .env
+nano .env  # Add BOT_TOKEN
+
+# Run
+python main.py
+```
 
 ---
 
@@ -254,8 +337,9 @@ ai-toolkit update ./my_project
 |---------|-------------|
 | 🎮 **Context Switcher** | Hide modules from AI for focus |
 | 🔌 **Plugins** | Extend functionality |
-| 🌐 **Dashboard** | Web interface |
+| 🌐 **Dashboard** | Web interface with language switcher |
 | 🖥️ **GUI** | Graphical interface (Tkinter) |
+| 🌍 **Localization** | English + Russian |
 
 ---
 
@@ -289,6 +373,11 @@ my_project/
 │   └── context.py               # Context Switcher
 │
 ├── 🤖 bot/                      # Bot code (bot template)
+│   ├── __init__.py
+│   ├── main.py
+│   ├── handlers/
+│   └── keyboards/
+│
 ├── 💾 database/                 # Database
 ├── 🌐 webapp/                   # Mini App (webapp template)
 ├── ⚡ api/                      # FastAPI (fastapi template)
@@ -304,10 +393,17 @@ my_project/
 │   └── .dockerignore
 │
 ├── 📋 Configuration
+│   ├── .pre-commit-config.yaml
 │   ├── pyproject.toml
 │   ├── requirements.txt
+│   ├── requirements-dev.txt
 │   ├── config.py
-│   └── .env.example
+│   ├── .env.example
+│   └── .toolkit-version
+│
+├── 📖 Git
+│   ├── .gitignore
+│   └── .gitattributes
 │
 └── 📖 README.md
 ```
@@ -324,6 +420,9 @@ python scripts/context.py bot
 
 # Focus on webapp
 python scripts/context.py webapp
+
+# Focus on API
+python scripts/context.py api
 
 # Show everything
 python scripts/context.py all
@@ -355,6 +454,9 @@ ai-toolkit cleanup ./project --level safe
 
 # Fix with backup
 ai-toolkit cleanup ./project --level medium
+
+# Full restructuring
+ai-toolkit cleanup ./project --level full
 ```
 
 ---
@@ -367,7 +469,12 @@ AI Toolkit supports extending through plugins:
 # ~/.ai_toolkit/plugins/my_plugin/__init__.py
 
 def on_project_created(project_path, project_name):
-    print(f"Project created: {project_name}")
+    """Called after project creation"""
+    print(f"🎉 Project {project_name} created!")
+
+def on_cleanup_complete(project_path, level):
+    """Called after cleanup"""
+    pass
 ```
 
 ### Plugin Hooks:
@@ -430,8 +537,8 @@ ruff format src
 | Document | Description |
 |----------|-------------|
 | [📖 Full Guide](docs/GUIDE.md) | Detailed guide |
-| [🔌 Plugins](docs/PLUGINS.md) | Creating plugins |
 | [❓ FAQ](docs/FAQ.md) | Frequently asked questions |
+| [⚡ Quick Start](docs/QUICK_START.md) | Get started in 2 minutes |
 | [📋 Changelog](CHANGELOG.md) | Version history |
 | [🇷🇺 Russian](README.ru.md) | Russian version |
 
@@ -448,6 +555,7 @@ ruff format src
 - [x] 🖥️ GUI (Tkinter)
 - [x] 🔌 Plugin system
 - [x] 🐳 Docker + CI/CD
+- [x] 🌍 Localization (EN/RU)
 - [ ] 📊 Analytics and reports
 - [ ] 🎨 Custom templates
 - [ ] 🔐 Secrets manager
