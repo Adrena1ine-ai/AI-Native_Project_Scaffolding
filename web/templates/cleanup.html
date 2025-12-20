@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Очистка проекта — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🧹</span>
+    <h1 class="page-title">Очистка проекта</h1>
+    <p class="page-subtitle">
+        Найди и исправь проблемы: venv внутри проекта, большие логи, отсутствующие конфиги
+    </p>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 0 auto;">
+    <!-- Путь к проекту -->
+    <div class="form-group">
+        <label class="form-label">📍 Путь к проекту</label>
+        <div style="display: flex; gap: 1rem;">
+            <input type="text" class="form-input" id="projectPath"
+                   placeholder="{{ home_path }}/my_project" style="flex: 1;">
+            <button class="btn btn-primary" onclick="analyze()">
+                🔍 Анализировать
+            </button>
+        </div>
+    </div>
+    
+    <!-- Лоадер -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>Анализируем проект...</span>
+    </div>
+    
+    <!-- Результаты анализа -->
+    <div id="analysisResult" class="hidden" style="margin-top: 2rem;"></div>
+    
+    <!-- Уровни очистки -->
+    <div id="cleanupOptions" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">🧹 Выбери уровень очистки</h3>
+        
+        <div class="radio-cards" style="grid-template-columns: repeat(3, 1fr);">
+            {% for key, level in cleanup_levels.items() %}
+            <label class="radio-card">
+                <input type="radio" name="level" value="{{ key }}"
+                       {% if key == 'safe' %}checked{% endif %}>
+                <div class="radio-card-content">
+                    <span class="radio-card-icon">
+                        {% if key == 'safe' %}🔒{% elif key == 'medium' %}⚡{% else %}🔥{% endif %}
+                    </span>
+                    <span class="radio-card-title">{{ level.name }}</span>
+                    <span class="radio-card-desc">{{ level.description }}</span>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <button class="btn btn-warning btn-lg btn-block" style="margin-top: 1.5rem;" onclick="cleanup()">
+            🧹 Выполнить очистку
+        </button>
+    </div>
+    
+    <!-- Результат очистки -->
+    <div id="cleanupResult" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+
+<!-- Что проверяется -->
+<div class="card" style="max-width: 900px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1rem;">ℹ️ Что проверяется?</h3>
+    
+    <div class="issue-list">
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text"><strong>venv внутри проекта</strong> — AI индексирует 500MB мусора</span>
+        </div>
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text"><strong>site-packages</strong> — зависимости не должны быть в репо</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text"><strong>Большие логи (>10MB)</strong> — тормозят IDE</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text"><strong>Большая папка data/</strong> — лучше хранить отдельно</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">ℹ️</span>
+            <span class="issue-text"><strong>__pycache__</strong> — можно удалить</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text"><strong>Отсутствуют конфиги</strong> — _AI_INCLUDE, .cursorignore</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const loader = document.getElementById('loader');
+    const analysisResult = document.getElementById('analysisResult');
+    const cleanupOptions = document.getElementById('cleanupOptions');
+    const cleanupResult = document.getElementById('cleanupResult');
+    
+    async function analyze() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) {
+            alert('Введите путь к проекту');
+            return;
+        }
+        
+        loader.classList.add('active');
+        analysisResult.classList.add('hidden');
+        cleanupOptions.classList.add('hidden');
+        cleanupResult.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.issues_count === 0) {
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <span class="alert-icon">✅</span>
+                            <span><strong>${data.project_name}</strong> — проект чистый! Проблем не найдено.</span>
+                        </div>
+                    `;
+                } else {
+                    const severityIcons = { error: '❌', warning: '⚠️', info: 'ℹ️' };
+                    
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-warning">
+                            <span class="alert-icon">🔍</span>
+                            <span>Найдено ${data.issues_count} проблем(ы) в <strong>${data.project_name}</strong></span>
+                        </div>
+                        
+                        <div class="issue-list">
+                            ${data.issues.map(issue => `
+                                <div class="issue-item ${issue.severity}">
+                                    <span class="issue-icon">${severityIcons[issue.severity]}</span>
+                                    <span class="issue-text">${issue.message}</span>
+                                    ${issue.size_mb > 0 ? `<span class="issue-size">${issue.size_mb} MB</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    cleanupOptions.classList.remove('hidden');
+                }
+            } else {
+                analysisResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            analysisResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>Ошибка: ${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        analysisResult.classList.remove('hidden');
+    }
+    
+    async function cleanup() {
+        const path = document.getElementById('projectPath').value;
+        const level = document.querySelector('input[name="level"]:checked').value;
+        
+        if (level !== 'safe' && !confirm(`Выполнить очистку уровня "${level}"? Рекомендуется сделать бэкап.`)) {
+            return;
+        }
+        
+        loader.classList.add('active');
+        cleanupResult.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/cleanup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path, level })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <span>${data.message}</span>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="analyze()">🔍 Проверить снова</button>
+                    </div>
+                `;
+            } else {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            cleanupResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>Ошибка: ${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        cleanupResult.classList.remove('hidden');
+    }
+</script>
+{% endblock %}
+

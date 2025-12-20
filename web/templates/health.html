@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Health Check — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🏥</span>
+    <h1 class="page-title">Health Check</h1>
+    <p class="page-subtitle">
+        Проверь состояние проекта: правильно ли всё настроено, нет ли проблем
+    </p>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 0 auto;">
+    <!-- Путь к проекту -->
+    <div class="form-group">
+        <label class="form-label">📍 Путь к проекту</label>
+        <div style="display: flex; gap: 1rem;">
+            <input type="text" class="form-input" id="projectPath"
+                   placeholder="{{ home_path }}/my_project" style="flex: 1;">
+            <button class="btn btn-success" onclick="checkHealth()">
+                🏥 Проверить
+            </button>
+        </div>
+    </div>
+    
+    <!-- Лоадер -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>Проверяем проект...</span>
+    </div>
+    
+    <!-- Результат -->
+    <div id="result" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+
+<!-- Что проверяется -->
+<div class="card" style="max-width: 900px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1.5rem;">ℹ️ Что проверяется?</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+        <div>
+            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">🐍 Virtual Environment</h4>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                <li>Venv вне проекта</li>
+                <li>Нет venv внутри</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--accent-green); margin-bottom: 0.5rem;">📄 Конфигурация</h4>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                <li>.env файл</li>
+                <li>requirements.txt</li>
+                <li>_AI_INCLUDE/</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--accent-purple); margin-bottom: 0.5rem;">🤖 AI конфиги</h4>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                <li>.cursorrules</li>
+                <li>.cursorignore</li>
+                <li>CLAUDE.md</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;">🔧 Скрипты</h4>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                <li>bootstrap.sh</li>
+                <li>health_check.sh</li>
+                <li>context.py</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--accent-pink); margin-bottom: 0.5rem;">🐳 Docker</h4>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                <li>Dockerfile</li>
+                <li>docker-compose.yml</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--accent-yellow); margin-bottom: 0.5rem;">🚀 CI/CD & Git</h4>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                <li>GitHub Actions</li>
+                <li>Git репозиторий</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Дополнительные действия -->
+<div style="max-width: 900px; margin: 2rem auto;">
+    <div class="card-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="card" style="text-align: center;">
+            <div class="card-icon">📦</div>
+            <h3 class="card-title">Миграция</h3>
+            <p class="card-description">Добавить AI Toolkit в существующий проект</p>
+            <button class="btn btn-purple" style="margin-top: 1rem;" onclick="migrate()">
+                📦 Мигрировать
+            </button>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+            <div class="card-icon">⬆️</div>
+            <h3 class="card-title">Обновление</h3>
+            <p class="card-description">Обновить проект до новой версии Toolkit</p>
+            <button class="btn btn-outline" style="margin-top: 1rem;" onclick="update()">
+                ⬆️ Обновить
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="actionResult" class="hidden" style="max-width: 900px; margin: 2rem auto;"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const loader = document.getElementById('loader');
+    const result = document.getElementById('result');
+    const actionResult = document.getElementById('actionResult');
+    
+    async function checkHealth() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) {
+            alert('Введите путь к проекту');
+            return;
+        }
+        
+        loader.classList.add('active');
+        result.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/health', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const statusClass = data.passed ? 'success' : 'warning';
+                const statusIcon = data.passed ? '✅' : '⚠️';
+                const statusText = data.passed ? 'Все проверки пройдены!' : 'Есть предупреждения';
+                
+                result.innerHTML = `
+                    <div class="alert alert-${statusClass}">
+                        <span class="alert-icon">${statusIcon}</span>
+                        <span><strong>${data.project_name}</strong> — ${statusText}</span>
+                    </div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">📋 Результаты проверки:</h3>
+                    <div class="output-box">${data.output}</div>
+                `;
+            } else {
+                result.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            result.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>Ошибка: ${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        result.classList.remove('hidden');
+    }
+    
+    async function migrate() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) {
+            alert('Сначала введите путь к проекту');
+            return;
+        }
+        
+        if (!confirm(`Добавить AI Toolkit в ${path}?`)) return;
+        
+        try {
+            const response = await fetch('/api/migrate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            actionResult.innerHTML = `
+                <div class="alert alert-${data.success ? 'success' : 'error'}">
+                    <span class="alert-icon">${data.success ? '✅' : '❌'}</span>
+                    <span>${data.message}</span>
+                </div>
+            `;
+            actionResult.classList.remove('hidden');
+            
+            if (data.success) checkHealth();
+            
+        } catch (error) {
+            actionResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>Ошибка: ${error.message}</span>
+                </div>
+            `;
+            actionResult.classList.remove('hidden');
+        }
+    }
+    
+    async function update() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) {
+            alert('Сначала введите путь к проекту');
+            return;
+        }
+        
+        if (!confirm(`Обновить ${path} до последней версии?`)) return;
+        
+        try {
+            const response = await fetch('/api/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            actionResult.innerHTML = `
+                <div class="alert alert-${data.success ? 'success' : 'error'}">
+                    <span class="alert-icon">${data.success ? '✅' : '❌'}</span>
+                    <span>${data.message}</span>
+                </div>
+            `;
+            actionResult.classList.remove('hidden');
+            
+            if (data.success) checkHealth();
+            
+        } catch (error) {
+            actionResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>Ошибка: ${error.message}</span>
+                </div>
+            `;
+            actionResult.classList.remove('hidden');
+        }
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}AI Toolkit — Главная{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="page-header" style="margin-bottom: 4rem; padding: 3rem 0;">
+    <span class="page-title-icon">🚀</span>
+    <h1 class="page-title">Добро пожаловать в AI Toolkit!</h1>
+    <p class="page-subtitle">
+        Создавай проекты, оптимизированные для работы с AI-ассистентами.
+        Выбери действие ниже, чтобы начать.
+    </p>
+</div>
+
+<!-- Карточки действий -->
+<div class="card-grid">
+    <!-- Создать проект -->
+    <a href="/create" class="card" style="text-decoration: none;">
+        <div class="card-icon">🆕</div>
+        <h2 class="card-title">Создать проект</h2>
+        <p class="card-description">
+            Создай новый проект с правильной структурой, защитой от venv и настройками для твоей IDE.
+        </p>
+        <div style="margin-top: 1rem;">
+            <span class="btn btn-primary">Создать →</span>
+        </div>
+    </a>
+    
+    <!-- Очистить проект -->
+    <a href="/cleanup" class="card" style="text-decoration: none;">
+        <div class="card-icon">🧹</div>
+        <h2 class="card-title">Очистить проект</h2>
+        <p class="card-description">
+            Найди и исправь проблемы в существующем проекте: venv внутри, большие логи, отсутствующие конфиги.
+        </p>
+        <div style="margin-top: 1rem;">
+            <span class="btn btn-warning">Очистить →</span>
+        </div>
+    </a>
+    
+    <!-- Health Check -->
+    <a href="/health" class="card" style="text-decoration: none;">
+        <div class="card-icon">🏥</div>
+        <h2 class="card-title">Health Check</h2>
+        <p class="card-description">
+            Проверь состояние проекта: правильно ли всё настроено, нет ли проблем.
+        </p>
+        <div style="margin-top: 1rem;">
+            <span class="btn btn-success">Проверить →</span>
+        </div>
+    </a>
+    
+    <!-- Помощь -->
+    <a href="/help" class="card" style="text-decoration: none;">
+        <div class="card-icon">📚</div>
+        <h2 class="card-title">Как это работает?</h2>
+        <p class="card-description">
+            Узнай как использовать AI Toolkit, что такое venv вне проекта и зачем это нужно.
+        </p>
+        <div style="margin-top: 1rem;">
+            <span class="btn btn-purple">Узнать →</span>
+        </div>
+    </a>
+</div>
+
+<!-- Быстрая статистика -->
+<div style="margin-top: 4rem;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">📊 Статистика</h2>
+    <div id="stats-container">
+        <div class="loader active">
+            <div class="spinner"></div>
+            <span>Загрузка...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Поддерживаемые IDE -->
+<div style="margin-top: 4rem;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">🖥️ Поддерживаемые IDE</h2>
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        {% for key, cfg in ide_configs.items() %}
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{{ cfg.icon }}</div>
+            <div style="font-weight: 700;">{{ cfg.name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Загрузка статистики
+    async function loadStats() {
+        const container = document.getElementById('stats-container');
+        
+        try {
+            const response = await fetch('/api/stats');
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.projects_count > 0) {
+                    container.innerHTML = `
+                        <div class="card">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: center;">
+                                <div>
+                                    <div style="font-size: 3rem; font-weight: 800; color: var(--accent-blue);">
+                                        ${data.projects_count}
+                                    </div>
+                                    <div style="color: var(--text-secondary);">Проектов</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 3rem; font-weight: 800; color: var(--accent-green);">
+                                        ${data.projects.reduce((sum, p) => sum + p.size_mb, 0).toFixed(0)}
+                                    </div>
+                                    <div style="color: var(--text-secondary);">MB всего</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 3rem; font-weight: 800; color: var(--accent-purple);">
+                                        v${data.toolkit_version}
+                                    </div>
+                                    <div style="color: var(--text-secondary);">Версия</div>
+                                </div>
+                            </div>
+                            
+                            ${data.projects.length > 0 ? `
+                                <div style="margin-top: 2rem;">
+                                    <h3 style="margin-bottom: 1rem;">Ваши проекты:</h3>
+                                    <div class="issue-list">
+                                        ${data.projects.map(p => `
+                                            <div class="issue-item info">
+                                                <span class="issue-icon">📁</span>
+                                                <span class="issue-text"><strong>${p.name}</strong></span>
+                                                <span class="issue-size">${p.size_mb} MB</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="card" style="text-align: center;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
+                            <h3>Проектов пока нет</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                                Создай свой первый проект!
+                            </p>
+                            <a href="/create" class="btn btn-primary btn-lg">🆕 Создать проект</a>
+                        </div>
+                    `;
+                }
+            }
+        } catch (error) {
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <span class="alert-icon">ℹ️</span>
+                    <span>Статистика недоступна</span>
+                </div>
+            `;
+        }
+    }
+    
+    loadStats();
+</script>
+{% endblock %}
+

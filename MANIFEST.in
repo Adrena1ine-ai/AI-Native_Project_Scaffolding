@@ -1,0 +1,36 @@
+# MANIFEST.in — файлы для включения в дистрибутив
+
+# Include
+include LICENSE
+include README.md
+include CHANGELOG.md
+include pyproject.toml
+include toolkit.yaml
+
+# Templates
+recursive-include templates *.template *.md
+
+# Documentation
+recursive-include docs *.md
+
+# AI Include
+recursive-include _AI_INCLUDE *.md
+
+# Type hints
+include src/py.typed
+
+# Exclude
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude .DS_Store
+global-exclude .git*
+global-exclude *.swp
+global-exclude *.swo
+prune .git
+prune .venv
+prune venv
+prune tests
+prune .pytest_cache
+prune .mypy_cache
+prune .ruff_cache
+
