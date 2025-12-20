@@ -101,19 +101,38 @@ pip install ai-toolkit
 pip install ai-toolkit[web]
 ```
 
-### Installation from Source
+### Installation from Source (One Command!)
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
 
-# 2. Go to project folder
+# 2. Go to project folder  
 cd AI-Native_Project_Scaffolding
 
-# 3. Install with dependencies
+# 3. Run ONE command to install and start! 🚀
+# Windows:
+.\start.ps1
+
+# Linux/macOS:
+./start.sh
+```
+
+The script will:
+1. ✅ Check Python version
+2. ✅ Install dependencies automatically
+3. ✅ Start Web Dashboard
+4. ✅ Open browser with Welcome screen
+
+> 💡 **First launch:** You'll see a Welcome screen to select language (English/Russian).
+
+#### Manual Installation (alternative)
+
+```bash
+# Install with dependencies
 pip install -e ".[web]"
 
-# 4. Run (from this folder!)
+# Run
 python -m web.app          # Web Dashboard
 python -m src.cli          # Interactive CLI
 ```
