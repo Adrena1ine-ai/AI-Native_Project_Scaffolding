@@ -371,8 +371,8 @@ class TestCreateProject:
 
 ## ❓ Вопросы?
 
-- 💬 [Discussions](https://github.com/mickhael/ai-toolkit/discussions)
-- 📧 Email: your@email.com
+- 💬 [Discussions](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/discussions)
+- 📱 Telegram: [@MichaelSalmin](https://t.me/MichaelSalmin)
 
 ---
 

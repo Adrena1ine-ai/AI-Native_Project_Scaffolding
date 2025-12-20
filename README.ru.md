@@ -587,17 +587,15 @@ MIT © [Mickhael](https://github.com/mickhael)
 
 ## 💬 Поддержка
 
-- 🐛 [Открыть Issue](https://github.com/mickhael/ai-toolkit/issues)
-- 💬 [Discussions](https://github.com/mickhael/ai-toolkit/discussions)
-- 📧 Email: your@email.com
+- 🐛 [Открыть Issue](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/issues)
+- 💬 [Discussions](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/discussions)
+- 📱 Telegram: [@MichaelSalmin](https://t.me/MichaelSalmin)
 
 ---
 
 ## ⭐ Star History
 
 Если проект полезен — поставь звезду! ⭐
-
-[![Star History Chart](https://api.star-history.com/svg?repos=mickhael/ai-toolkit&type=Date)](https://star-history.com/#mickhael/ai-toolkit&Date)
 
 ---
 

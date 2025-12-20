@@ -472,7 +472,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-MIT © [Adrena1ine-ai](https://github.com/Adrena1ine-ai)
+MIT © [Michael Salmin](https://t.me/MichaelSalmin)
 
 See [LICENSE](LICENSE) for details.
 
@@ -482,6 +482,7 @@ See [LICENSE](LICENSE) for details.
 
 - 🐛 [Open Issue](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/issues)
 - 💬 [Discussions](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/discussions)
+- 📱 Telegram: [@MichaelSalmin](https://t.me/MichaelSalmin)
 
 ---
 

@@ -10,10 +10,10 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "Mickhael", email = "your@email.com"}
+    {name = "Michael Salmin", email = "t.me/MichaelSalmin"}
 ]
 maintainers = [
-    {name = "Mickhael"}
+    {name = "Michael Salmin"}
 ]
 keywords = [
     "ai", "cursor", "copilot", "claude", "windsurf",
@@ -73,11 +73,11 @@ aitk = "src.cli:main"
 ai-toolkit-gui = "gui.app:run_gui"
 
 [project.urls]
-"Homepage" = "https://github.com/mickhael/ai-toolkit"
-"Bug Tracker" = "https://github.com/mickhael/ai-toolkit/issues"
-"Documentation" = "https://github.com/mickhael/ai-toolkit#readme"
-"Changelog" = "https://github.com/mickhael/ai-toolkit/blob/main/CHANGELOG.md"
-"Source" = "https://github.com/mickhael/ai-toolkit"
+"Homepage" = "https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding"
+"Bug Tracker" = "https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/issues"
+"Documentation" = "https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding#readme"
+"Changelog" = "https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/blob/main/CHANGELOG.md"
+"Source" = "https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding"
 
 [tool.setuptools]
 packages = ["src", "src.core", "src.commands", "src.generators", "gui", "plugins", "web"]
