@@ -113,3 +113,347 @@
     });
 </script>
 {% endblock %}
+
+{% block title %}{{ t.nav_settings }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">⚙️</span>
+    <h1 class="page-title">{{ t.settings_title }}</h1>
+    <p class="page-subtitle">{{ t.settings_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form id="settingsForm">
+        <div class="form-group">
+            <label class="form-label">{{ t.settings_ide_label }}</label>
+            <p class="form-hint" style="margin-bottom: 1rem;">{{ t.settings_ide_hint }}</p>
+            
+            <div class="radio-cards">
+                {% for key, cfg in ide_configs.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="ide" value="{{ key }}"
+                           {% if key == current_ide %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ cfg.icon }}</span>
+                        <span class="radio-card-title">{{ cfg.name }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+            {{ t.settings_save_btn }}
+        </button>
+    </form>
+    
+    <div id="result" class="hidden" style="margin-top: 1.5rem;"></div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 2rem auto; text-align: center;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🛠️</div>
+    <h2>{{ t.settings_version_title }}</h2>
+    <p style="font-size: 2rem; font-weight: 800; color: var(--accent-blue);">v{{ version }}</p>
+    
+    <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+        <a href="https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding" target="_blank" class="btn btn-outline">
+            🔗 GitHub
+        </a>
+        <a href="https://t.me/MichaelSalmin" target="_blank" class="btn btn-outline">
+            📱 Telegram
+        </a>
+        <a href="/help" class="btn btn-outline">
+            📚 {{ t.nav_help }}
+        </a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1.5rem;">{{ t.settings_paths_title }}</h3>
+    
+    <div class="issue-list">
+        <div class="issue-item info">
+            <span class="issue-icon">🐍</span>
+            <span class="issue-text"><strong>{{ t.settings_venvs_path }}</strong> ../_venvs/</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">📊</span>
+            <span class="issue-text"><strong>{{ t.settings_data_path }}</strong> ../_data/</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">🔌</span>
+            <span class="issue-text"><strong>{{ t.settings_plugins_path }}</strong> ~/.ai_toolkit/plugins/</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('settingsForm');
+    const result = document.getElementById('result');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch('/api/settings/ide', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            result.innerHTML = `
+                <div class="alert alert-${data.success ? 'success' : 'error'}">
+                    <span class="alert-icon">${data.success ? '✅' : '❌'}</span>
+                    <span>${data.message}</span>
+                </div>
+            `;
+            result.classList.remove('hidden');
+            
+        } catch (error) {
+            result.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+            result.classList.remove('hidden');
+        }
+    });
+</script>
+{% endblock %}
+
+
+
+{% block title %}{{ t.nav_settings }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">⚙️</span>
+    <h1 class="page-title">{{ t.settings_title }}</h1>
+    <p class="page-subtitle">{{ t.settings_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form id="settingsForm">
+        <div class="form-group">
+            <label class="form-label">{{ t.settings_ide_label }}</label>
+            <p class="form-hint" style="margin-bottom: 1rem;">{{ t.settings_ide_hint }}</p>
+            
+            <div class="radio-cards">
+                {% for key, cfg in ide_configs.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="ide" value="{{ key }}"
+                           {% if key == current_ide %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ cfg.icon }}</span>
+                        <span class="radio-card-title">{{ cfg.name }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+            {{ t.settings_save_btn }}
+        </button>
+    </form>
+    
+    <div id="result" class="hidden" style="margin-top: 1.5rem;"></div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 2rem auto; text-align: center;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🛠️</div>
+    <h2>{{ t.settings_version_title }}</h2>
+    <p style="font-size: 2rem; font-weight: 800; color: var(--accent-blue);">v{{ version }}</p>
+    
+    <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+        <a href="https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding" target="_blank" class="btn btn-outline">
+            🔗 GitHub
+        </a>
+        <a href="https://t.me/MichaelSalmin" target="_blank" class="btn btn-outline">
+            📱 Telegram
+        </a>
+        <a href="/help" class="btn btn-outline">
+            📚 {{ t.nav_help }}
+        </a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1.5rem;">{{ t.settings_paths_title }}</h3>
+    
+    <div class="issue-list">
+        <div class="issue-item info">
+            <span class="issue-icon">🐍</span>
+            <span class="issue-text"><strong>{{ t.settings_venvs_path }}</strong> ../_venvs/</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">📊</span>
+            <span class="issue-text"><strong>{{ t.settings_data_path }}</strong> ../_data/</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">🔌</span>
+            <span class="issue-text"><strong>{{ t.settings_plugins_path }}</strong> ~/.ai_toolkit/plugins/</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('settingsForm');
+    const result = document.getElementById('result');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch('/api/settings/ide', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            result.innerHTML = `
+                <div class="alert alert-${data.success ? 'success' : 'error'}">
+                    <span class="alert-icon">${data.success ? '✅' : '❌'}</span>
+                    <span>${data.message}</span>
+                </div>
+            `;
+            result.classList.remove('hidden');
+            
+        } catch (error) {
+            result.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+            result.classList.remove('hidden');
+        }
+    });
+</script>
+{% endblock %}
+
+{% block title %}{{ t.nav_settings }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">⚙️</span>
+    <h1 class="page-title">{{ t.settings_title }}</h1>
+    <p class="page-subtitle">{{ t.settings_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form id="settingsForm">
+        <div class="form-group">
+            <label class="form-label">{{ t.settings_ide_label }}</label>
+            <p class="form-hint" style="margin-bottom: 1rem;">{{ t.settings_ide_hint }}</p>
+            
+            <div class="radio-cards">
+                {% for key, cfg in ide_configs.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="ide" value="{{ key }}"
+                           {% if key == current_ide %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ cfg.icon }}</span>
+                        <span class="radio-card-title">{{ cfg.name }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+            {{ t.settings_save_btn }}
+        </button>
+    </form>
+    
+    <div id="result" class="hidden" style="margin-top: 1.5rem;"></div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 2rem auto; text-align: center;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🛠️</div>
+    <h2>{{ t.settings_version_title }}</h2>
+    <p style="font-size: 2rem; font-weight: 800; color: var(--accent-blue);">v{{ version }}</p>
+    
+    <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+        <a href="https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding" target="_blank" class="btn btn-outline">
+            🔗 GitHub
+        </a>
+        <a href="https://t.me/MichaelSalmin" target="_blank" class="btn btn-outline">
+            📱 Telegram
+        </a>
+        <a href="/help" class="btn btn-outline">
+            📚 {{ t.nav_help }}
+        </a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1.5rem;">{{ t.settings_paths_title }}</h3>
+    
+    <div class="issue-list">
+        <div class="issue-item info">
+            <span class="issue-icon">🐍</span>
+            <span class="issue-text"><strong>{{ t.settings_venvs_path }}</strong> ../_venvs/</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">📊</span>
+            <span class="issue-text"><strong>{{ t.settings_data_path }}</strong> ../_data/</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">🔌</span>
+            <span class="issue-text"><strong>{{ t.settings_plugins_path }}</strong> ~/.ai_toolkit/plugins/</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('settingsForm');
+    const result = document.getElementById('result');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch('/api/settings/ide', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            result.innerHTML = `
+                <div class="alert alert-${data.success ? 'success' : 'error'}">
+                    <span class="alert-icon">${data.success ? '✅' : '❌'}</span>
+                    <span>${data.message}</span>
+                </div>
+            `;
+            result.classList.remove('hidden');
+            
+        } catch (error) {
+            result.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+            result.classList.remove('hidden');
+        }
+    });
+</script>
+{% endblock %}

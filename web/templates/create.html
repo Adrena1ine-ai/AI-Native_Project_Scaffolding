@@ -189,3 +189,575 @@
     });
 </script>
 {% endblock %}
+
+{% block title %}{{ t.nav_create }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🆕</span>
+    <h1 class="page-title">{{ t.create_title }}</h1>
+    <p class="page-subtitle">{{ t.create_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form id="createForm">
+        <!-- Project Name -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_name_label }}</label>
+            <input type="text" class="form-input" name="name" id="projectName"
+                   placeholder="my_awesome_bot" required
+                   pattern="[a-zA-Z0-9_-]+"
+                   title="{{ t.create_name_hint }}">
+            <div class="form-hint">{{ t.create_name_hint }}</div>
+        </div>
+        
+        <!-- Path -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_path_label }}</label>
+            <input type="text" class="form-input" name="path" id="projectPath"
+                   value="{{ home_path }}" required>
+            <div class="form-hint">{{ t.create_path_hint }}</div>
+        </div>
+        
+        <!-- Template -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_template_label }}</label>
+            <div class="radio-cards">
+                {% for key, tmpl in templates.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="template" value="{{ key }}" 
+                           {% if key == 'bot' %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ tmpl.icon }}</span>
+                        <span class="radio-card-title">{{ tmpl.name }}</span>
+                        <span class="radio-card-desc">{{ tmpl.description }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- IDE -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_ide_label }}</label>
+            <div class="radio-cards">
+                {% for key, cfg in ide_configs.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="ide" value="{{ key }}"
+                           {% if key == 'all' %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ cfg.icon }}</span>
+                        <span class="radio-card-title">{{ cfg.name }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Options -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_options_label }}</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_docker" checked>
+                    <span>{{ t.create_docker }}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_ci" checked>
+                    <span>{{ t.create_ci }}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_git" checked>
+                    <span>{{ t.create_git }}</span>
+                </label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
+            {{ t.create_btn }}
+        </button>
+    </form>
+    
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>{{ t.create_creating }}</span>
+    </div>
+    
+    <div id="result" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const translations = {
+        pathResult: "{{ t.create_path_result }}",
+        nextSteps: "{{ t.create_next_steps }}",
+        copy: "{{ t.create_copy }}",
+        another: "{{ t.create_another }}",
+        check: "{{ t.create_check }}"
+    };
+    
+    const form = document.getElementById('createForm');
+    const loader = document.getElementById('loader');
+    const result = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        submitBtn.disabled = true;
+        loader.classList.add('active');
+        result.classList.add('hidden');
+        
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            path: formData.get('path'),
+            template: formData.get('template'),
+            ide: formData.get('ide'),
+            include_docker: formData.get('include_docker') === 'on',
+            include_ci: formData.get('include_ci') === 'on',
+            include_git: formData.get('include_git') === 'on',
+        };
+        
+        try {
+            const response = await fetch('/api/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const res = await response.json();
+            
+            if (res.success) {
+                result.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <span>${res.message}</span>
+                    </div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.pathResult}</h3>
+                    <div class="output-box">${res.path}</div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.nextSteps}</h3>
+                    <div class="steps">
+                        ${res.next_steps.map((step, i) => `
+                            <div class="step">
+                                <span class="step-number">${i + 1}</span>
+                                <span>${step}</span>
+                                <button class="step-copy" onclick="copyToClipboard('${step}')">${translations.copy}</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 2rem; text-align: center;">
+                        <a href="/create" class="btn btn-primary">🆕 ${translations.another}</a>
+                        <a href="/health?path=${encodeURIComponent(res.path)}" class="btn btn-outline">🏥 ${translations.check}</a>
+                    </div>
+                `;
+            } else {
+                result.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${res.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            result.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        submitBtn.disabled = false;
+        result.classList.remove('hidden');
+    });
+</script>
+{% endblock %}
+
+
+
+{% block title %}{{ t.nav_create }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🆕</span>
+    <h1 class="page-title">{{ t.create_title }}</h1>
+    <p class="page-subtitle">{{ t.create_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form id="createForm">
+        <!-- Project Name -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_name_label }}</label>
+            <input type="text" class="form-input" name="name" id="projectName"
+                   placeholder="my_awesome_bot" required
+                   pattern="[a-zA-Z0-9_-]+"
+                   title="{{ t.create_name_hint }}">
+            <div class="form-hint">{{ t.create_name_hint }}</div>
+        </div>
+        
+        <!-- Path -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_path_label }}</label>
+            <input type="text" class="form-input" name="path" id="projectPath"
+                   value="{{ home_path }}" required>
+            <div class="form-hint">{{ t.create_path_hint }}</div>
+        </div>
+        
+        <!-- Template -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_template_label }}</label>
+            <div class="radio-cards">
+                {% for key, tmpl in templates.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="template" value="{{ key }}" 
+                           {% if key == 'bot' %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ tmpl.icon }}</span>
+                        <span class="radio-card-title">{{ tmpl.name }}</span>
+                        <span class="radio-card-desc">{{ tmpl.description }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- IDE -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_ide_label }}</label>
+            <div class="radio-cards">
+                {% for key, cfg in ide_configs.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="ide" value="{{ key }}"
+                           {% if key == 'all' %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ cfg.icon }}</span>
+                        <span class="radio-card-title">{{ cfg.name }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Options -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_options_label }}</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_docker" checked>
+                    <span>{{ t.create_docker }}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_ci" checked>
+                    <span>{{ t.create_ci }}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_git" checked>
+                    <span>{{ t.create_git }}</span>
+                </label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
+            {{ t.create_btn }}
+        </button>
+    </form>
+    
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>{{ t.create_creating }}</span>
+    </div>
+    
+    <div id="result" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const translations = {
+        pathResult: "{{ t.create_path_result }}",
+        nextSteps: "{{ t.create_next_steps }}",
+        copy: "{{ t.create_copy }}",
+        another: "{{ t.create_another }}",
+        check: "{{ t.create_check }}"
+    };
+    
+    const form = document.getElementById('createForm');
+    const loader = document.getElementById('loader');
+    const result = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        submitBtn.disabled = true;
+        loader.classList.add('active');
+        result.classList.add('hidden');
+        
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            path: formData.get('path'),
+            template: formData.get('template'),
+            ide: formData.get('ide'),
+            include_docker: formData.get('include_docker') === 'on',
+            include_ci: formData.get('include_ci') === 'on',
+            include_git: formData.get('include_git') === 'on',
+        };
+        
+        try {
+            const response = await fetch('/api/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const res = await response.json();
+            
+            if (res.success) {
+                result.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <span>${res.message}</span>
+                    </div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.pathResult}</h3>
+                    <div class="output-box">${res.path}</div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.nextSteps}</h3>
+                    <div class="steps">
+                        ${res.next_steps.map((step, i) => `
+                            <div class="step">
+                                <span class="step-number">${i + 1}</span>
+                                <span>${step}</span>
+                                <button class="step-copy" onclick="copyToClipboard('${step}')">${translations.copy}</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 2rem; text-align: center;">
+                        <a href="/create" class="btn btn-primary">🆕 ${translations.another}</a>
+                        <a href="/health?path=${encodeURIComponent(res.path)}" class="btn btn-outline">🏥 ${translations.check}</a>
+                    </div>
+                `;
+            } else {
+                result.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${res.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            result.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        submitBtn.disabled = false;
+        result.classList.remove('hidden');
+    });
+</script>
+{% endblock %}
+
+{% block title %}{{ t.nav_create }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🆕</span>
+    <h1 class="page-title">{{ t.create_title }}</h1>
+    <p class="page-subtitle">{{ t.create_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form id="createForm">
+        <!-- Project Name -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_name_label }}</label>
+            <input type="text" class="form-input" name="name" id="projectName"
+                   placeholder="my_awesome_bot" required
+                   pattern="[a-zA-Z0-9_-]+"
+                   title="{{ t.create_name_hint }}">
+            <div class="form-hint">{{ t.create_name_hint }}</div>
+        </div>
+        
+        <!-- Path -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_path_label }}</label>
+            <input type="text" class="form-input" name="path" id="projectPath"
+                   value="{{ home_path }}" required>
+            <div class="form-hint">{{ t.create_path_hint }}</div>
+        </div>
+        
+        <!-- Template -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_template_label }}</label>
+            <div class="radio-cards">
+                {% for key, tmpl in templates.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="template" value="{{ key }}" 
+                           {% if key == 'bot' %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ tmpl.icon }}</span>
+                        <span class="radio-card-title">{{ tmpl.name }}</span>
+                        <span class="radio-card-desc">{{ tmpl.description }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- IDE -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_ide_label }}</label>
+            <div class="radio-cards">
+                {% for key, cfg in ide_configs.items() %}
+                <label class="radio-card">
+                    <input type="radio" name="ide" value="{{ key }}"
+                           {% if key == 'all' %}checked{% endif %}>
+                    <div class="radio-card-content">
+                        <span class="radio-card-icon">{{ cfg.icon }}</span>
+                        <span class="radio-card-title">{{ cfg.name }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Options -->
+        <div class="form-group">
+            <label class="form-label">{{ t.create_options_label }}</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_docker" checked>
+                    <span>{{ t.create_docker }}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_ci" checked>
+                    <span>{{ t.create_ci }}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="include_git" checked>
+                    <span>{{ t.create_git }}</span>
+                </label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
+            {{ t.create_btn }}
+        </button>
+    </form>
+    
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>{{ t.create_creating }}</span>
+    </div>
+    
+    <div id="result" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const translations = {
+        pathResult: "{{ t.create_path_result }}",
+        nextSteps: "{{ t.create_next_steps }}",
+        copy: "{{ t.create_copy }}",
+        another: "{{ t.create_another }}",
+        check: "{{ t.create_check }}"
+    };
+    
+    const form = document.getElementById('createForm');
+    const loader = document.getElementById('loader');
+    const result = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        submitBtn.disabled = true;
+        loader.classList.add('active');
+        result.classList.add('hidden');
+        
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            path: formData.get('path'),
+            template: formData.get('template'),
+            ide: formData.get('ide'),
+            include_docker: formData.get('include_docker') === 'on',
+            include_ci: formData.get('include_ci') === 'on',
+            include_git: formData.get('include_git') === 'on',
+        };
+        
+        try {
+            const response = await fetch('/api/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const res = await response.json();
+            
+            if (res.success) {
+                result.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <span>${res.message}</span>
+                    </div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.pathResult}</h3>
+                    <div class="output-box">${res.path}</div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.nextSteps}</h3>
+                    <div class="steps">
+                        ${res.next_steps.map((step, i) => `
+                            <div class="step">
+                                <span class="step-number">${i + 1}</span>
+                                <span>${step}</span>
+                                <button class="step-copy" onclick="copyToClipboard('${step}')">${translations.copy}</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 2rem; text-align: center;">
+                        <a href="/create" class="btn btn-primary">🆕 ${translations.another}</a>
+                        <a href="/health?path=${encodeURIComponent(res.path)}" class="btn btn-outline">🏥 ${translations.check}</a>
+                    </div>
+                `;
+            } else {
+                result.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${res.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            result.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        submitBtn.disabled = false;
+        result.classList.remove('hidden');
+    });
+</script>
+{% endblock %}

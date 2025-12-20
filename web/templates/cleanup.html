@@ -274,3 +274,830 @@
     }
 </script>
 {% endblock %}
+
+{% block title %}{{ t.nav_cleanup }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🧹</span>
+    <h1 class="page-title">{{ t.cleanup_title }}</h1>
+    <p class="page-subtitle">{{ t.cleanup_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 0 auto;">
+    <div class="form-group">
+        <label class="form-label">{{ t.cleanup_path_label }}</label>
+        <div style="display: flex; gap: 1rem;">
+            <input type="text" class="form-input" id="projectPath"
+                   placeholder="{{ home_path }}/my_project" style="flex: 1;">
+            <button class="btn btn-primary" onclick="analyze()">
+                {{ t.cleanup_analyze_btn }}
+            </button>
+        </div>
+    </div>
+    
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>{{ t.cleanup_analyzing }}</span>
+    </div>
+    
+    <div id="analysisResult" class="hidden" style="margin-top: 2rem;"></div>
+    
+    <!-- IDE Detection Section -->
+    <div id="ideSection" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">🖥️ {{ lang == 'ru' and 'Обнаруженные IDE' or 'Detected IDEs' }}</h3>
+        <div id="ideCheckboxes" class="checkbox-group"></div>
+    </div>
+    
+    <div id="cleanupOptions" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">{{ t.cleanup_level_label }}</h3>
+        
+        <div class="radio-cards" style="grid-template-columns: repeat(3, 1fr);">
+            {% for key, level in cleanup_levels.items() %}
+            <label class="radio-card">
+                <input type="radio" name="level" value="{{ key }}"
+                       {% if key == 'safe' %}checked{% endif %}>
+                <div class="radio-card-content">
+                    <span class="radio-card-icon">
+                        {% if key == 'safe' %}🔒{% elif key == 'medium' %}⚡{% else %}🔥{% endif %}
+                    </span>
+                    <span class="radio-card-title">{{ level.name }}</span>
+                    <span class="radio-card-desc">{{ level.description }}</span>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <button class="btn btn-warning btn-lg btn-block" style="margin-top: 1.5rem;" onclick="cleanup()">
+            {{ t.cleanup_btn }}
+        </button>
+    </div>
+    
+    <div id="cleanupResult" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1rem;">{{ t.cleanup_what_checked }}</h3>
+    
+    <div class="issue-list">
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text">{{ t.cleanup_venv_inside }}</span>
+        </div>
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text">{{ t.cleanup_site_packages }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_large_logs }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_large_data }}</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">ℹ️</span>
+            <span class="issue-text">{{ t.cleanup_pycache }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_missing_configs }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const lang = "{{ lang }}";
+    const translations = {
+        noIssues: "{{ t.cleanup_no_issues }}",
+        issuesFound: "{{ t.cleanup_issues_found }}",
+        analyzeAgain: "{{ t.cleanup_analyze_btn }}",
+        detectedIdes: lang === 'ru' ? "Обнаруженные IDE" : "Detected IDEs",
+        noIdesFound: lang === 'ru' ? "IDE конфиги не найдены" : "No IDE configs found",
+        selectIdes: lang === 'ru' ? "Выберите IDE для работы:" : "Select IDEs to work with:"
+    };
+    
+    const ideNames = {
+        cursor: { icon: "💜", name: "Cursor" },
+        copilot: { icon: "💙", name: "GitHub Copilot" },
+        claude: { icon: "🟢", name: "Claude" },
+        windsurf: { icon: "🌊", name: "Windsurf" }
+    };
+    
+    const loader = document.getElementById('loader');
+    const analysisResult = document.getElementById('analysisResult');
+    const cleanupOptions = document.getElementById('cleanupOptions');
+    const cleanupResult = document.getElementById('cleanupResult');
+    const ideSection = document.getElementById('ideSection');
+    const ideCheckboxes = document.getElementById('ideCheckboxes');
+    
+    async function analyze() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) { alert(lang === 'ru' ? 'Введите путь к проекту' : 'Enter project path'); return; }
+        
+        loader.classList.add('active');
+        analysisResult.classList.add('hidden');
+        cleanupOptions.classList.add('hidden');
+        cleanupResult.classList.add('hidden');
+        ideSection.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Show detected IDEs
+                if (data.detected_ides) {
+                    showDetectedIdes(data.detected_ides);
+                }
+                
+                if (data.issues_count === 0) {
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <span class="alert-icon">✅</span>
+                            <span><strong>${data.project_name}</strong> — ${translations.noIssues}</span>
+                        </div>
+                    `;
+                } else {
+                    const severityIcons = { error: '❌', warning: '⚠️', info: 'ℹ️' };
+                    
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-warning">
+                            <span class="alert-icon">🔍</span>
+                            <span>${translations.issuesFound.replace('{n}', data.issues_count)} <strong>${data.project_name}</strong></span>
+                        </div>
+                        
+                        <div class="issue-list">
+                            ${data.issues.map(issue => `
+                                <div class="issue-item ${issue.severity}">
+                                    <span class="issue-icon">${severityIcons[issue.severity]}</span>
+                                    <span class="issue-text">${issue.message}</span>
+                                    ${issue.size_mb > 0 ? `<span class="issue-size">${issue.size_mb} MB</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    cleanupOptions.classList.remove('hidden');
+                }
+            } else {
+                analysisResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            analysisResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        analysisResult.classList.remove('hidden');
+    }
+    
+    function showDetectedIdes(detected) {
+        const hasAny = Object.values(detected).some(v => v);
+        
+        if (hasAny) {
+            let html = '';
+            for (const [ide, found] of Object.entries(detected)) {
+                const info = ideNames[ide];
+                html += `
+                    <label class="checkbox-item" style="${found ? '' : 'opacity: 0.5;'}">
+                        <input type="checkbox" name="ide_${ide}" ${found ? 'checked' : ''}>
+                        <span>${info.icon} ${info.name}</span>
+                        ${found ? '<span style="color: var(--accent-green); margin-left: auto;">✓ Found</span>' : 
+                                  '<span style="color: var(--text-muted); margin-left: auto;">Not found</span>'}
+                    </label>
+                `;
+            }
+            ideCheckboxes.innerHTML = html;
+            ideSection.classList.remove('hidden');
+        }
+    }
+    
+    async function cleanup() {
+        const path = document.getElementById('projectPath').value;
+        const level = document.querySelector('input[name="level"]:checked').value;
+        
+        const confirmMsg = lang === 'ru' 
+            ? `Выполнить очистку "${level}"? Рекомендуется сделать бэкап.`
+            : `Run "${level}" cleanup? Backup recommended.`;
+        
+        if (level !== 'safe' && !confirm(confirmMsg)) {
+            return;
+        }
+        
+        loader.classList.add('active');
+        cleanupResult.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/cleanup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path, level })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <span>${data.message}</span>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="analyze()">🔍 ${translations.analyzeAgain}</button>
+                    </div>
+                `;
+            } else {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            cleanupResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        cleanupResult.classList.remove('hidden');
+    }
+</script>
+{% endblock %}
+
+
+
+{% block title %}{{ t.nav_cleanup }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🧹</span>
+    <h1 class="page-title">{{ t.cleanup_title }}</h1>
+    <p class="page-subtitle">{{ t.cleanup_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 0 auto;">
+    <div class="form-group">
+        <label class="form-label">{{ t.cleanup_path_label }}</label>
+        <div style="display: flex; gap: 1rem;">
+            <input type="text" class="form-input" id="projectPath"
+                   placeholder="{{ home_path }}/my_project" style="flex: 1;">
+            <button class="btn btn-primary" onclick="analyze()">
+                {{ t.cleanup_analyze_btn }}
+            </button>
+        </div>
+    </div>
+    
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>{{ t.cleanup_analyzing }}</span>
+    </div>
+    
+    <div id="analysisResult" class="hidden" style="margin-top: 2rem;"></div>
+    
+    <!-- IDE Detection Section -->
+    <div id="ideSection" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">🖥️ {{ lang == 'ru' and 'Обнаруженные IDE' or 'Detected IDEs' }}</h3>
+        <div id="ideCheckboxes" class="checkbox-group"></div>
+    </div>
+    
+    <div id="cleanupOptions" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">{{ t.cleanup_level_label }}</h3>
+        
+        <div class="radio-cards" style="grid-template-columns: repeat(3, 1fr);">
+            {% for key, level in cleanup_levels.items() %}
+            <label class="radio-card">
+                <input type="radio" name="level" value="{{ key }}"
+                       {% if key == 'safe' %}checked{% endif %}>
+                <div class="radio-card-content">
+                    <span class="radio-card-icon">
+                        {% if key == 'safe' %}🔒{% elif key == 'medium' %}⚡{% else %}🔥{% endif %}
+                    </span>
+                    <span class="radio-card-title">{{ level.name }}</span>
+                    <span class="radio-card-desc">{{ level.description }}</span>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <button class="btn btn-warning btn-lg btn-block" style="margin-top: 1.5rem;" onclick="cleanup()">
+            {{ t.cleanup_btn }}
+        </button>
+    </div>
+    
+    <div id="cleanupResult" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1rem;">{{ t.cleanup_what_checked }}</h3>
+    
+    <div class="issue-list">
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text">{{ t.cleanup_venv_inside }}</span>
+        </div>
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text">{{ t.cleanup_site_packages }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_large_logs }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_large_data }}</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">ℹ️</span>
+            <span class="issue-text">{{ t.cleanup_pycache }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_missing_configs }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const lang = "{{ lang }}";
+    const translations = {
+        noIssues: "{{ t.cleanup_no_issues }}",
+        issuesFound: "{{ t.cleanup_issues_found }}",
+        analyzeAgain: "{{ t.cleanup_analyze_btn }}",
+        detectedIdes: lang === 'ru' ? "Обнаруженные IDE" : "Detected IDEs",
+        noIdesFound: lang === 'ru' ? "IDE конфиги не найдены" : "No IDE configs found",
+        selectIdes: lang === 'ru' ? "Выберите IDE для работы:" : "Select IDEs to work with:"
+    };
+    
+    const ideNames = {
+        cursor: { icon: "💜", name: "Cursor" },
+        copilot: { icon: "💙", name: "GitHub Copilot" },
+        claude: { icon: "🟢", name: "Claude" },
+        windsurf: { icon: "🌊", name: "Windsurf" }
+    };
+    
+    const loader = document.getElementById('loader');
+    const analysisResult = document.getElementById('analysisResult');
+    const cleanupOptions = document.getElementById('cleanupOptions');
+    const cleanupResult = document.getElementById('cleanupResult');
+    const ideSection = document.getElementById('ideSection');
+    const ideCheckboxes = document.getElementById('ideCheckboxes');
+    
+    async function analyze() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) { alert(lang === 'ru' ? 'Введите путь к проекту' : 'Enter project path'); return; }
+        
+        loader.classList.add('active');
+        analysisResult.classList.add('hidden');
+        cleanupOptions.classList.add('hidden');
+        cleanupResult.classList.add('hidden');
+        ideSection.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Show detected IDEs
+                if (data.detected_ides) {
+                    showDetectedIdes(data.detected_ides);
+                }
+                
+                if (data.issues_count === 0) {
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <span class="alert-icon">✅</span>
+                            <span><strong>${data.project_name}</strong> — ${translations.noIssues}</span>
+                        </div>
+                    `;
+                } else {
+                    const severityIcons = { error: '❌', warning: '⚠️', info: 'ℹ️' };
+                    
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-warning">
+                            <span class="alert-icon">🔍</span>
+                            <span>${translations.issuesFound.replace('{n}', data.issues_count)} <strong>${data.project_name}</strong></span>
+                        </div>
+                        
+                        <div class="issue-list">
+                            ${data.issues.map(issue => `
+                                <div class="issue-item ${issue.severity}">
+                                    <span class="issue-icon">${severityIcons[issue.severity]}</span>
+                                    <span class="issue-text">${issue.message}</span>
+                                    ${issue.size_mb > 0 ? `<span class="issue-size">${issue.size_mb} MB</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    cleanupOptions.classList.remove('hidden');
+                }
+            } else {
+                analysisResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            analysisResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        analysisResult.classList.remove('hidden');
+    }
+    
+    function showDetectedIdes(detected) {
+        const hasAny = Object.values(detected).some(v => v);
+        
+        if (hasAny) {
+            let html = '';
+            for (const [ide, found] of Object.entries(detected)) {
+                const info = ideNames[ide];
+                html += `
+                    <label class="checkbox-item" style="${found ? '' : 'opacity: 0.5;'}">
+                        <input type="checkbox" name="ide_${ide}" ${found ? 'checked' : ''}>
+                        <span>${info.icon} ${info.name}</span>
+                        ${found ? '<span style="color: var(--accent-green); margin-left: auto;">✓ Found</span>' : 
+                                  '<span style="color: var(--text-muted); margin-left: auto;">Not found</span>'}
+                    </label>
+                `;
+            }
+            ideCheckboxes.innerHTML = html;
+            ideSection.classList.remove('hidden');
+        }
+    }
+    
+    async function cleanup() {
+        const path = document.getElementById('projectPath').value;
+        const level = document.querySelector('input[name="level"]:checked').value;
+        
+        const confirmMsg = lang === 'ru' 
+            ? `Выполнить очистку "${level}"? Рекомендуется сделать бэкап.`
+            : `Run "${level}" cleanup? Backup recommended.`;
+        
+        if (level !== 'safe' && !confirm(confirmMsg)) {
+            return;
+        }
+        
+        loader.classList.add('active');
+        cleanupResult.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/cleanup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path, level })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <span>${data.message}</span>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="analyze()">🔍 ${translations.analyzeAgain}</button>
+                    </div>
+                `;
+            } else {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            cleanupResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        cleanupResult.classList.remove('hidden');
+    }
+</script>
+{% endblock %}
+
+{% block title %}{{ t.nav_cleanup }} — AI Toolkit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <span class="page-title-icon">🧹</span>
+    <h1 class="page-title">{{ t.cleanup_title }}</h1>
+    <p class="page-subtitle">{{ t.cleanup_subtitle }}</p>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 0 auto;">
+    <div class="form-group">
+        <label class="form-label">{{ t.cleanup_path_label }}</label>
+        <div style="display: flex; gap: 1rem;">
+            <input type="text" class="form-input" id="projectPath"
+                   placeholder="{{ home_path }}/my_project" style="flex: 1;">
+            <button class="btn btn-primary" onclick="analyze()">
+                {{ t.cleanup_analyze_btn }}
+            </button>
+        </div>
+    </div>
+    
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>{{ t.cleanup_analyzing }}</span>
+    </div>
+    
+    <div id="analysisResult" class="hidden" style="margin-top: 2rem;"></div>
+    
+    <!-- IDE Detection Section -->
+    <div id="ideSection" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">🖥️ {{ lang == 'ru' and 'Обнаруженные IDE' or 'Detected IDEs' }}</h3>
+        <div id="ideCheckboxes" class="checkbox-group"></div>
+    </div>
+    
+    <div id="cleanupOptions" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">{{ t.cleanup_level_label }}</h3>
+        
+        <div class="radio-cards" style="grid-template-columns: repeat(3, 1fr);">
+            {% for key, level in cleanup_levels.items() %}
+            <label class="radio-card">
+                <input type="radio" name="level" value="{{ key }}"
+                       {% if key == 'safe' %}checked{% endif %}>
+                <div class="radio-card-content">
+                    <span class="radio-card-icon">
+                        {% if key == 'safe' %}🔒{% elif key == 'medium' %}⚡{% else %}🔥{% endif %}
+                    </span>
+                    <span class="radio-card-title">{{ level.name }}</span>
+                    <span class="radio-card-desc">{{ level.description }}</span>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <button class="btn btn-warning btn-lg btn-block" style="margin-top: 1.5rem;" onclick="cleanup()">
+            {{ t.cleanup_btn }}
+        </button>
+    </div>
+    
+    <div id="cleanupResult" class="hidden" style="margin-top: 2rem;"></div>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 2rem auto;">
+    <h3 style="margin-bottom: 1rem;">{{ t.cleanup_what_checked }}</h3>
+    
+    <div class="issue-list">
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text">{{ t.cleanup_venv_inside }}</span>
+        </div>
+        <div class="issue-item error">
+            <span class="issue-icon">❌</span>
+            <span class="issue-text">{{ t.cleanup_site_packages }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_large_logs }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_large_data }}</span>
+        </div>
+        <div class="issue-item info">
+            <span class="issue-icon">ℹ️</span>
+            <span class="issue-text">{{ t.cleanup_pycache }}</span>
+        </div>
+        <div class="issue-item warning">
+            <span class="issue-icon">⚠️</span>
+            <span class="issue-text">{{ t.cleanup_missing_configs }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const lang = "{{ lang }}";
+    const translations = {
+        noIssues: "{{ t.cleanup_no_issues }}",
+        issuesFound: "{{ t.cleanup_issues_found }}",
+        analyzeAgain: "{{ t.cleanup_analyze_btn }}",
+        detectedIdes: lang === 'ru' ? "Обнаруженные IDE" : "Detected IDEs",
+        noIdesFound: lang === 'ru' ? "IDE конфиги не найдены" : "No IDE configs found",
+        selectIdes: lang === 'ru' ? "Выберите IDE для работы:" : "Select IDEs to work with:"
+    };
+    
+    const ideNames = {
+        cursor: { icon: "💜", name: "Cursor" },
+        copilot: { icon: "💙", name: "GitHub Copilot" },
+        claude: { icon: "🟢", name: "Claude" },
+        windsurf: { icon: "🌊", name: "Windsurf" }
+    };
+    
+    const loader = document.getElementById('loader');
+    const analysisResult = document.getElementById('analysisResult');
+    const cleanupOptions = document.getElementById('cleanupOptions');
+    const cleanupResult = document.getElementById('cleanupResult');
+    const ideSection = document.getElementById('ideSection');
+    const ideCheckboxes = document.getElementById('ideCheckboxes');
+    
+    async function analyze() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) { alert(lang === 'ru' ? 'Введите путь к проекту' : 'Enter project path'); return; }
+        
+        loader.classList.add('active');
+        analysisResult.classList.add('hidden');
+        cleanupOptions.classList.add('hidden');
+        cleanupResult.classList.add('hidden');
+        ideSection.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Show detected IDEs
+                if (data.detected_ides) {
+                    showDetectedIdes(data.detected_ides);
+                }
+                
+                if (data.issues_count === 0) {
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <span class="alert-icon">✅</span>
+                            <span><strong>${data.project_name}</strong> — ${translations.noIssues}</span>
+                        </div>
+                    `;
+                } else {
+                    const severityIcons = { error: '❌', warning: '⚠️', info: 'ℹ️' };
+                    
+                    analysisResult.innerHTML = `
+                        <div class="alert alert-warning">
+                            <span class="alert-icon">🔍</span>
+                            <span>${translations.issuesFound.replace('{n}', data.issues_count)} <strong>${data.project_name}</strong></span>
+                        </div>
+                        
+                        <div class="issue-list">
+                            ${data.issues.map(issue => `
+                                <div class="issue-item ${issue.severity}">
+                                    <span class="issue-icon">${severityIcons[issue.severity]}</span>
+                                    <span class="issue-text">${issue.message}</span>
+                                    ${issue.size_mb > 0 ? `<span class="issue-size">${issue.size_mb} MB</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    cleanupOptions.classList.remove('hidden');
+                }
+            } else {
+                analysisResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            analysisResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        analysisResult.classList.remove('hidden');
+    }
+    
+    function showDetectedIdes(detected) {
+        const hasAny = Object.values(detected).some(v => v);
+        
+        if (hasAny) {
+            let html = '';
+            for (const [ide, found] of Object.entries(detected)) {
+                const info = ideNames[ide];
+                html += `
+                    <label class="checkbox-item" style="${found ? '' : 'opacity: 0.5;'}">
+                        <input type="checkbox" name="ide_${ide}" ${found ? 'checked' : ''}>
+                        <span>${info.icon} ${info.name}</span>
+                        ${found ? '<span style="color: var(--accent-green); margin-left: auto;">✓ Found</span>' : 
+                                  '<span style="color: var(--text-muted); margin-left: auto;">Not found</span>'}
+                    </label>
+                `;
+            }
+            ideCheckboxes.innerHTML = html;
+            ideSection.classList.remove('hidden');
+        }
+    }
+    
+    async function cleanup() {
+        const path = document.getElementById('projectPath').value;
+        const level = document.querySelector('input[name="level"]:checked').value;
+        
+        const confirmMsg = lang === 'ru' 
+            ? `Выполнить очистку "${level}"? Рекомендуется сделать бэкап.`
+            : `Run "${level}" cleanup? Backup recommended.`;
+        
+        if (level !== 'safe' && !confirm(confirmMsg)) {
+            return;
+        }
+        
+        loader.classList.add('active');
+        cleanupResult.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/cleanup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path, level })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <span>${data.message}</span>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="analyze()">🔍 ${translations.analyzeAgain}</button>
+                    </div>
+                `;
+            } else {
+                cleanupResult.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <span>${data.message}</span>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            cleanupResult.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <span>${error.message}</span>
+                </div>
+            `;
+        }
+        
+        loader.classList.remove('active');
+        cleanupResult.classList.remove('hidden');
+    }
+</script>
+{% endblock %}

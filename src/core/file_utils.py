@@ -115,3 +115,24 @@ def move_dir(src: Path, dst: Path) -> bool:
         return True
     except Exception:
         return False
+
+    except Exception:
+        return False
+
+    except Exception:
+        return False
+
+    except Exception:
+        return False
+
+    except Exception:
+        return False
+
+    except Exception:
+        return False
+
+    except Exception:
+        return False
+
+    except Exception:
+        return False

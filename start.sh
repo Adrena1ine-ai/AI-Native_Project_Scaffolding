@@ -95,4 +95,3 @@ fi
 
 # Run
 $PYTHON -m web.app --port $PORT --no-browser
-

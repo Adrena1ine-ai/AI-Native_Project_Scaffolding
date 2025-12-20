@@ -292,4 +292,3 @@ RU = {
 def get_translations(lang: str) -> dict[str, str]:
     """Get translations dictionary for specified language."""
     return RU if lang == "ru" else EN
-
