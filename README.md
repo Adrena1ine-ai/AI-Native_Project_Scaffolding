@@ -99,11 +99,48 @@ pip install ai-toolkit
 
 # With Web Dashboard
 pip install ai-toolkit[web]
+```
 
-# From source
+### Installation from Source
+
+```bash
+# 1. Clone the repository
 git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+
+# 2. Go to project folder
 cd AI-Native_Project_Scaffolding
+
+# 3. Install with dependencies
 pip install -e ".[web]"
+
+# 4. Run (from this folder!)
+python -m web.app          # Web Dashboard
+python -m src.cli          # Interactive CLI
+```
+
+> ⚠️ **Important:** After installation from source, run commands from the `AI-Native_Project_Scaffolding` folder!
+
+### If `ai-toolkit` command doesn't work
+
+On Windows, you may need to add Scripts to PATH:
+
+```powershell
+# Check where scripts are installed
+pip show ai-toolkit
+
+# Add to PATH (replace with your path)
+$env:PATH += ";C:\Users\YourName\AppData\Roaming\Python\Python312\Scripts"
+
+# Now this works:
+ai-toolkit dashboard
+```
+
+Or just use Python module syntax:
+
+```bash
+python -m src.cli              # CLI
+python -m web.app              # Dashboard
+python -m web.app --port 3000  # Dashboard on different port
 ```
 
 ### Create Your First Project
