@@ -29,6 +29,7 @@ from src.commands.cleanup import analyze_project, cleanup_project
 from src.commands.health import health_check
 from src.commands.migrate import migrate_project
 from src.commands.update import update_project
+from src.core.manifesto import apply_manifesto_to_project, get_manifesto_rules
 
 from .i18n import get_translations, EN, RU
 
@@ -54,6 +55,11 @@ class CleanupRequest(BaseModel):
 
 class ProjectPath(BaseModel):
     path: str
+
+
+class ApplyManifestoRequest(BaseModel):
+    path: str
+    ides: list[str] = ["cursor", "copilot", "claude", "windsurf"]
 
 
 # ══════════════════════════════════════════════════════════════
@@ -255,6 +261,12 @@ def create_app() -> FastAPI:
         context = get_template_context(request)
         return templates.TemplateResponse("help.html", context)
     
+    @app.get("/existing", response_class=HTMLResponse)
+    async def existing_page(request: Request):
+        """Work with existing project page"""
+        context = get_template_context(request)
+        return templates.TemplateResponse("existing.html", context)
+    
     # ══════════════════════════════════════════════════════════════
     # API Endpoints
     # ══════════════════════════════════════════════════════════════
@@ -346,6 +358,47 @@ def create_app() -> FastAPI:
                 "detected_ides": detected,
                 "detected_list": detected_list,
                 "has_any": any(detected.values()),
+            }
+        except Exception as e:
+            return {"success": False, "message": str(e)}
+    
+    @app.post("/api/apply-manifesto")
+    async def api_apply_manifesto(data: ApplyManifestoRequest):
+        """API: Apply manifesto rules to existing project"""
+        try:
+            path = Path(data.path)
+            if not path.exists():
+                return {"success": False, "message": "Path does not exist"}
+            
+            # Apply manifesto rules
+            results = apply_manifesto_to_project(path)
+            
+            # Get manifesto info
+            rules = get_manifesto_rules()
+            
+            return {
+                "success": True,
+                "message": "Manifesto rules applied!",
+                "applied_files": results,
+                "main_rules": rules.main_rules,
+                "project_name": path.name,
+            }
+        except Exception as e:
+            return {"success": False, "message": str(e)}
+    
+    @app.get("/api/manifesto")
+    async def api_get_manifesto():
+        """API: Get manifesto rules"""
+        try:
+            rules = get_manifesto_rules()
+            return {
+                "success": True,
+                "main_rules": rules.main_rules,
+                "recommended_folders": rules.recommended_folders,
+                "external_folders": rules.external_folders,
+                "has_cursorignore": bool(rules.cursorignore_content),
+                "has_gitignore": bool(rules.gitignore_content),
+                "has_bootstrap": bool(rules.bootstrap_script),
             }
         except Exception as e:
             return {"success": False, "message": str(e)}
