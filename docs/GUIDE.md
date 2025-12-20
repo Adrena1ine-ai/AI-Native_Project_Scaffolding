@@ -50,24 +50,53 @@ When an AI assistant works with a project, it reads ALL files. If `venv/` is ins
 - Python 3.10 or higher
 - pip
 
-### Via pip (recommended)
+### 🚀 One-Command Start (Recommended)
+
+The easiest way to get started:
 
 ```bash
-pip install ai-toolkit
+# Download
+git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+cd AI-Native_Project_Scaffolding
+
+# Run ONE command!
+# Windows:
+.\start.ps1
+
+# Linux/macOS:
+./start.sh
 ```
 
-### From source
+This will:
+1. ✅ Check Python version
+2. ✅ Install dependencies
+3. ✅ Launch Web Dashboard
+4. ✅ Open browser with Welcome screen
+
+### Via pip
+
+```bash
+# Basic installation
+pip install ai-toolkit
+
+# With Web Dashboard
+pip install ai-toolkit[web]
+```
+
+### Manual from source
 
 ```bash
 git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
 cd AI-Native_Project_Scaffolding
-pip install -e .
+pip install -e ".[web]"
 ```
 
 ### Verify installation
 
 ```bash
 ai-toolkit --version
+# or
+python -m web.app --help
 ```
 
 ---

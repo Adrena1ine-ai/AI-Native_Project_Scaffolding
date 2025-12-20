@@ -50,24 +50,53 @@ AI Toolkit — это инструмент для создания Python-про
 - Python 3.10 или выше
 - pip
 
-### Через pip (рекомендуется)
+### 🚀 Запуск одной командой (Рекомендуется)
+
+Самый простой способ начать:
 
 ```bash
-pip install ai-toolkit
+# Скачать
+git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+cd AI-Native_Project_Scaffolding
+
+# Запустить ОДНУ команду!
+# Windows:
+.\start.ps1
+
+# Linux/macOS:
+./start.sh
 ```
 
-### Из исходников
+Скрипт автоматически:
+1. ✅ Проверит версию Python
+2. ✅ Установит зависимости
+3. ✅ Запустит Web Dashboard
+4. ✅ Откроет браузер с Welcome экраном
+
+### Через pip
+
+```bash
+# Базовая установка
+pip install ai-toolkit
+
+# С Web Dashboard
+pip install ai-toolkit[web]
+```
+
+### Вручную из исходников
 
 ```bash
 git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
 cd AI-Native_Project_Scaffolding
-pip install -e .
+pip install -e ".[web]"
 ```
 
 ### Проверка установки
 
 ```bash
 ai-toolkit --version
+# или
+python -m web.app --help
 ```
 
 ---
