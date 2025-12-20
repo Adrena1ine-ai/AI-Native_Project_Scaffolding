@@ -103,7 +103,6 @@ class Config:
 _config: Optional[Config] = None
 _current_ide: str = "all"
 _current_ai_targets: list[str] = ["cursor", "copilot", "claude", "windsurf"]
-_current_language: str = "en"  # Default language
 
 
 def get_config() -> Config:
@@ -129,61 +128,3 @@ def get_default_ide() -> str:
 def get_default_ai_targets() -> list[str]:
     """Получить AI targets для текущей IDE"""
     return _current_ai_targets.copy()
-
-
-# === Language settings ===
-
-def get_language() -> str:
-    """Get current language code ('en' or 'ru')."""
-    global _current_language
-    
-    # Try to load from user config
-    user_config_path = Path.home() / ".ai_toolkit" / "config.yaml"
-    if user_config_path.exists():
-        try:
-            with open(user_config_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-                _current_language = data.get("language", "en")
-        except Exception:
-            pass
-    
-    return _current_language
-
-
-def set_language(lang: str) -> None:
-    """
-    Set current language and save to user config.
-    
-    Args:
-        lang: Language code ('en' or 'ru')
-    """
-    global _current_language
-    _current_language = lang
-    
-    # Save to user config
-    user_config_dir = Path.home() / ".ai_toolkit"
-    user_config_dir.mkdir(parents=True, exist_ok=True)
-    
-    user_config_path = user_config_dir / "config.yaml"
-    
-    # Load existing config or create new
-    data: dict[str, Any] = {}
-    if user_config_path.exists():
-        try:
-            with open(user_config_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-        except Exception:
-            pass
-    
-    # Update language
-    data["language"] = lang
-    
-    # Save
-    with open(user_config_path, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
-
-
-def is_first_run() -> bool:
-    """Check if this is the first run (no user config exists)."""
-    user_config_path = Path.home() / ".ai_toolkit" / "config.yaml"
-    return not user_config_path.exists()
