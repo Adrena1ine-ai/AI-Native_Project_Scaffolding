@@ -1,22 +1,20 @@
 """
-🌐 AI Toolkit Web Dashboard — FastAPI Backend
+🌐 AI-Native Project Scaffolding Web Dashboard — FastAPI Backend
 
-Веб-интерфейс для управления проектами.
+Web interface for project management with i18n support.
 """
 
 from __future__ import annotations
 
 import sys
-import asyncio
 import webbrowser
 from pathlib import Path
-from datetime import datetime
 from typing import Any
 
-# Добавляем путь к src
+# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi import FastAPI, Request, Form, HTTPException
+from fastapi import FastAPI, Request, Form, HTTPException, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -24,13 +22,15 @@ from pydantic import BaseModel
 import uvicorn
 
 from src.core.constants import VERSION, TEMPLATES, IDE_CONFIGS, CLEANUP_LEVELS
-from src.core.config import set_default_ide, get_default_ide, get_default_ai_targets
+from src.core.config import set_default_ide, get_default_ide, get_default_ai_targets, get_language, set_language
 from src.core.file_utils import get_dir_size
 from src.commands.create import create_project
 from src.commands.cleanup import analyze_project, cleanup_project
 from src.commands.health import health_check
 from src.commands.migrate import migrate_project
 from src.commands.update import update_project
+
+from .i18n import get_translations, EN, RU
 
 
 # ══════════════════════════════════════════════════════════════
@@ -57,19 +57,58 @@ class ProjectPath(BaseModel):
 
 
 # ══════════════════════════════════════════════════════════════
+# Helper Functions
+# ══════════════════════════════════════════════════════════════
+
+def get_lang_from_request(request: Request) -> str:
+    """Get language from query param, cookie, or default."""
+    # Check query param first
+    lang = request.query_params.get("lang")
+    if lang in ("en", "ru"):
+        return lang
+    
+    # Check cookie
+    lang = request.cookies.get("lang")
+    if lang in ("en", "ru"):
+        return lang
+    
+    # Use global setting or default to English
+    return get_language() or "en"
+
+
+def get_template_context(request: Request, **extra: Any) -> dict[str, Any]:
+    """Get common template context with translations."""
+    lang = get_lang_from_request(request)
+    translations = get_translations(lang)
+    
+    return {
+        "request": request,
+        "version": VERSION,
+        "lang": lang,
+        "t": translations,
+        "templates": TEMPLATES,
+        "ide_configs": IDE_CONFIGS,
+        "cleanup_levels": CLEANUP_LEVELS,
+        "current_ide": get_default_ide(),
+        "home_path": str(Path.home()),
+        **extra,
+    }
+
+
+# ══════════════════════════════════════════════════════════════
 # Application
 # ══════════════════════════════════════════════════════════════
 
 def create_app() -> FastAPI:
-    """Создать FastAPI приложение"""
+    """Create FastAPI application"""
     
     app = FastAPI(
-        title="AI Toolkit Dashboard",
-        description="Веб-интерфейс для управления AI-friendly проектами",
+        title="AI-Native Project Scaffolding Dashboard",
+        description="Web interface for managing AI-friendly projects",
         version=VERSION,
     )
     
-    # Статические файлы
+    # Static files
     static_dir = Path(__file__).parent / "static"
     static_dir.mkdir(exist_ok=True)
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
@@ -80,69 +119,72 @@ def create_app() -> FastAPI:
     templates = Jinja2Templates(directory=str(templates_dir))
     
     # ══════════════════════════════════════════════════════════════
+    # Language Switch
+    # ══════════════════════════════════════════════════════════════
+    
+    @app.get("/set-lang/{lang}")
+    async def set_lang(lang: str, request: Request):
+        """Set language and redirect back."""
+        if lang not in ("en", "ru"):
+            lang = "en"
+        
+        set_language(lang)
+        
+        # Get referer or redirect to home
+        referer = request.headers.get("referer", "/")
+        
+        # Remove old lang param from referer
+        if "?" in referer:
+            base, params = referer.split("?", 1)
+            params_list = [p for p in params.split("&") if not p.startswith("lang=")]
+            if params_list:
+                referer = f"{base}?{'&'.join(params_list)}"
+            else:
+                referer = base
+        
+        response = RedirectResponse(url=referer, status_code=302)
+        response.set_cookie("lang", lang, max_age=31536000)  # 1 year
+        return response
+    
+    # ══════════════════════════════════════════════════════════════
     # HTML Pages
     # ══════════════════════════════════════════════════════════════
     
     @app.get("/", response_class=HTMLResponse)
     async def home(request: Request):
-        """Главная страница"""
-        return templates.TemplateResponse("index.html", {
-            "request": request,
-            "version": VERSION,
-            "templates": TEMPLATES,
-            "ide_configs": IDE_CONFIGS,
-            "cleanup_levels": CLEANUP_LEVELS,
-            "current_ide": get_default_ide(),
-            "home_path": str(Path.home()),
-        })
+        """Home page"""
+        context = get_template_context(request)
+        return templates.TemplateResponse("index.html", context)
     
     @app.get("/create", response_class=HTMLResponse)
     async def create_page(request: Request):
-        """Страница создания проекта"""
-        return templates.TemplateResponse("create.html", {
-            "request": request,
-            "version": VERSION,
-            "templates": TEMPLATES,
-            "ide_configs": IDE_CONFIGS,
-            "home_path": str(Path.home()),
-        })
+        """Create project page"""
+        context = get_template_context(request)
+        return templates.TemplateResponse("create.html", context)
     
     @app.get("/cleanup", response_class=HTMLResponse)
     async def cleanup_page(request: Request):
-        """Страница очистки"""
-        return templates.TemplateResponse("cleanup.html", {
-            "request": request,
-            "version": VERSION,
-            "cleanup_levels": CLEANUP_LEVELS,
-            "home_path": str(Path.home()),
-        })
+        """Cleanup page"""
+        context = get_template_context(request)
+        return templates.TemplateResponse("cleanup.html", context)
     
     @app.get("/health", response_class=HTMLResponse)
     async def health_page(request: Request):
-        """Страница health check"""
-        return templates.TemplateResponse("health.html", {
-            "request": request,
-            "version": VERSION,
-            "home_path": str(Path.home()),
-        })
+        """Health check page"""
+        context = get_template_context(request)
+        return templates.TemplateResponse("health.html", context)
     
     @app.get("/settings", response_class=HTMLResponse)
     async def settings_page(request: Request):
-        """Страница настроек"""
-        return templates.TemplateResponse("settings.html", {
-            "request": request,
-            "version": VERSION,
-            "ide_configs": IDE_CONFIGS,
-            "current_ide": get_default_ide(),
-        })
+        """Settings page"""
+        context = get_template_context(request)
+        return templates.TemplateResponse("settings.html", context)
     
     @app.get("/help", response_class=HTMLResponse)
     async def help_page(request: Request):
-        """Страница помощи"""
-        return templates.TemplateResponse("help.html", {
-            "request": request,
-            "version": VERSION,
-        })
+        """Help page"""
+        context = get_template_context(request)
+        return templates.TemplateResponse("help.html", context)
     
     # ══════════════════════════════════════════════════════════════
     # API Endpoints
@@ -150,13 +192,13 @@ def create_app() -> FastAPI:
     
     @app.post("/api/create")
     async def api_create_project(data: CreateProjectRequest):
-        """API: Создать проект"""
+        """API: Create project"""
         try:
-            # Устанавливаем IDE
+            # Set IDE
             ide_config = IDE_CONFIGS.get(data.ide, IDE_CONFIGS["all"])
             set_default_ide(data.ide, ide_config["ai_targets"])
             
-            # Создаём проект
+            # Create project
             result = create_project(
                 name=data.name,
                 path=Path(data.path),
@@ -171,7 +213,7 @@ def create_app() -> FastAPI:
                 project_path = Path(data.path) / data.name
                 return {
                     "success": True,
-                    "message": f"Проект {data.name} создан!",
+                    "message": f"Project {data.name} created!",
                     "path": str(project_path),
                     "next_steps": [
                         f"cd {project_path}",
@@ -181,18 +223,18 @@ def create_app() -> FastAPI:
                     ]
                 }
             else:
-                return {"success": False, "message": "Не удалось создать проект"}
+                return {"success": False, "message": "Failed to create project"}
                 
         except Exception as e:
             return {"success": False, "message": str(e)}
     
     @app.post("/api/analyze")
     async def api_analyze(data: ProjectPath):
-        """API: Анализ проекта"""
+        """API: Analyze project"""
         try:
             path = Path(data.path)
             if not path.exists():
-                return {"success": False, "message": "Путь не существует"}
+                return {"success": False, "message": "Path does not exist"}
             
             issues = analyze_project(path)
             
@@ -216,17 +258,17 @@ def create_app() -> FastAPI:
     
     @app.post("/api/cleanup")
     async def api_cleanup(data: CleanupRequest):
-        """API: Очистка проекта"""
+        """API: Cleanup project"""
         try:
             path = Path(data.path)
             if not path.exists():
-                return {"success": False, "message": "Путь не существует"}
+                return {"success": False, "message": "Path does not exist"}
             
             result = cleanup_project(path, data.level)
             
             return {
                 "success": result,
-                "message": "Очистка завершена!" if result else "Ошибка очистки"
+                "message": "Cleanup complete!" if result else "Cleanup failed"
             }
         except Exception as e:
             return {"success": False, "message": str(e)}
@@ -237,9 +279,9 @@ def create_app() -> FastAPI:
         try:
             path = Path(data.path)
             if not path.exists():
-                return {"success": False, "message": "Путь не существует"}
+                return {"success": False, "message": "Path does not exist"}
             
-            # Перехватываем вывод
+            # Capture output
             import io
             import re
             old_stdout = sys.stdout
@@ -251,7 +293,7 @@ def create_app() -> FastAPI:
                 output = buffer.getvalue()
                 sys.stdout = old_stdout
             
-            # Убираем ANSI коды
+            # Remove ANSI codes
             clean_output = re.sub(r'\x1b\[[0-9;]*m', '', output)
             
             return {
@@ -265,43 +307,43 @@ def create_app() -> FastAPI:
     
     @app.post("/api/migrate")
     async def api_migrate(data: ProjectPath):
-        """API: Миграция проекта"""
+        """API: Migrate project"""
         try:
             path = Path(data.path)
             if not path.exists():
-                return {"success": False, "message": "Путь не существует"}
+                return {"success": False, "message": "Path does not exist"}
             
             result = migrate_project(path, get_default_ai_targets())
             
             return {
                 "success": result,
-                "message": "Миграция завершена!" if result else "Ошибка миграции"
+                "message": "Migration complete!" if result else "Migration failed"
             }
         except Exception as e:
             return {"success": False, "message": str(e)}
     
     @app.post("/api/update")
     async def api_update(data: ProjectPath):
-        """API: Обновление проекта"""
+        """API: Update project"""
         try:
             path = Path(data.path)
             if not path.exists():
-                return {"success": False, "message": "Путь не существует"}
+                return {"success": False, "message": "Path does not exist"}
             
             result = update_project(path)
             
             return {
                 "success": result,
-                "message": f"Обновлено до v{VERSION}!" if result else "Ошибка обновления"
+                "message": f"Updated to v{VERSION}!" if result else "Update failed"
             }
         except Exception as e:
             return {"success": False, "message": str(e)}
     
     @app.post("/api/settings/ide")
     async def api_set_ide(ide: str = Form(...)):
-        """API: Установить IDE"""
+        """API: Set IDE"""
         if ide not in IDE_CONFIGS:
-            return {"success": False, "message": "Неизвестная IDE"}
+            return {"success": False, "message": "Unknown IDE"}
         
         cfg = IDE_CONFIGS[ide]
         set_default_ide(ide, cfg["ai_targets"])
@@ -313,12 +355,12 @@ def create_app() -> FastAPI:
     
     @app.get("/api/stats")
     async def api_stats():
-        """API: Статистика"""
-        # Ищем проекты в домашней папке
+        """API: Statistics"""
+        # Find projects in home folder
         home = Path.home()
         projects = []
         
-        # Проверяем типичные места
+        # Check typical locations
         for check_dir in [home, home / "projects", home / "dev", Path("/opt/bots")]:
             if check_dir.exists():
                 for item in check_dir.iterdir():
@@ -346,15 +388,15 @@ def create_app() -> FastAPI:
 
 
 def run_server(host: str = "127.0.0.1", port: int = 8080, open_browser: bool = True):
-    """Запустить сервер"""
+    """Run server"""
     print(f"""
 ╔══════════════════════════════════════════════════════════╗
-║  🌐 AI Toolkit Dashboard v{VERSION}                        ║
+║  🌐 AI-Native Project Scaffolding Dashboard v{VERSION}     ║
 ╠══════════════════════════════════════════════════════════╣
 ║                                                          ║
-║  Открой в браузере: http://{host}:{port}                 ║
+║  Open in browser: http://{host}:{port}                    ║
 ║                                                          ║
-║  Нажми Ctrl+C чтобы остановить                          ║
+║  Press Ctrl+C to stop                                    ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
 """)
@@ -368,4 +410,3 @@ def run_server(host: str = "127.0.0.1", port: int = 8080, open_browser: bool = T
 
 if __name__ == "__main__":
     run_server()
-

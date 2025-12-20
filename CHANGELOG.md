@@ -1,93 +1,93 @@
 # 📋 Changelog
 
-Все значимые изменения в проекте документируются здесь.
+All notable changes to this project are documented here.
 
-Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-проект следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+> 🇷🇺 [Русская версия](CHANGELOG.ru.md)
 
 ---
 
 ## [3.0.0] - 2024-12-20
 
-### 🎉 Первый публичный релиз!
+### 🎉 First Public Release!
 
-#### ✨ Added (Добавлено)
+#### ✨ Added
 
-**Создание проектов:**
-- 6 шаблонов проектов: `bot`, `webapp`, `fastapi`, `parser`, `full`, `monorepo`
-- Поддержка 4 AI-ассистентов: Cursor, GitHub Copilot, Claude, Windsurf
-- Docker интеграция (Dockerfile, docker-compose.yml)
+**Project Creation:**
+- 6 project templates: `bot`, `webapp`, `fastapi`, `parser`, `full`, `monorepo`
+- Support for 4 AI assistants: Cursor, GitHub Copilot, Claude, Windsurf
+- Docker integration (Dockerfile, docker-compose.yml)
 - CI/CD (GitHub Actions: ci.yml, cd.yml)
-- Dependabot для автообновления зависимостей
-- pre-commit хуки для защиты от venv в проекте
-- Git интеграция (автоматический init + первый коммит)
+- Dependabot for auto-updating dependencies
+- pre-commit hooks to prevent venv in project
+- Git integration (auto init + first commit)
 
-**Работа с существующими проектами:**
-- Анализ и очистка "грязных" проектов (3 уровня: safe/medium/full)
-- Миграция существующих проектов (добавление AI Toolkit)
-- Health check для проверки настроек
-- Обновление проектов до новой версии
+**Working with Existing Projects:**
+- Analysis and cleanup of "dirty" projects (3 levels: safe/medium/full)
+- Migration of existing projects (adding AI Toolkit)
+- Health check to verify settings
+- Project updates to new version
 
-**Инструменты:**
-- Context Switcher для фокуса AI на нужных модулях
-- Система плагинов для расширения функционала
-- Поддержка toolkit.yaml для кастомных настроек
+**Tools:**
+- Context Switcher to focus AI on needed modules
+- Plugin system for extending functionality
+- Support for toolkit.yaml for custom settings
 
-**Интерфейсы:**
-- 🌐 Web Dashboard (FastAPI + красивый UI)
+**Interfaces:**
+- 🌐 Web Dashboard (FastAPI + beautiful UI)
 - 🖥️ GUI (Tkinter)
-- 💻 Интерактивный CLI
-- ⌨️ CLI с аргументами
+- 💻 Interactive CLI
+- ⌨️ CLI with arguments
 
-**AI конфиги:**
-- `.cursorrules` + `.cursorignore` для Cursor
-- `.github/copilot-instructions.md` для GitHub Copilot
-- `CLAUDE.md` для Claude
-- `.windsurfrules` для Windsurf
-- `_AI_INCLUDE/` с правилами проекта
+**AI Configs:**
+- `.cursorrules` + `.cursorignore` for Cursor
+- `.github/copilot-instructions.md` for GitHub Copilot
+- `CLAUDE.md` for Claude
+- `.windsurfrules` for Windsurf
+- `_AI_INCLUDE/` with project rules
 
-**Скрипты:**
-- `bootstrap.sh` / `bootstrap.ps1` — создание venv ВНЕ проекта
-- `health_check.sh` — проверка настроек
+**Scripts:**
+- `bootstrap.sh` / `bootstrap.ps1` — create venv OUTSIDE project
+- `health_check.sh` — verify configuration
+- `context.py` — hide/show modules from AI
 - `check_repo_clean.sh` — pre-commit hook
-- `context.py` — Context Switcher
 
-**Разработка:**
-- Полная типизация (mypy strict)
-- pytest тесты
-- ruff для линтинга
-- pyproject.toml для современного packaging
+**Documentation:**
+- README.md with detailed description
+- CONTRIBUTING.md for contributors
+- CHANGELOG.md
+- docs/GUIDE.md — complete guide
+- docs/FAQ.md — frequently asked questions
+- docs/QUICK_START.md — quick start
+
+**Localization:**
+- Full English and Russian support
+- Language selection at first launch
+- Language switcher in Web Dashboard
+- All documentation in both languages
+
+#### 🛡️ Security
+
+- venv stored OUTSIDE project — AI doesn't read dependencies
+- `.cursorignore` / `.gitignore` — proper file exclusion
+- No sensitive data committed (pre-commit hooks)
 
 ---
 
-## [2.0.0] - 2024-11-15 (Internal)
+## [2.0.0] - 2024-12-01 (internal)
 
 ### Changed
-- Переход на модульную архитектуру
-- Разделение на src/commands, src/generators, src/core
-
-### Added
-- Cleanup команда
-- Migrate команда
-- Health check
+- Modular architecture
+- Separated generators
+- Added tests
 
 ---
 
-## [1.0.0] - 2024-10-01 (Internal)
+## [1.0.0] - 2024-11-01 (internal)
 
 ### Added
-- Первая версия (builder.py)
-- Базовая структура проекта
-- Context Switcher (прототип)
-- Bootstrap скрипты
-
----
-
-## Типы изменений
-
-- `Added` — новые функции
-- `Changed` — изменения в существующих функциях
-- `Deprecated` — функции, которые будут удалены
-- `Removed` — удалённые функции
-- `Fixed` — исправления багов
-- `Security` — исправления безопасности
+- Initial prototype
+- Basic project creation
+- Cursor support

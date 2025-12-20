@@ -1,268 +1,167 @@
 {% extends "base.html" %}
 
-{% block title %}Помощь — AI Toolkit{% endblock %}
+{% block title %}{{ t.nav_help }} — AI Toolkit{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <span class="page-title-icon">📚</span>
-    <h1 class="page-title">Как это работает?</h1>
-    <p class="page-subtitle">
-        Простое руководство для начинающих
-    </p>
+    <h1 class="page-title">{{ t.help_title }}</h1>
+    <p class="page-subtitle">{{ t.help_subtitle }}</p>
 </div>
 
-<!-- Главная проблема -->
-<div class="card" style="max-width: 900px; margin: 0 auto 2rem;">
-    <h2 style="text-align: center; margin-bottom: 1.5rem;">❌ Проблема</h2>
-    
-    <div style="text-align: center; max-width: 600px; margin: 0 auto;">
-        <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-            Когда AI-ассистент (Cursor, Copilot) работает с твоим проектом,
-            он часто создаёт <strong style="color: var(--accent-red);">venv/</strong> прямо в папке проекта.
-        </p>
+<!-- Problem vs Solution -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+    <div class="card" style="border-color: var(--accent-red);">
+        <h2 style="color: var(--accent-red); margin-bottom: 1rem;">{{ t.help_problem_title }}</h2>
+        <p style="margin-bottom: 1rem;">{{ t.help_problem_text | safe }}</p>
         
-        <div class="output-box" style="text-align: left;">
-my_project/
-├── venv/              ← 500 MB мусора! 😱
-│   ├── lib/
-│   │   └── python3.12/
-│   │       └── site-packages/  ← 10,000+ файлов
-│   └── ...
-├── bot/
+        <p style="margin-bottom: 0.5rem;"><strong>{{ t.help_problem_leads_to }}</strong></p>
+        <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+            <li style="margin-bottom: 0.5rem;">🐌 {{ t.help_problem_slow }}</li>
+            <li style="margin-bottom: 0.5rem;">🤯 {{ t.help_problem_confused }}</li>
+            <li>💾 {{ t.help_problem_bloat }}</li>
+        </ul>
+        
+        <div class="output-box" style="margin-top: 1rem;">
+my_bot/
+├── venv/               ❌ 500+ MB
+├── __pycache__/        ❌
+├── logs/               ❌
 └── main.py
         </div>
-        
-        <p style="margin-top: 1.5rem; color: var(--accent-red); font-weight: 700; font-size: 1.1rem;">
-            Это приводит к:
-        </p>
-        
-        <div class="issue-list" style="margin-top: 1rem; text-align: left;">
-            <div class="issue-item error">
-                <span class="issue-icon">🐌</span>
-                <span class="issue-text">IDE тормозит — индексирует тысячи файлов</span>
-            </div>
-            <div class="issue-item error">
-                <span class="issue-icon">🤯</span>
-                <span class="issue-text">AI путается — читает код из зависимостей</span>
-            </div>
-            <div class="issue-item error">
-                <span class="issue-icon">💾</span>
-                <span class="issue-text">Репозиторий раздувается — 500+ MB</span>
-            </div>
-        </div>
     </div>
-</div>
-
-<!-- Решение -->
-<div class="card" style="max-width: 900px; margin: 0 auto 2rem; background: linear-gradient(135deg, rgba(56, 239, 125, 0.1), rgba(17, 153, 142, 0.1));">
-    <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--accent-green);">✅ Решение</h2>
     
-    <div style="text-align: center; max-width: 600px; margin: 0 auto;">
-        <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-            AI Toolkit хранит venv <strong style="color: var(--accent-green);">ВНЕ проекта</strong>:
-        </p>
+    <div class="card" style="border-color: var(--accent-green);">
+        <h2 style="color: var(--accent-green); margin-bottom: 1rem;">{{ t.help_solution_title }}</h2>
+        <p style="margin-bottom: 1rem;">{{ t.help_solution_text | safe }}</p>
         
-        <div class="output-box" style="text-align: left;">
+        <p style="margin-bottom: 0.5rem;"><strong>{{ t.help_solution_result }}</strong></p>
+        <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+            <li style="margin-bottom: 0.5rem;">⚡ {{ t.help_solution_fast }}</li>
+            <li style="margin-bottom: 0.5rem;">🧠 {{ t.help_solution_smart }}</li>
+            <li>🪶 {{ t.help_solution_light }}</li>
+        </ul>
+        
+        <div class="output-box" style="margin-top: 1rem;">
 projects/
-├── _venvs/                      ← Все venv здесь!
-│   ├── my_project-venv/
-│   └── another_project-venv/
+├── _venvs/             ✅ Outside!
+│   └── my_bot-venv/
 │
-├── my_project/                  ← Чистый проект!
-│   ├── bot/
-│   ├── _AI_INCLUDE/             ← Правила для AI
-│   ├── scripts/
-│   │   └── bootstrap.sh         ← Создаёт venv снаружи
-│   └── main.py
-│
-└── another_project/
-        </div>
-        
-        <p style="margin-top: 1.5rem; color: var(--accent-green); font-weight: 700; font-size: 1.1rem;">
-            Результат:
-        </p>
-        
-        <div class="issue-list" style="margin-top: 1rem; text-align: left;">
-            <div class="issue-item" style="border-left-color: var(--accent-green);">
-                <span class="issue-icon">🚀</span>
-                <span class="issue-text">IDE работает быстро</span>
-            </div>
-            <div class="issue-item" style="border-left-color: var(--accent-green);">
-                <span class="issue-icon">🧠</span>
-                <span class="issue-text">AI понимает только твой код</span>
-            </div>
-            <div class="issue-item" style="border-left-color: var(--accent-green);">
-                <span class="issue-icon">📦</span>
-                <span class="issue-text">Проект занимает мало места</span>
-            </div>
+└── my_bot/             ✅ Clean!
+    ├── src/
+    ├── _AI_INCLUDE/
+    └── main.py
         </div>
     </div>
 </div>
 
-<!-- Как использовать -->
-<div class="card" style="max-width: 900px; margin: 0 auto 2rem;">
-    <h2 style="text-align: center; margin-bottom: 1.5rem;">🚀 Как использовать?</h2>
+<!-- How to Use -->
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">{{ t.help_how_to_use }}</h2>
     
-    <div class="steps" style="max-width: 600px; margin: 0 auto;">
+    <div class="steps">
         <div class="step">
             <span class="step-number">1</span>
-            <span>Открой <a href="/create" style="color: var(--accent-blue);">страницу создания</a></span>
+            <span>pip install ai-toolkit</span>
         </div>
         <div class="step">
             <span class="step-number">2</span>
-            <span>Введи название проекта</span>
+            <span>ai-toolkit</span>
         </div>
         <div class="step">
             <span class="step-number">3</span>
-            <span>Выбери шаблон (бот, API, парсер...)</span>
-        </div>
-        <div class="step">
-            <span class="step-number">4</span>
-            <span>Нажми "Создать проект"</span>
-        </div>
-        <div class="step">
-            <span class="step-number">5</span>
-            <span>Запусти <code>./scripts/bootstrap.sh</code> для создания venv</span>
-        </div>
-        <div class="step">
-            <span class="step-number">6</span>
-            <span>Активируй venv и работай!</span>
+            <span>Select IDE → Create project → Ready! 🎉</span>
         </div>
     </div>
 </div>
 
-<!-- Что создаётся -->
-<div class="card" style="max-width: 900px; margin: 0 auto 2rem;">
-    <h2 style="text-align: center; margin-bottom: 1.5rem;">📁 Что создаётся?</h2>
+<!-- What is Created -->
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">{{ t.help_what_created }}</h2>
     
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-        <div>
-            <h4 style="color: var(--accent-blue); margin-bottom: 0.75rem;">🤖 Для AI-ассистентов</h4>
-            <ul style="color: var(--text-secondary); padding-left: 1.5rem; line-height: 2;">
-                <li><code>_AI_INCLUDE/</code> — правила проекта</li>
-                <li><code>.cursorrules</code> — для Cursor</li>
-                <li><code>.cursorignore</code> — что не индексировать</li>
-                <li><code>CLAUDE.md</code> — для Claude</li>
-            </ul>
-        </div>
-        
-        <div>
-            <h4 style="color: var(--accent-green); margin-bottom: 0.75rem;">🔧 Скрипты</h4>
-            <ul style="color: var(--text-secondary); padding-left: 1.5rem; line-height: 2;">
-                <li><code>bootstrap.sh</code> — создаёт venv вне проекта</li>
-                <li><code>health_check.sh</code> — проверяет настройки</li>
-                <li><code>context.py</code> — скрывает модули от AI</li>
-            </ul>
-        </div>
-        
-        <div>
-            <h4 style="color: var(--accent-purple); margin-bottom: 0.75rem;">📦 Проект</h4>
-            <ul style="color: var(--text-secondary); padding-left: 1.5rem; line-height: 2;">
-                <li><code>bot/</code> — код бота</li>
-                <li><code>database/</code> — работа с БД</li>
-                <li><code>config.py</code> — настройки</li>
-                <li><code>requirements.txt</code> — зависимости</li>
-            </ul>
-        </div>
-        
-        <div>
-            <h4 style="color: var(--accent-orange); margin-bottom: 0.75rem;">🐳 DevOps</h4>
-            <ul style="color: var(--text-secondary); padding-left: 1.5rem; line-height: 2;">
-                <li><code>Dockerfile</code></li>
-                <li><code>docker-compose.yml</code></li>
-                <li><code>.github/workflows/</code> — CI/CD</li>
-            </ul>
-        </div>
+    <div class="output-box">
+my_project/
+├── 📁 src/                    # Your code
+│   └── main.py
+│
+├── 📁 _AI_INCLUDE/            # Rules for AI
+│   ├── PROJECT_CONVENTIONS.md # What AI can/can't do
+│   └── WHERE_IS_WHAT.md      # Architecture map
+│
+├── 📁 scripts/
+│   ├── bootstrap.sh          # Creates venv outside
+│   ├── context.py            # Hides modules from AI
+│   └── health_check.sh       # Checks project health
+│
+├── 📁 .github/
+│   ├── copilot-instructions.md
+│   └── workflows/
+│       ├── ci.yml            # Linting, tests
+│       └── cd.yml            # Auto-deploy
+│
+├── .cursorrules              # Cursor AI rules
+├── .cursorignore             # What Cursor ignores
+├── CLAUDE.md                 # Claude AI rules
+├── .windsurfrules            # Windsurf rules
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── pyproject.toml
     </div>
 </div>
 
 <!-- Context Switcher -->
-<div class="card" style="max-width: 900px; margin: 0 auto 2rem;">
-    <h2 style="text-align: center; margin-bottom: 1.5rem;">🎮 Context Switcher</h2>
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1rem;">{{ t.help_context_switcher }}</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">{{ t.help_context_text }}</p>
     
-    <div style="text-align: center; max-width: 600px; margin: 0 auto;">
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-            Если AI начинает тупить на большом проекте — скрой ненужные модули!
-        </p>
-        
-        <div class="output-box" style="text-align: left;">
-# Фокус на боте (скрывает webapp, api, parser)
-python scripts/context.py bot
+    <div class="output-box">
+# Show help
+python scripts/context.py
 
-# Фокус на webapp
-python scripts/context.py webapp
+# Hide "parser" module from AI
+python scripts/context.py hide parser
 
-# Показать всё
-python scripts/context.py all
+# Show it again
+python scripts/context.py show parser
 
-# Показать статус
-python scripts/context.py status
-        </div>
-        
-        <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
-            Это обновляет <code>.cursorignore</code> и AI видит только нужный модуль
-        </p>
+# List hidden modules
+python scripts/context.py list
     </div>
 </div>
 
 <!-- FAQ -->
-<div class="card" style="max-width: 900px; margin: 0 auto;">
-    <h2 style="text-align: center; margin-bottom: 1.5rem;">❓ Частые вопросы</h2>
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">{{ t.help_faq }}</h2>
     
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
         <div>
-            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">
-                Зачем хранить venv вне проекта?
-            </h4>
-            <p style="color: var(--text-secondary);">
-                AI-ассистенты индексируют все файлы в проекте. Если venv внутри — 
-                они читают тысячи файлов из зависимостей и путаются. 
-                Когда venv снаружи — AI видит только твой код.
-            </p>
+            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">❓ {{ t.help_faq_why_venv }}</h4>
+            <p style="color: var(--text-secondary);">{{ t.help_faq_why_venv_answer }}</p>
         </div>
         
         <div>
-            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">
-                Как активировать venv если он снаружи?
-            </h4>
-            <div class="output-box" style="margin-top: 0.5rem;">
-# Linux/Mac
-source ../_venvs/my_project-venv/bin/activate
-
-# Windows
-..\_venvs\my_project-venv\Scripts\Activate.ps1
-            </div>
+            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">❓ {{ t.help_faq_activate }}</h4>
+            <div class="output-box">source ../_venvs/my_project-venv/bin/activate</div>
         </div>
         
         <div>
-            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">
-                Что такое _AI_INCLUDE?
-            </h4>
-            <p style="color: var(--text-secondary);">
-                Папка с правилами для AI. Там описано: где что лежит, 
-                что можно делать, чего нельзя. AI читает эти файлы первым делом.
-            </p>
+            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">❓ {{ t.help_faq_ai_include }}</h4>
+            <p style="color: var(--text-secondary);">{{ t.help_faq_ai_include_answer }}</p>
         </div>
         
         <div>
-            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">
-                Можно ли использовать с существующим проектом?
-            </h4>
-            <p style="color: var(--text-secondary);">
-                Да! Используй <a href="/cleanup" style="color: var(--accent-blue);">Очистку</a> 
-                для анализа и переноса venv, или 
-                <a href="/health" style="color: var(--accent-blue);">Миграцию</a> 
-                для добавления конфигов.
-            </p>
+            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">❓ {{ t.help_faq_existing }}</h4>
+            <p style="color: var(--text-secondary);">{{ t.help_faq_existing_answer }}</p>
         </div>
     </div>
 </div>
 
-<!-- Кнопка начать -->
-<div style="text-align: center; margin-top: 3rem;">
+<!-- CTA -->
+<div style="text-align: center; margin: 3rem 0;">
     <a href="/create" class="btn btn-primary btn-lg">
-        🚀 Создать первый проект
+        {{ t.help_start_btn }}
     </a>
 </div>
 {% endblock %}
-

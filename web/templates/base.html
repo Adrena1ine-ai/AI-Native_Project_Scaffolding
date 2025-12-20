@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI Toolkit{% endblock %}</title>
+    <title>{% block title %}AI-Native Project Scaffolding{% endblock %}</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,23 +12,18 @@
     
     <style>
         /* ═══════════════════════════════════════════════════════════
-           🎨 AI Toolkit Dashboard — Styles
-           Тема: Gradient Dark с яркими акцентами
+           🎨 AI-Native Project Scaffolding Dashboard — Styles
+           Theme: Gradient Dark with bright accents
            ═══════════════════════════════════════════════════════════ */
         
         :root {
-            /* Основные цвета */
             --bg-primary: #0f0f1a;
             --bg-secondary: #1a1a2e;
             --bg-card: #16213e;
             --bg-hover: #1f2b4d;
-            
-            /* Текст */
             --text-primary: #e8e8ff;
             --text-secondary: #a0a0c0;
             --text-muted: #6a6a8a;
-            
-            /* Акценты */
             --accent-blue: #4facfe;
             --accent-purple: #9d50bb;
             --accent-pink: #f093fb;
@@ -36,32 +31,20 @@
             --accent-yellow: #f9d423;
             --accent-red: #ff6b6b;
             --accent-orange: #ff9a44;
-            
-            /* Градиенты */
             --gradient-primary: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             --gradient-warning: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
             --gradient-purple: linear-gradient(135deg, #9d50bb 0%, #6e48aa 100%);
-            --gradient-pink: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            
-            /* Размеры */
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 20px;
-            --radius-xl: 28px;
-            
-            /* Тени */
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
             --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
             --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
             --shadow-glow: 0 0 30px rgba(79, 172, 254, 0.3);
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Nunito', -apple-system, sans-serif;
@@ -71,10 +54,7 @@
             line-height: 1.6;
         }
         
-        /* ═══════════════════════════════════════════════════════════
-           Навигация
-           ═══════════════════════════════════════════════════════════ */
-        
+        /* Navbar */
         .navbar {
             background: var(--bg-secondary);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -101,10 +81,7 @@
             text-decoration: none;
         }
         
-        .logo-icon {
-            font-size: 2rem;
-            animation: float 3s ease-in-out infinite;
-        }
+        .logo-icon { font-size: 2rem; animation: float 3s ease-in-out infinite; }
         
         @keyframes float {
             0%, 100% { transform: translateY(0); }
@@ -120,16 +97,9 @@
             background-clip: text;
         }
         
-        .logo-version {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
+        .logo-version { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
         
-        .nav-links {
-            display: flex;
-            gap: 0.5rem;
-        }
+        .nav-links { display: flex; gap: 0.5rem; align-items: center; }
         
         .nav-link {
             display: flex;
@@ -144,62 +114,43 @@
             transition: all 0.2s ease;
         }
         
-        .nav-link:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
+        .nav-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-link.active { background: var(--gradient-primary); color: white; }
+        .nav-link-icon { font-size: 1.2rem; }
+        
+        /* Language Switcher */
+        .lang-switcher {
+            display: flex;
+            gap: 4px;
+            margin-left: 1rem;
+            padding: 4px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
         }
         
-        .nav-link.active {
-            background: var(--gradient-primary);
-            color: white;
+        .lang-btn {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
         }
         
-        .nav-link-icon {
-            font-size: 1.2rem;
-        }
+        .lang-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+        .lang-btn.active { background: var(--accent-blue); color: white; }
         
-        /* ═══════════════════════════════════════════════════════════
-           Контейнер
-           ═══════════════════════════════════════════════════════════ */
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        /* Page Headers */
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .page-title-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+        .page-subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
         
-        /* ═══════════════════════════════════════════════════════════
-           Заголовки страниц
-           ═══════════════════════════════════════════════════════════ */
-        
-        .page-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-        
-        .page-title-icon {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 1rem;
-        }
-        
-        .page-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Карточки
-           ═══════════════════════════════════════════════════════════ */
-        
+        /* Cards */
         .card {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
@@ -208,38 +159,13 @@
             transition: all 0.3s ease;
         }
         
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: rgba(79, 172, 254, 0.3);
-        }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(79, 172, 254, 0.3); }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .card-description { color: var(--text-secondary); font-size: 0.95rem; }
         
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .card-description {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Кнопки
-           ═══════════════════════════════════════════════════════════ */
-        
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -256,82 +182,22 @@
             text-decoration: none;
         }
         
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
-            box-shadow: var(--shadow-glow);
-        }
+        .btn-primary { background: var(--gradient-primary); color: white; box-shadow: var(--shadow-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 172, 254, 0.5); }
+        .btn-success { background: var(--gradient-success); color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(56, 239, 125, 0.4); }
+        .btn-warning { background: var(--gradient-warning); color: white; }
+        .btn-purple { background: var(--gradient-purple); color: white; }
+        .btn-outline { background: transparent; color: var(--accent-blue); border: 2px solid var(--accent-blue); }
+        .btn-outline:hover { background: var(--accent-blue); color: white; }
+        .btn-lg { padding: 18px 36px; font-size: 1.1rem; }
+        .btn-block { width: 100%; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px rgba(79, 172, 254, 0.5);
-        }
-        
-        .btn-success {
-            background: var(--gradient-success);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px rgba(56, 239, 125, 0.4);
-        }
-        
-        .btn-warning {
-            background: var(--gradient-warning);
-            color: white;
-        }
-        
-        .btn-purple {
-            background: var(--gradient-purple);
-            color: white;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            color: var(--accent-blue);
-            border: 2px solid var(--accent-blue);
-        }
-        
-        .btn-outline:hover {
-            background: var(--accent-blue);
-            color: white;
-        }
-        
-        .btn-lg {
-            padding: 18px 36px;
-            font-size: 1.1rem;
-        }
-        
-        .btn-block {
-            width: 100%;
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Формы
-           ═══════════════════════════════════════════════════════════ */
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-        
-        .form-hint {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
+        /* Forms */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-weight: 700; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .form-hint { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
         
         .form-input {
             width: 100%;
@@ -345,35 +211,13 @@
             transition: all 0.2s ease;
         }
         
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.2);
-        }
+        .form-input:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.2); }
+        .form-input::placeholder { color: var(--text-muted); }
         
-        .form-input::placeholder {
-            color: var(--text-muted);
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Радио-карточки (для выбора шаблона)
-           ═══════════════════════════════════════════════════════════ */
-        
-        .radio-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-        }
-        
-        .radio-card {
-            position: relative;
-        }
-        
-        .radio-card input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
+        /* Radio Cards */
+        .radio-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+        .radio-card { position: relative; }
+        .radio-card input { position: absolute; opacity: 0; pointer-events: none; }
         
         .radio-card-content {
             display: flex;
@@ -388,41 +232,14 @@
             text-align: center;
         }
         
-        .radio-card input:checked + .radio-card-content {
-            border-color: var(--accent-blue);
-            background: var(--bg-hover);
-            box-shadow: var(--shadow-glow);
-        }
+        .radio-card input:checked + .radio-card-content { border-color: var(--accent-blue); background: var(--bg-hover); box-shadow: var(--shadow-glow); }
+        .radio-card:hover .radio-card-content { border-color: rgba(79, 172, 254, 0.3); }
+        .radio-card-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .radio-card-title { font-weight: 700; font-size: 1rem; }
+        .radio-card-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
         
-        .radio-card:hover .radio-card-content {
-            border-color: rgba(79, 172, 254, 0.3);
-        }
-        
-        .radio-card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .radio-card-title {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-        
-        .radio-card-desc {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Чекбоксы
-           ═══════════════════════════════════════════════════════════ */
-        
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
+        /* Checkboxes */
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 1rem; }
         
         .checkbox-item {
             display: flex;
@@ -435,24 +252,11 @@
             transition: all 0.2s ease;
         }
         
-        .checkbox-item:hover {
-            background: var(--bg-hover);
-        }
+        .checkbox-item:hover { background: var(--bg-hover); }
+        .checkbox-item input { width: 20px; height: 20px; accent-color: var(--accent-blue); }
+        .checkbox-item span { font-weight: 600; }
         
-        .checkbox-item input {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--accent-blue);
-        }
-        
-        .checkbox-item span {
-            font-weight: 600;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Результаты / Вывод
-           ═══════════════════════════════════════════════════════════ */
-        
+        /* Output Box */
         .output-box {
             background: #0d1117;
             border-radius: var(--radius-md);
@@ -466,56 +270,16 @@
             overflow-y: auto;
         }
         
-        /* ═══════════════════════════════════════════════════════════
-           Алерты / Уведомления
-           ═══════════════════════════════════════════════════════════ */
+        /* Alerts */
+        .alert { padding: 1rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; }
+        .alert-success { background: rgba(56, 239, 125, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); }
+        .alert-error { background: rgba(255, 107, 107, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); }
+        .alert-warning { background: rgba(249, 212, 35, 0.15); border: 1px solid var(--accent-yellow); color: var(--accent-yellow); }
+        .alert-info { background: rgba(79, 172, 254, 0.15); border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+        .alert-icon { font-size: 1.5rem; }
         
-        .alert {
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius-md);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .alert-success {
-            background: rgba(56, 239, 125, 0.15);
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-        }
-        
-        .alert-error {
-            background: rgba(255, 107, 107, 0.15);
-            border: 1px solid var(--accent-red);
-            color: var(--accent-red);
-        }
-        
-        .alert-warning {
-            background: rgba(249, 212, 35, 0.15);
-            border: 1px solid var(--accent-yellow);
-            color: var(--accent-yellow);
-        }
-        
-        .alert-info {
-            background: rgba(79, 172, 254, 0.15);
-            border: 1px solid var(--accent-blue);
-            color: var(--accent-blue);
-        }
-        
-        .alert-icon {
-            font-size: 1.5rem;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Проблемы (Issues)
-           ═══════════════════════════════════════════════════════════ */
-        
-        .issue-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
+        /* Issues */
+        .issue-list { display: flex; flex-direction: column; gap: 0.75rem; }
         
         .issue-item {
             display: flex;
@@ -530,35 +294,13 @@
         .issue-item.error { border-left-color: var(--accent-red); }
         .issue-item.warning { border-left-color: var(--accent-yellow); }
         .issue-item.info { border-left-color: var(--accent-blue); }
+        .issue-icon { font-size: 1.3rem; }
+        .issue-text { flex: 1; }
+        .issue-size { color: var(--text-muted); font-size: 0.85rem; }
         
-        .issue-icon {
-            font-size: 1.3rem;
-        }
-        
-        .issue-text {
-            flex: 1;
-        }
-        
-        .issue-size {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Лоадер
-           ═══════════════════════════════════════════════════════════ */
-        
-        .loader {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 2rem;
-        }
-        
-        .loader.active {
-            display: flex;
-        }
+        /* Loader */
+        .loader { display: none; align-items: center; justify-content: center; gap: 12px; padding: 2rem; }
+        .loader.active { display: flex; }
         
         .spinner {
             width: 40px;
@@ -569,20 +311,10 @@
             animation: spin 1s linear infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* ═══════════════════════════════════════════════════════════
-           Шаги (Steps)
-           ═══════════════════════════════════════════════════════════ */
-        
-        .steps {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
+        /* Steps */
+        .steps { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
         
         .step {
             display: flex;
@@ -619,59 +351,25 @@
             font-size: 0.8rem;
         }
         
-        .step-copy:hover {
-            background: var(--accent-blue);
-            color: white;
-        }
+        .step-copy:hover { background: var(--accent-blue); color: white; }
         
-        /* ═══════════════════════════════════════════════════════════
-           Footer
-           ═══════════════════════════════════════════════════════════ */
+        /* Footer */
+        .footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem; }
+        .footer a { color: var(--accent-blue); text-decoration: none; }
         
-        .footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        
-        .footer a {
-            color: var(--accent-blue);
-            text-decoration: none;
-        }
-        
-        /* ═══════════════════════════════════════════════════════════
-           Responsive
-           ═══════════════════════════════════════════════════════════ */
-        
+        /* Responsive */
         @media (max-width: 768px) {
-            .navbar-inner {
-                flex-direction: column;
-                height: auto;
-                padding: 1rem 0;
-                gap: 1rem;
-            }
-            
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .container {
-                padding: 1rem;
-            }
-            
-            .page-title {
-                font-size: 1.8rem;
-            }
+            .navbar-inner { flex-direction: column; height: auto; padding: 1rem 0; gap: 1rem; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .container { padding: 1rem; }
+            .page-title { font-size: 1.8rem; }
         }
         
-        /* Hidden */
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <!-- Навигация -->
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="logo">
@@ -683,46 +381,52 @@
             <div class="nav-links">
                 <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
                     <span class="nav-link-icon">🏠</span>
-                    <span>Главная</span>
+                    <span>{{ t.nav_home }}</span>
                 </a>
                 <a href="/create" class="nav-link {% if request.url.path == '/create' %}active{% endif %}">
                     <span class="nav-link-icon">🆕</span>
-                    <span>Создать</span>
+                    <span>{{ t.nav_create }}</span>
                 </a>
                 <a href="/cleanup" class="nav-link {% if request.url.path == '/cleanup' %}active{% endif %}">
                     <span class="nav-link-icon">🧹</span>
-                    <span>Очистка</span>
+                    <span>{{ t.nav_cleanup }}</span>
                 </a>
                 <a href="/health" class="nav-link {% if request.url.path == '/health' %}active{% endif %}">
                     <span class="nav-link-icon">🏥</span>
-                    <span>Health</span>
+                    <span>{{ t.nav_health }}</span>
                 </a>
                 <a href="/settings" class="nav-link {% if request.url.path == '/settings' %}active{% endif %}">
                     <span class="nav-link-icon">⚙️</span>
-                    <span>Настройки</span>
+                    <span>{{ t.nav_settings }}</span>
                 </a>
                 <a href="/help" class="nav-link {% if request.url.path == '/help' %}active{% endif %}">
                     <span class="nav-link-icon">❓</span>
-                    <span>Помощь</span>
+                    <span>{{ t.nav_help }}</span>
                 </a>
+                
+                <!-- Language Switcher -->
+                <div class="lang-switcher">
+                    <a href="/set-lang/en" class="lang-btn {% if lang == 'en' %}active{% endif %}">🇬🇧 EN</a>
+                    <a href="/set-lang/ru" class="lang-btn {% if lang == 'ru' %}active{% endif %}">🇷🇺 RU</a>
+                </div>
             </div>
         </div>
     </nav>
     
-    <!-- Контент -->
+    <!-- Content -->
     <main class="container">
         {% block content %}{% endblock %}
     </main>
     
     <!-- Footer -->
     <footer class="footer">
-        Made with ❤️ for AI-first development | 
-        <a href="https://github.com/mickhael/ai-toolkit">GitHub</a>
+        {{ t.footer_made_with }} | 
+        <a href="https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding">GitHub</a> |
+        <a href="https://t.me/MichaelSalmin">Telegram</a>
     </footer>
     
     <!-- Scripts -->
     <script>
-        // Утилиты
         async function apiCall(endpoint, data = {}) {
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -761,4 +465,3 @@
     {% block scripts %}{% endblock %}
 </body>
 </html>
-

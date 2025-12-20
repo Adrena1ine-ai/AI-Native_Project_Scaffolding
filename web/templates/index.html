@@ -1,83 +1,68 @@
 {% extends "base.html" %}
 
-{% block title %}AI Toolkit — Главная{% endblock %}
+{% block title %}{{ t.nav_home }} — AI Toolkit{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
 <div class="page-header" style="margin-bottom: 4rem; padding: 3rem 0;">
     <span class="page-title-icon">🚀</span>
-    <h1 class="page-title">Добро пожаловать в AI Toolkit!</h1>
-    <p class="page-subtitle">
-        Создавай проекты, оптимизированные для работы с AI-ассистентами.
-        Выбери действие ниже, чтобы начать.
-    </p>
+    <h1 class="page-title">{{ t.home_title }}</h1>
+    <p class="page-subtitle">{{ t.home_subtitle }}</p>
 </div>
 
-<!-- Карточки действий -->
+<!-- Action Cards -->
 <div class="card-grid">
-    <!-- Создать проект -->
     <a href="/create" class="card" style="text-decoration: none;">
         <div class="card-icon">🆕</div>
-        <h2 class="card-title">Создать проект</h2>
-        <p class="card-description">
-            Создай новый проект с правильной структурой, защитой от venv и настройками для твоей IDE.
-        </p>
+        <h2 class="card-title">{{ t.home_create_title }}</h2>
+        <p class="card-description">{{ t.home_create_desc }}</p>
         <div style="margin-top: 1rem;">
-            <span class="btn btn-primary">Создать →</span>
+            <span class="btn btn-primary">{{ t.nav_create }} →</span>
         </div>
     </a>
     
-    <!-- Очистить проект -->
     <a href="/cleanup" class="card" style="text-decoration: none;">
         <div class="card-icon">🧹</div>
-        <h2 class="card-title">Очистить проект</h2>
-        <p class="card-description">
-            Найди и исправь проблемы в существующем проекте: venv внутри, большие логи, отсутствующие конфиги.
-        </p>
+        <h2 class="card-title">{{ t.home_cleanup_title }}</h2>
+        <p class="card-description">{{ t.home_cleanup_desc }}</p>
         <div style="margin-top: 1rem;">
-            <span class="btn btn-warning">Очистить →</span>
+            <span class="btn btn-warning">{{ t.nav_cleanup }} →</span>
         </div>
     </a>
     
-    <!-- Health Check -->
     <a href="/health" class="card" style="text-decoration: none;">
         <div class="card-icon">🏥</div>
-        <h2 class="card-title">Health Check</h2>
-        <p class="card-description">
-            Проверь состояние проекта: правильно ли всё настроено, нет ли проблем.
-        </p>
+        <h2 class="card-title">{{ t.home_health_title }}</h2>
+        <p class="card-description">{{ t.home_health_desc }}</p>
         <div style="margin-top: 1rem;">
-            <span class="btn btn-success">Проверить →</span>
+            <span class="btn btn-success">{{ t.nav_health }} →</span>
         </div>
     </a>
     
-    <!-- Помощь -->
     <a href="/help" class="card" style="text-decoration: none;">
         <div class="card-icon">📚</div>
-        <h2 class="card-title">Как это работает?</h2>
-        <p class="card-description">
-            Узнай как использовать AI Toolkit, что такое venv вне проекта и зачем это нужно.
-        </p>
+        <h2 class="card-title">{{ t.home_help_title }}</h2>
+        <p class="card-description">{{ t.home_help_desc }}</p>
         <div style="margin-top: 1rem;">
-            <span class="btn btn-purple">Узнать →</span>
+            <span class="btn btn-purple">{{ t.nav_help }} →</span>
         </div>
     </a>
 </div>
 
-<!-- Быстрая статистика -->
+<!-- Stats -->
 <div style="margin-top: 4rem;">
-    <h2 style="text-align: center; margin-bottom: 2rem;">📊 Статистика</h2>
+    <h2 style="text-align: center; margin-bottom: 2rem;">📊 {{ t.home_stats }}</h2>
     <div id="stats-container">
         <div class="loader active">
             <div class="spinner"></div>
-            <span>Загрузка...</span>
+            <span>{{ t.loading }}</span>
         </div>
     </div>
 </div>
 
-<!-- Поддерживаемые IDE -->
+<!-- Supported IDEs -->
 <div style="margin-top: 4rem;">
-    <h2 style="text-align: center; margin-bottom: 2rem;">🖥️ Поддерживаемые IDE</h2>
+    <h2 style="text-align: center; margin-bottom: 2rem;">🖥️ {{ t.home_supported_ides }}</h2>
     <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
         {% for key, cfg in ide_configs.items() %}
         <div class="card" style="text-align: center; padding: 1.5rem;">
@@ -91,7 +76,16 @@
 
 {% block scripts %}
 <script>
-    // Загрузка статистики
+    const translations = {
+        projects: "{{ t.home_projects }}",
+        totalMb: "{{ t.home_total_mb }}",
+        version: "{{ t.home_version }}",
+        yourProjects: "{{ t.home_your_projects }}",
+        noProjects: "{{ t.home_no_projects }}",
+        createFirst: "{{ t.home_create_first }}",
+        createProject: "{{ t.nav_create }}"
+    };
+    
     async function loadStats() {
         const container = document.getElementById('stats-container');
         
@@ -108,25 +102,25 @@
                                     <div style="font-size: 3rem; font-weight: 800; color: var(--accent-blue);">
                                         ${data.projects_count}
                                     </div>
-                                    <div style="color: var(--text-secondary);">Проектов</div>
+                                    <div style="color: var(--text-secondary);">${translations.projects}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 3rem; font-weight: 800; color: var(--accent-green);">
                                         ${data.projects.reduce((sum, p) => sum + p.size_mb, 0).toFixed(0)}
                                     </div>
-                                    <div style="color: var(--text-secondary);">MB всего</div>
+                                    <div style="color: var(--text-secondary);">${translations.totalMb}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 3rem; font-weight: 800; color: var(--accent-purple);">
                                         v${data.toolkit_version}
                                     </div>
-                                    <div style="color: var(--text-secondary);">Версия</div>
+                                    <div style="color: var(--text-secondary);">${translations.version}</div>
                                 </div>
                             </div>
                             
                             ${data.projects.length > 0 ? `
                                 <div style="margin-top: 2rem;">
-                                    <h3 style="margin-bottom: 1rem;">Ваши проекты:</h3>
+                                    <h3 style="margin-bottom: 1rem;">${translations.yourProjects}</h3>
                                     <div class="issue-list">
                                         ${data.projects.map(p => `
                                             <div class="issue-item info">
@@ -144,11 +138,11 @@
                     container.innerHTML = `
                         <div class="card" style="text-align: center;">
                             <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
-                            <h3>Проектов пока нет</h3>
+                            <h3>${translations.noProjects}</h3>
                             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                                Создай свой первый проект!
+                                ${translations.createFirst}
                             </p>
-                            <a href="/create" class="btn btn-primary btn-lg">🆕 Создать проект</a>
+                            <a href="/create" class="btn btn-primary btn-lg">🆕 ${translations.createProject}</a>
                         </div>
                     `;
                 }
@@ -157,7 +151,7 @@
             container.innerHTML = `
                 <div class="alert alert-info">
                     <span class="alert-icon">ℹ️</span>
-                    <span>Статистика недоступна</span>
+                    <span>Statistics unavailable</span>
                 </div>
             `;
         }
@@ -166,4 +160,3 @@
     loadStats();
 </script>
 {% endblock %}
-

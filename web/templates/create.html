@@ -1,43 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}Создать проект — AI Toolkit{% endblock %}
+{% block title %}{{ t.nav_create }} — AI Toolkit{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <span class="page-title-icon">🆕</span>
-    <h1 class="page-title">Создать новый проект</h1>
-    <p class="page-subtitle">
-        Заполни форму ниже, чтобы создать проект с правильной структурой
-    </p>
+    <h1 class="page-title">{{ t.create_title }}</h1>
+    <p class="page-subtitle">{{ t.create_subtitle }}</p>
 </div>
 
 <div class="card" style="max-width: 800px; margin: 0 auto;">
     <form id="createForm">
-        <!-- Название проекта -->
+        <!-- Project Name -->
         <div class="form-group">
-            <label class="form-label">📁 Название проекта</label>
+            <label class="form-label">{{ t.create_name_label }}</label>
             <input type="text" class="form-input" name="name" id="projectName"
                    placeholder="my_awesome_bot" required
                    pattern="[a-zA-Z0-9_-]+"
-                   title="Только буквы, цифры, _ и -">
-            <div class="form-hint">
-                Только латинские буквы, цифры, _ и -
-            </div>
+                   title="{{ t.create_name_hint }}">
+            <div class="form-hint">{{ t.create_name_hint }}</div>
         </div>
         
-        <!-- Путь -->
+        <!-- Path -->
         <div class="form-group">
-            <label class="form-label">📍 Куда создать?</label>
+            <label class="form-label">{{ t.create_path_label }}</label>
             <input type="text" class="form-input" name="path" id="projectPath"
                    value="{{ home_path }}" required>
-            <div class="form-hint">
-                Путь к папке, где будет создан проект
-            </div>
+            <div class="form-hint">{{ t.create_path_hint }}</div>
         </div>
         
-        <!-- Шаблон -->
+        <!-- Template -->
         <div class="form-group">
-            <label class="form-label">📦 Выбери шаблон</label>
+            <label class="form-label">{{ t.create_template_label }}</label>
             <div class="radio-cards">
                 {% for key, tmpl in templates.items() %}
                 <label class="radio-card">
@@ -55,7 +49,7 @@
         
         <!-- IDE -->
         <div class="form-group">
-            <label class="form-label">🖥️ Какую IDE используешь?</label>
+            <label class="form-label">{{ t.create_ide_label }}</label>
             <div class="radio-cards">
                 {% for key, cfg in ide_configs.items() %}
                 <label class="radio-card">
@@ -70,44 +64,49 @@
             </div>
         </div>
         
-        <!-- Опции -->
+        <!-- Options -->
         <div class="form-group">
-            <label class="form-label">⚙️ Дополнительные опции</label>
+            <label class="form-label">{{ t.create_options_label }}</label>
             <div class="checkbox-group">
                 <label class="checkbox-item">
                     <input type="checkbox" name="include_docker" checked>
-                    <span>🐳 Docker</span>
+                    <span>{{ t.create_docker }}</span>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" name="include_ci" checked>
-                    <span>🚀 CI/CD</span>
+                    <span>{{ t.create_ci }}</span>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" name="include_git" checked>
-                    <span>🔗 Git</span>
+                    <span>{{ t.create_git }}</span>
                 </label>
             </div>
         </div>
         
-        <!-- Кнопка -->
         <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
-            ✨ Создать проект
+            {{ t.create_btn }}
         </button>
     </form>
     
-    <!-- Лоадер -->
     <div class="loader" id="loader">
         <div class="spinner"></div>
-        <span>Создаём проект...</span>
+        <span>{{ t.create_creating }}</span>
     </div>
     
-    <!-- Результат -->
     <div id="result" class="hidden" style="margin-top: 2rem;"></div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+    const translations = {
+        pathResult: "{{ t.create_path_result }}",
+        nextSteps: "{{ t.create_next_steps }}",
+        copy: "{{ t.create_copy }}",
+        another: "{{ t.create_another }}",
+        check: "{{ t.create_check }}"
+    };
+    
     const form = document.getElementById('createForm');
     const loader = document.getElementById('loader');
     const result = document.getElementById('result');
@@ -116,12 +115,10 @@
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Показываем лоадер
         submitBtn.disabled = true;
         loader.classList.add('active');
         result.classList.add('hidden');
         
-        // Собираем данные
         const formData = new FormData(form);
         const data = {
             name: formData.get('name'),
@@ -149,23 +146,23 @@
                         <span>${res.message}</span>
                     </div>
                     
-                    <h3 style="margin: 1.5rem 0 1rem;">📍 Путь к проекту:</h3>
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.pathResult}</h3>
                     <div class="output-box">${res.path}</div>
                     
-                    <h3 style="margin: 1.5rem 0 1rem;">🚀 Следующие шаги:</h3>
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.nextSteps}</h3>
                     <div class="steps">
                         ${res.next_steps.map((step, i) => `
                             <div class="step">
                                 <span class="step-number">${i + 1}</span>
                                 <span>${step}</span>
-                                <button class="step-copy" onclick="copyToClipboard('${step}')">📋 Копировать</button>
+                                <button class="step-copy" onclick="copyToClipboard('${step}')">${translations.copy}</button>
                             </div>
                         `).join('')}
                     </div>
                     
                     <div style="margin-top: 2rem; text-align: center;">
-                        <a href="/create" class="btn btn-primary">🆕 Создать ещё</a>
-                        <a href="/health?path=${encodeURIComponent(res.path)}" class="btn btn-outline">🏥 Проверить</a>
+                        <a href="/create" class="btn btn-primary">🆕 ${translations.another}</a>
+                        <a href="/health?path=${encodeURIComponent(res.path)}" class="btn btn-outline">🏥 ${translations.check}</a>
                     </div>
                 `;
             } else {
@@ -181,16 +178,14 @@
             result.innerHTML = `
                 <div class="alert alert-error">
                     <span class="alert-icon">❌</span>
-                    <span>Ошибка: ${error.message}</span>
+                    <span>${error.message}</span>
                 </div>
             `;
         }
         
-        // Скрываем лоадер
         loader.classList.remove('active');
         submitBtn.disabled = false;
         result.classList.remove('hidden');
     });
 </script>
 {% endblock %}
-

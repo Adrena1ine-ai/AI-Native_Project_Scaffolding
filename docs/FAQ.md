@@ -1,57 +1,59 @@
-# ❓ Часто задаваемые вопросы (FAQ)
+# ❓ Frequently Asked Questions (FAQ)
+
+> 🇷🇺 [Русская версия](FAQ.ru.md)
 
 ---
 
-## 🤔 Общие вопросы
+## 🤔 General Questions
 
-### Что такое AI Toolkit?
+### What is AI Toolkit?
 
-AI Toolkit — инструмент для создания Python-проектов, оптимизированных для работы с AI-ассистентами (Cursor, GitHub Copilot, Claude, Windsurf).
+AI Toolkit is a tool for creating Python projects optimized for AI assistants (Cursor, GitHub Copilot, Claude, Windsurf).
 
-### Зачем хранить venv вне проекта?
+### Why store venv outside the project?
 
-AI-ассистенты индексируют все файлы в проекте. Если venv внутри:
-- 🐌 IDE тормозит (500+ MB файлов)
-- 🤯 AI читает код зависимостей и путается
-- 💾 Git раздувается
+AI assistants index all files in the project. If venv is inside:
+- 🐌 IDE slows down (500+ MB of files)
+- 🤯 AI reads dependency code and gets confused
+- 💾 Git repository bloats
 
-Когда venv снаружи — AI видит только твой код.
+When venv is outside — AI sees only your code.
 
-### Какие IDE поддерживаются?
+### Which IDEs are supported?
 
-| IDE | Статус |
+| IDE | Status |
 |-----|--------|
-| Cursor | ✅ Полная поддержка |
-| VS Code + Copilot | ✅ Полная поддержка |
-| VS Code + Claude | ✅ Полная поддержка |
-| Windsurf | ✅ Полная поддержка |
-| PyCharm | ⚠️ Частичная (только _AI_INCLUDE) |
+| Cursor | ✅ Full support |
+| VS Code + Copilot | ✅ Full support |
+| VS Code + Claude | ✅ Full support |
+| Windsurf | ✅ Full support |
+| PyCharm | ⚠️ Partial (_AI_INCLUDE only) |
 
-### Бесплатный ли AI Toolkit?
+### Is AI Toolkit free?
 
-Да, полностью бесплатный и open source (MIT License).
+Yes, completely free and open source (MIT License).
 
 ---
 
-## 🔧 Установка и настройка
+## 🔧 Installation and Setup
 
-### Какая минимальная версия Python?
+### What is the minimum Python version?
 
-Python 3.10 или выше.
+Python 3.10 or higher.
 
-### Как установить?
+### How to install?
 
 ```bash
 pip install ai-toolkit
 ```
 
-### Как обновить?
+### How to update?
 
 ```bash
 pip install --upgrade ai-toolkit
 ```
 
-### Как удалить?
+### How to uninstall?
 
 ```bash
 pip uninstall ai-toolkit
@@ -59,156 +61,125 @@ pip uninstall ai-toolkit
 
 ---
 
-## 💻 Использование
+## 📁 Projects
 
-### Как создать проект?
+### Where is venv stored?
 
-**Самый простой способ:**
-```bash
-ai-toolkit dashboard
-```
+In `../_venvs/project-name-venv/` — one level up from the project.
 
-**Или одной командой:**
-```bash
-ai-toolkit create my_project --template bot
-```
-
-### Как активировать venv?
+### How to activate venv?
 
 ```bash
-# Linux/Mac
+# Linux/macOS
 source ../_venvs/my_project-venv/bin/activate
 
 # Windows
-..\_venvs\my_project-venv\Scripts\Activate.ps1
+..\_venvs\my_project-venv\Scripts\activate
 ```
 
-### Как работает Context Switcher?
+### How to add venv to existing project?
 
 ```bash
-# Фокус на боте
-python scripts/context.py bot
-
-# Показать всё
-python scripts/context.py all
+ai-toolkit migrate ./my_project
+./my_project/scripts/bootstrap.sh
 ```
 
-Это обновляет `.cursorignore` — AI видит только выбранный модуль.
+### Which templates are available?
 
-### Можно ли использовать с существующим проектом?
-
-Да! Используй:
-- `ai-toolkit migrate ./project` — добавить AI конфиги
-- `ai-toolkit cleanup ./project` — очистить от мусора
-
----
-
-## 🐛 Проблемы
-
-### "venv not found" после bootstrap.sh
-
-venv создаётся в `../_venvs/`, не в проекте:
-```bash
-source ../_venvs/my_project-venv/bin/activate
-```
-
-### AI не видит правила из _AI_INCLUDE
-
-1. Проверь что папка существует
-2. В Cursor: Cmd+Shift+P → "Reload Window"
-3. Проверь `.cursorrules` — там должна быть ссылка на _AI_INCLUDE
-
-### Dashboard не открывается
-
-```bash
-# Проверь что зависимости установлены
-pip install fastapi uvicorn jinja2
-
-# Проверь что порт свободен
-lsof -i :8080
-
-# Попробуй другой порт
-ai-toolkit dashboard --port 3000
-```
-
-### "Permission denied" при создании проекта
-
-```bash
-# Проверь права на папку
-ls -la ~/projects
-
-# Создай папку с правами
-mkdir -p ~/projects && chmod 755 ~/projects
-```
-
-### pre-commit блокирует коммит
-
-Это защита от venv в проекте. Удали venv из проекта:
-```bash
-ai-toolkit cleanup . --level medium
-```
-
----
-
-## 📦 Шаблоны
-
-### Какие шаблоны доступны?
-
-| Шаблон | Описание |
-|--------|----------|
-| `bot` | Telegram бот (aiogram) |
-| `webapp` | Mini App (HTML/JS) |
+| Template | Description |
+|----------|-------------|
+| `bot` | Telegram Bot (aiogram) |
+| `webapp` | Telegram Mini App |
 | `fastapi` | REST API |
-| `parser` | Web парсер |
-| `full` | Всё вместе |
-| `monorepo` | Несколько проектов |
-
-### Как добавить свой шаблон?
-
-1. Создай папку в `templates/`
-2. Добавь шаблон в `src/core/constants.py` TEMPLATES
-3. Обнови генераторы в `src/generators/`
+| `parser` | Web Scraper |
+| `full` | All modules |
+| `monorepo` | Multi-project |
 
 ---
 
-## 🔌 Плагины
+## 🤖 AI Configuration
 
-### Как создать плагин?
+### What is _AI_INCLUDE?
 
-```python
-# ~/.ai_toolkit/plugins/my_plugin/__init__.py
+A folder with rules for AI. Contains:
+- `PROJECT_CONVENTIONS.md` — what AI can and can't do
+- `WHERE_IS_WHAT.md` — project architecture
 
-def on_project_created(project_path, project_name):
-    print(f"Создан проект: {project_name}")
+AI reads these files FIRST.
+
+### What is .cursorrules?
+
+A configuration file for Cursor AI. Describes:
+- Coding style
+- Allowed patterns
+- Forbidden patterns
+
+### What is CLAUDE.md?
+
+A file for Claude AI. Contains the same rules as `.cursorrules` but in Claude format.
+
+### Why isn't AI following my rules?
+
+1. Check that `_AI_INCLUDE/` exists
+2. Restart IDE
+3. Ask AI: "Read PROJECT_CONVENTIONS.md and follow it"
+
+---
+
+## 🧹 Cleanup
+
+### What cleanup levels are there?
+
+| Level | Actions |
+|-------|---------|
+| `safe` | Analysis only |
+| `medium` | Backup + move venv |
+| `full` | + data restructure |
+
+### Is cleanup dangerous?
+
+- `safe` — completely safe
+- `medium` — creates backup first
+- `full` — use with caution
+
+### How to restore after cleanup?
+
+Backup is saved to `../_backups/project-name-timestamp/`
+
+---
+
+## 🐛 Troubleshooting
+
+### AI still indexes venv
+
+1. Check `.cursorignore` exists
+2. Restart IDE
+3. Clear IDE cache
+
+### Dashboard won't start
+
+```bash
+pip install fastapi uvicorn jinja2 python-multipart
+python -m web.app
 ```
 
-### Где хранятся плагины?
+### "Permission denied" on bootstrap.sh
 
-- `~/.ai_toolkit/plugins/` — пользовательские
-- `plugins/installed/` — системные
+```bash
+chmod +x scripts/bootstrap.sh
+./scripts/bootstrap.sh
+```
 
----
+### Project not created
 
-## 🤝 Поддержка
-
-### Где сообщить о баге?
-
-[GitHub Issues](https://github.com/mickhael/ai-toolkit/issues/new?template=bug_report.md)
-
-### Где предложить фичу?
-
-[GitHub Issues](https://github.com/mickhael/ai-toolkit/issues/new?template=feature_request.md)
-
-### Есть ли Discord/Telegram?
-
-Пока нет, используй [GitHub Discussions](https://github.com/mickhael/ai-toolkit/discussions).
+1. Check you have write permissions
+2. Check the path exists
+3. Check project name (only a-z, 0-9, _, -)
 
 ---
 
-## 📚 Ресурсы
+## 💬 Support
 
-- [Документация](GUIDE.md)
-- [CONTRIBUTING](../CONTRIBUTING.md)
-- [CHANGELOG](../CHANGELOG.md)
-- [GitHub](https://github.com/mickhael/ai-toolkit)
-
+- 📱 Telegram: [@MichaelSalmin](https://t.me/MichaelSalmin)
+- 🐙 GitHub: [Issues](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/issues)
+- 💬 Discussions: [Q&A](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/discussions)

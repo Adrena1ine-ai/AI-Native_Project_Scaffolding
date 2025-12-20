@@ -1,521 +1,436 @@
-# 📖 Полное руководство по AI Toolkit
+# 📖 AI Toolkit Complete Guide
 
-Это руководство поможет тебе освоить AI Toolkit от начала до конца.
+This guide will help you master AI Toolkit from start to finish.
+
+> 🇷🇺 [Русская версия](GUIDE.ru.md)
 
 ---
 
-## 📋 Содержание
+## 📋 Table of Contents
 
-1. [Введение](#введение)
-2. [Установка](#установка)
-3. [Первый проект](#первый-проект)
-4. [Интерфейсы](#интерфейсы)
-5. [Шаблоны проектов](#шаблоны-проектов)
-6. [Работа с venv](#работа-с-venv)
-7. [AI конфигурация](#ai-конфигурация)
+1. [Introduction](#introduction)
+2. [Installation](#installation)
+3. [First Project](#first-project)
+4. [Interfaces](#interfaces)
+5. [Project Templates](#project-templates)
+6. [Working with venv](#working-with-venv)
+7. [AI Configuration](#ai-configuration)
 8. [Context Switcher](#context-switcher)
-9. [Очистка проектов](#очистка-проектов)
-10. [Миграция](#миграция)
-11. [Docker и CI/CD](#docker-и-cicd)
-12. [Плагины](#плагины)
+9. [Project Cleanup](#project-cleanup)
+10. [Migration](#migration)
+11. [Docker and CI/CD](#docker-and-cicd)
+12. [Plugins](#plugins)
 13. [Troubleshooting](#troubleshooting)
 
 ---
 
-## Введение
+## Introduction
 
-### Что такое AI Toolkit?
+### What is AI Toolkit?
 
-AI Toolkit — это инструмент для создания Python-проектов, оптимизированных для работы с AI-ассистентами (Cursor, GitHub Copilot, Claude, Windsurf).
+AI Toolkit is a tool for creating Python projects optimized for AI assistants (Cursor, GitHub Copilot, Claude, Windsurf).
 
-### Зачем это нужно?
+### Why is this needed?
 
-Когда AI-ассистент работает с проектом, он читает ВСЕ файлы. Если `venv/` находится внутри проекта:
+When an AI assistant works with a project, it reads ALL files. If `venv/` is inside the project:
 
-- 📦 AI индексирует 500+ MB зависимостей
-- 🐌 IDE тормозит
-- 🤯 AI путается, читая код из библиотек
-- 💾 Репозиторий раздувается
+- 📦 AI indexes 500+ MB of dependencies
+- 🐌 IDE slows down
+- 🤯 AI gets confused reading library code
+- 💾 Repository bloats
 
-**Решение:** AI Toolkit создаёт проекты с venv ВНЕ проекта и специальными конфигами для AI.
+**Solution:** AI Toolkit creates projects with venv OUTSIDE the project and special configs for AI.
 
 ---
 
-## Установка
+## Installation
 
-### Требования
+### Requirements
 
-- Python 3.10 или выше
+- Python 3.10 or higher
 - pip
 
-### Из PyPI
+### Via pip (recommended)
 
 ```bash
-# Базовая установка
 pip install ai-toolkit
-
-# С Web Dashboard
-pip install ai-toolkit[web]
-
-# Всё включено (dev + web)
-pip install ai-toolkit[all]
 ```
 
-### Из исходников
+### From source
 
 ```bash
-git clone https://github.com/mickhael/ai-toolkit.git
-cd ai-toolkit
-pip install -e ".[all]"
+git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+cd AI-Native_Project_Scaffolding
+pip install -e .
 ```
 
-### Проверка установки
+### Verify installation
 
 ```bash
 ai-toolkit --version
-# AI Toolkit v3.0.0
 ```
 
 ---
 
-## Первый проект
+## First Project
 
-### Способ 1: Web Dashboard (рекомендуется для новичков)
-
-```bash
-ai-toolkit dashboard
-```
-
-1. Откроется браузер
-2. Перейди на вкладку "Создать"
-3. Заполни форму:
-   - Название: `my_bot`
-   - Шаблон: Bot
-   - IDE: Cursor (или другая)
-4. Нажми "Создать"
-
-### Способ 2: Интерактивный режим
+### Interactive mode
 
 ```bash
 ai-toolkit
 ```
 
-Следуй инструкциям на экране.
+1. Select language (🇬🇧 English / 🇷🇺 Русский)
+2. Choose your IDE
+3. Select "Create new project"
+4. Enter project name
+5. Choose template
+6. Done! 🎉
 
-### Способ 3: Одна команда
+### CLI mode
 
 ```bash
-ai-toolkit create my_bot --template bot --ai cursor
+ai-toolkit create my_bot --template bot --path ~/projects
 ```
 
-### После создания
+### Next steps after creation
 
 ```bash
-# Перейти в проект
-cd my_bot
-
-# Создать venv (ВНЕ проекта!)
+cd ~/projects/my_bot
 ./scripts/bootstrap.sh
-
-# Активировать venv
 source ../_venvs/my_bot-venv/bin/activate
-
-# Установить зависимости
-pip install -r requirements.txt
-
-# Настроить .env
 cp .env.example .env
-nano .env  # Добавить свои токены
-
-# Запустить
-python main.py
 ```
 
 ---
 
-## Интерфейсы
+## Interfaces
 
-AI Toolkit предоставляет 4 способа взаимодействия:
+### CLI (Command Line)
 
-### 1. 🌐 Web Dashboard
+```bash
+# Interactive mode
+ai-toolkit
+
+# Create project
+ai-toolkit create my_bot
+
+# Cleanup
+ai-toolkit cleanup ./my_project --level medium
+
+# Health check
+ai-toolkit health ./my_project
+```
+
+### Web Dashboard
 
 ```bash
 ai-toolkit dashboard
-# или
+# or
 ai-toolkit web
 ```
 
-**Плюсы:**
-- Красивый интерфейс
-- Наглядно видны все опции
-- Справка для новичков
+Opens a beautiful web interface at http://127.0.0.1:8080
 
-**Порт:** По умолчанию 8080
+### GUI (Tkinter)
 
 ```bash
-# Изменить порт
-ai-toolkit dashboard --port 3000
-
-# Не открывать браузер
-ai-toolkit dashboard --no-browser
+python -m gui.app
 ```
-
-### 2. 🖥️ GUI (Tkinter)
-
-```bash
-ai-toolkit-gui
-```
-
-**Плюсы:**
-- Не требует браузер
-- Работает офлайн
-- Встроен в Python
-
-### 3. 💻 Интерактивный CLI
-
-```bash
-ai-toolkit
-# или
-aitk
-```
-
-**Плюсы:**
-- Быстрый
-- Пошаговые инструкции
-- Работает везде
-
-### 4. ⌨️ CLI с аргументами
-
-```bash
-ai-toolkit create my_bot --template bot
-ai-toolkit cleanup ./project --level medium
-ai-toolkit health ./project
-```
-
-**Плюсы:**
-- Автоматизация
-- Скрипты
-- CI/CD
 
 ---
 
-## Шаблоны проектов
+## Project Templates
 
-### 🤖 bot — Telegram бот
+| Template | Description | Includes |
+|----------|-------------|----------|
+| `bot` | Telegram Bot | aiogram 3.x, handlers, FSM |
+| `webapp` | Telegram Mini App | HTML/CSS/JS, Telegram Web App API |
+| `fastapi` | REST API | FastAPI, Pydantic, async |
+| `parser` | Web Scraper | aiohttp, BeautifulSoup |
+| `full` | All modules | bot + webapp + parser + API |
+| `monorepo` | Multi-project | Shared libs, multiple services |
 
-```bash
-ai-toolkit create my_bot --template bot
-```
-
-**Создаёт:**
-- aiogram 3.x структура
-- handlers/, keyboards/, utils/
-- database/
-- Конфигурация через .env
-
-### 🌐 webapp — Mini App
+### Template selection
 
 ```bash
-ai-toolkit create my_app --template webapp
+# CLI
+ai-toolkit create my_project --template fastapi
+
+# Interactive - choose from menu
 ```
-
-**Создаёт:**
-- HTML/CSS/JS
-- API эндпоинты
-- Telegram Web App интеграция
-
-### ⚡ fastapi — REST API
-
-```bash
-ai-toolkit create my_api --template fastapi
-```
-
-**Создаёт:**
-- FastAPI приложение
-- SQLAlchemy модели
-- Alembic миграции
-- Pydantic схемы
-
-### 🕷️ parser — Web парсер
-
-```bash
-ai-toolkit create my_parser --template parser
-```
-
-**Создаёт:**
-- aiohttp клиент
-- BeautifulSoup парсер
-- Сохранение в БД
-
-### 🚀 full — Всё вместе
-
-```bash
-ai-toolkit create my_project --template full
-```
-
-**Создаёт:** bot + webapp + api + parser
-
-### 📦 monorepo — Несколько проектов
-
-```bash
-ai-toolkit create my_monorepo --template monorepo
-```
-
-**Создаёт:**
-- apps/ — приложения
-- packages/ — общие пакеты
-- shared/ — общий код
 
 ---
 
-## Работа с venv
+## Working with venv
 
-### Принцип
-
-venv создаётся в папке `../_venvs/` относительно проекта:
+### Why venv outside?
 
 ```
 projects/
-├── _venvs/
-│   └── my_bot-venv/      ← venv здесь!
-└── my_bot/               ← проект здесь
+├── _venvs/                 ← All venvs here!
+│   ├── bot1-venv/
+│   ├── bot2-venv/
+│   └── api-venv/
+│
+├── bot1/                   ← Clean project!
+├── bot2/
+└── api/
 ```
 
-### Создание venv
+**Benefits:**
+
+- ✅ AI sees only your code
+- ✅ IDE works fast
+- ✅ Repository is lightweight
+- ✅ Easy to delete/recreate venv
+
+### bootstrap.sh
+
+The `scripts/bootstrap.sh` script creates venv outside the project:
 
 ```bash
-# Linux/Mac
 ./scripts/bootstrap.sh
+```
+
+What it does:
+
+1. Creates `../_venvs/project-name-venv/`
+2. Installs dependencies from `requirements.txt`
+3. Shows activation command
+
+### Activation
+
+```bash
+# Linux/macOS
+source ../_venvs/my_project-venv/bin/activate
 
 # Windows
-.\scripts\bootstrap.ps1
-```
-
-### Активация
-
-```bash
-# Linux/Mac
-source ../_venvs/my_bot-venv/bin/activate
-
-# Windows
-..\_venvs\my_bot-venv\Scripts\Activate.ps1
-```
-
-### Деактивация
-
-```bash
-deactivate
-```
-
-### Удаление venv
-
-```bash
-rm -rf ../_venvs/my_bot-venv
+..\_venvs\my_project-venv\Scripts\activate
 ```
 
 ---
 
-## AI конфигурация
+## AI Configuration
 
-### Cursor
+### Files for each IDE
 
-**Файлы:**
-- `.cursorrules` — правила для AI
-- `.cursorignore` — что игнорировать
+| IDE | Files |
+|-----|-------|
+| 💜 Cursor | `.cursorrules`, `.cursorignore` |
+| 💙 GitHub Copilot | `.github/copilot-instructions.md` |
+| 🟢 Claude | `CLAUDE.md` |
+| 🌊 Windsurf | `.windsurfrules` |
 
-### GitHub Copilot
+### _AI_INCLUDE folder
 
-**Файл:** `.github/copilot-instructions.md`
+```
+_AI_INCLUDE/
+├── PROJECT_CONVENTIONS.md  # Rules: what AI can/can't do
+└── WHERE_IS_WHAT.md        # Architecture: where to find what
+```
 
-### Claude
+**AI reads these files FIRST** and follows the rules.
 
-**Файл:** `CLAUDE.md`
+### .cursorignore / .gitignore
 
-### Windsurf
+Prevents AI from indexing unnecessary files:
 
-**Файл:** `.windsurfrules`
-
-### _AI_INCLUDE/
-
-Папка с правилами проекта:
-- `PROJECT_CONVENTIONS.md` — архитектура, запреты
-- `WHERE_IS_WHAT.md` — карта проекта
-
-**AI читает эти файлы первыми и следует им.**
+```
+venv/
+__pycache__/
+*.pyc
+.env
+logs/
+data/
+node_modules/
+```
 
 ---
 
 ## Context Switcher
 
-Когда AI тупит на большом проекте — **скрой лишние модули**.
+When AI struggles with a large project — hide unnecessary modules!
 
-### Использование
+### Usage
 
 ```bash
-# Фокус на боте
-python scripts/context.py bot
+# Show help
+python scripts/context.py
 
-# Фокус на webapp
-python scripts/context.py webapp
+# Hide module from AI
+python scripts/context.py hide parser
 
-# Показать всё
-python scripts/context.py all
+# Show module again
+python scripts/context.py show parser
 
-# Статус
-python scripts/context.py status
+# List hidden modules
+python scripts/context.py list
 ```
 
-### Как работает
+### How it works
 
-1. Обновляет `.cursorignore`
-2. Скрытые модули добавляются в игнор
-3. AI видит только нужный модуль
+The script renames folders to `_hidden_module_name`. Cursor/Copilot ignore files starting with `_`.
 
 ---
 
-## Очистка проектов
+## Project Cleanup
 
-### Что проверяется
+### Cleanup levels
 
-- ❌ venv внутри проекта
-- ❌ site-packages
-- ⚠️ Большие логи (>10MB)
-- ⚠️ Большая data/
-- ℹ️ __pycache__
-- ⚠️ Отсутствующие AI конфиги
+| Level | Actions |
+|-------|---------|
+| `safe` | Analysis only, no changes |
+| `medium` | Backup + move venv + create configs |
+| `full` | + move data + restructure |
 
-### Уровни очистки
-
-| Уровень | Действия |
-|---------|----------|
-| `safe` | Только анализ |
-| `medium` | Бэкап + перенос venv + конфиги |
-| `full` | + перенос data + реструктуризация |
-
-### Использование
+### CLI
 
 ```bash
-# Анализ
-ai-toolkit cleanup ./project --level safe
+# Analysis only
+ai-toolkit cleanup ./my_project --level safe
 
-# Очистка с бэкапом
-ai-toolkit cleanup ./project --level medium
+# Move venv + create configs
+ai-toolkit cleanup ./my_project --level medium
 ```
+
+### What is checked
+
+- ❌ venv inside project
+- ❌ site-packages in repo
+- ⚠️ Large logs (>10MB)
+- ⚠️ Large data folder
+- ⚠️ __pycache__ folders
+- ⚠️ Missing AI configs
 
 ---
 
-## Миграция
+## Migration
 
-### Что это
-
-Добавить AI Toolkit в существующий проект без полной реструктуризации.
-
-### Что добавляется
-
-- `_AI_INCLUDE/`
-- AI конфиги (.cursorrules, CLAUDE.md, ...)
-- scripts/
-- .toolkit-version
-
-### Использование
+Add AI Toolkit to an existing project:
 
 ```bash
-ai-toolkit migrate ./existing_project
+ai-toolkit migrate ./my_old_project
 ```
+
+### What is added
+
+- `_AI_INCLUDE/` folder
+- `.cursorrules`, `.cursorignore`
+- `CLAUDE.md`
+- `scripts/bootstrap.sh`
+- `scripts/context.py`
+- `.toolkit-version`
 
 ---
 
-## Docker и CI/CD
+## Docker and CI/CD
 
 ### Docker
 
-Создаются:
-- `Dockerfile`
-- `docker-compose.yml`
-- `.dockerignore`
-
-```bash
-# Сборка
-docker-compose build
-
-# Запуск
-docker-compose up -d
-
-# Логи
-docker-compose logs -f
+```dockerfile
+# Dockerfile created automatically
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "src/main.py"]
 ```
 
-### CI/CD
+```bash
+# Build and run
+docker-compose up --build
+```
 
-GitHub Actions:
-- `ci.yml` — тесты, lint на каждый push
-- `cd.yml` — деплой на main
+### GitHub Actions
 
-Dependabot:
-- `dependabot.yml` — автообновление зависимостей
+**CI (ci.yml):**
+
+- Linting (ruff)
+- Type checking (mypy)
+- Tests (pytest)
+
+**CD (cd.yml):**
+
+- Build on tag push
+- Deploy to production
+
+### Dependabot
+
+Auto-updates dependencies weekly.
 
 ---
 
-## Плагины
+## Plugins
 
-### Создание плагина
+### Plugin structure
 
-```python
-# plugins/my_plugin/__init__.py
-
-def on_project_created(project_path, project_name):
-    """Вызывается после создания проекта."""
-    print(f"Проект {project_name} создан!")
-
-def on_cleanup_complete(project_path, level):
-    """Вызывается после очистки."""
-    pass
+```
+~/.ai_toolkit/plugins/
+└── my_plugin/
+    ├── __init__.py
+    └── plugin.py
 ```
 
-### Установка
+### plugin.py
 
-Положи папку плагина в `~/.ai_toolkit/plugins/` или `plugins/installed/`
+```python
+def on_project_created(project_path: str, template: str) -> None:
+    """Called after project creation."""
+    print(f"Project created: {project_path}")
+
+def on_cleanup(project_path: str, level: str) -> None:
+    """Called after cleanup."""
+    pass
+```
 
 ---
 
 ## Troubleshooting
 
-### venv всё ещё внутри проекта
+### venv not activating
 
 ```bash
-# Проверить
-./scripts/health_check.sh
+# Check if venv exists
+ls ../_venvs/
 
-# Очистить
-ai-toolkit cleanup . --level medium
+# Recreate
+rm -rf ../_venvs/my_project-venv
+./scripts/bootstrap.sh
 ```
 
-### AI не видит правила
+### AI still indexes venv
 
-1. Проверь что `_AI_INCLUDE/` существует
-2. В Cursor: Cmd+Shift+P → "Reload Window"
+1. Check `.cursorignore` exists
+2. Restart IDE
+3. Clear IDE cache
 
-### Dashboard не запускается
+### Dashboard won't start
 
 ```bash
-# Установить зависимости
-pip install fastapi uvicorn jinja2
+# Install dependencies
+pip install fastapi uvicorn jinja2 python-multipart
 
-# Проверить порт
-lsof -i :8080
+# Start manually
+python -m web.app
 ```
 
-### Ошибка при создании проекта
+### "Module not found" errors
 
-1. Проверь права на папку
-2. Проверь что имя проекта валидное (только a-z, 0-9, _, -)
+```bash
+# Ensure venv is activated
+which python
+# Should show: ../_venvs/my_project-venv/bin/python
+
+# Reinstall dependencies
+pip install -r requirements.txt
+```
 
 ---
 
-## Полезные ссылки
+## Support
 
-- [README](../README.md)
-- [CONTRIBUTING](../CONTRIBUTING.md)
-- [CHANGELOG](../CHANGELOG.md)
-- [GitHub Issues](https://github.com/mickhael/ai-toolkit/issues)
-
+- 📱 Telegram: [@MichaelSalmin](https://t.me/MichaelSalmin)
+- 🐙 GitHub Issues: [Report a bug](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/issues)
+- 💬 Discussions: [Ask a question](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/discussions)

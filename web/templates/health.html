@@ -1,63 +1,57 @@
 {% extends "base.html" %}
 
-{% block title %}Health Check — AI Toolkit{% endblock %}
+{% block title %}{{ t.nav_health }} — AI Toolkit{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <span class="page-title-icon">🏥</span>
-    <h1 class="page-title">Health Check</h1>
-    <p class="page-subtitle">
-        Проверь состояние проекта: правильно ли всё настроено, нет ли проблем
-    </p>
+    <h1 class="page-title">{{ t.health_title }}</h1>
+    <p class="page-subtitle">{{ t.health_subtitle }}</p>
 </div>
 
 <div class="card" style="max-width: 900px; margin: 0 auto;">
-    <!-- Путь к проекту -->
     <div class="form-group">
-        <label class="form-label">📍 Путь к проекту</label>
+        <label class="form-label">{{ t.health_path_label }}</label>
         <div style="display: flex; gap: 1rem;">
             <input type="text" class="form-input" id="projectPath"
                    placeholder="{{ home_path }}/my_project" style="flex: 1;">
             <button class="btn btn-success" onclick="checkHealth()">
-                🏥 Проверить
+                {{ t.health_check_btn }}
             </button>
         </div>
     </div>
     
-    <!-- Лоадер -->
     <div class="loader" id="loader">
         <div class="spinner"></div>
-        <span>Проверяем проект...</span>
+        <span>{{ t.health_checking }}</span>
     </div>
     
-    <!-- Результат -->
     <div id="result" class="hidden" style="margin-top: 2rem;"></div>
 </div>
 
-<!-- Что проверяется -->
 <div class="card" style="max-width: 900px; margin: 2rem auto;">
-    <h3 style="margin-bottom: 1.5rem;">ℹ️ Что проверяется?</h3>
+    <h3 style="margin-bottom: 1.5rem;">{{ t.health_what_checked }}</h3>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
         <div>
-            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">🐍 Virtual Environment</h4>
+            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">{{ t.health_venv }}</h4>
             <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
-                <li>Venv вне проекта</li>
-                <li>Нет venv внутри</li>
+                <li>venv outside project</li>
+                <li>No venv inside</li>
             </ul>
         </div>
         
         <div>
-            <h4 style="color: var(--accent-green); margin-bottom: 0.5rem;">📄 Конфигурация</h4>
+            <h4 style="color: var(--accent-green); margin-bottom: 0.5rem;">{{ t.health_config }}</h4>
             <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
-                <li>.env файл</li>
+                <li>.env file</li>
                 <li>requirements.txt</li>
                 <li>_AI_INCLUDE/</li>
             </ul>
         </div>
         
         <div>
-            <h4 style="color: var(--accent-purple); margin-bottom: 0.5rem;">🤖 AI конфиги</h4>
+            <h4 style="color: var(--accent-purple); margin-bottom: 0.5rem;">{{ t.health_ai_configs }}</h4>
             <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
                 <li>.cursorrules</li>
                 <li>.cursorignore</li>
@@ -66,50 +60,33 @@
         </div>
         
         <div>
-            <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;">🔧 Скрипты</h4>
+            <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;">{{ t.health_scripts }}</h4>
             <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
                 <li>bootstrap.sh</li>
                 <li>health_check.sh</li>
                 <li>context.py</li>
             </ul>
         </div>
-        
-        <div>
-            <h4 style="color: var(--accent-pink); margin-bottom: 0.5rem;">🐳 Docker</h4>
-            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
-                <li>Dockerfile</li>
-                <li>docker-compose.yml</li>
-            </ul>
-        </div>
-        
-        <div>
-            <h4 style="color: var(--accent-yellow); margin-bottom: 0.5rem;">🚀 CI/CD & Git</h4>
-            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
-                <li>GitHub Actions</li>
-                <li>Git репозиторий</li>
-            </ul>
-        </div>
     </div>
 </div>
 
-<!-- Дополнительные действия -->
 <div style="max-width: 900px; margin: 2rem auto;">
     <div class="card-grid" style="grid-template-columns: repeat(2, 1fr);">
         <div class="card" style="text-align: center;">
             <div class="card-icon">📦</div>
-            <h3 class="card-title">Миграция</h3>
-            <p class="card-description">Добавить AI Toolkit в существующий проект</p>
+            <h3 class="card-title">{{ t.health_migrate_title }}</h3>
+            <p class="card-description">{{ t.health_migrate_desc }}</p>
             <button class="btn btn-purple" style="margin-top: 1rem;" onclick="migrate()">
-                📦 Мигрировать
+                {{ t.health_migrate_btn }}
             </button>
         </div>
         
         <div class="card" style="text-align: center;">
             <div class="card-icon">⬆️</div>
-            <h3 class="card-title">Обновление</h3>
-            <p class="card-description">Обновить проект до новой версии Toolkit</p>
+            <h3 class="card-title">{{ t.health_update_title }}</h3>
+            <p class="card-description">{{ t.health_update_desc }}</p>
             <button class="btn btn-outline" style="margin-top: 1rem;" onclick="update()">
-                ⬆️ Обновить
+                {{ t.health_update_btn }}
             </button>
         </div>
     </div>
@@ -120,16 +97,19 @@
 
 {% block scripts %}
 <script>
+    const translations = {
+        allPassed: "{{ t.health_all_passed }}",
+        warnings: "{{ t.health_warnings }}",
+        results: "{{ t.health_results }}"
+    };
+    
     const loader = document.getElementById('loader');
     const result = document.getElementById('result');
     const actionResult = document.getElementById('actionResult');
     
     async function checkHealth() {
         const path = document.getElementById('projectPath').value;
-        if (!path) {
-            alert('Введите путь к проекту');
-            return;
-        }
+        if (!path) { alert('Enter project path'); return; }
         
         loader.classList.add('active');
         result.classList.add('hidden');
@@ -146,7 +126,7 @@
             if (data.success) {
                 const statusClass = data.passed ? 'success' : 'warning';
                 const statusIcon = data.passed ? '✅' : '⚠️';
-                const statusText = data.passed ? 'Все проверки пройдены!' : 'Есть предупреждения';
+                const statusText = data.passed ? translations.allPassed : translations.warnings;
                 
                 result.innerHTML = `
                     <div class="alert alert-${statusClass}">
@@ -154,7 +134,7 @@
                         <span><strong>${data.project_name}</strong> — ${statusText}</span>
                     </div>
                     
-                    <h3 style="margin: 1.5rem 0 1rem;">📋 Результаты проверки:</h3>
+                    <h3 style="margin: 1.5rem 0 1rem;">${translations.results}</h3>
                     <div class="output-box">${data.output}</div>
                 `;
             } else {
@@ -170,7 +150,7 @@
             result.innerHTML = `
                 <div class="alert alert-error">
                     <span class="alert-icon">❌</span>
-                    <span>Ошибка: ${error.message}</span>
+                    <span>${error.message}</span>
                 </div>
             `;
         }
@@ -181,12 +161,8 @@
     
     async function migrate() {
         const path = document.getElementById('projectPath').value;
-        if (!path) {
-            alert('Сначала введите путь к проекту');
-            return;
-        }
-        
-        if (!confirm(`Добавить AI Toolkit в ${path}?`)) return;
+        if (!path) { alert('Enter project path first'); return; }
+        if (!confirm(`Add AI Toolkit to ${path}?`)) return;
         
         try {
             const response = await fetch('/api/migrate', {
@@ -211,7 +187,7 @@
             actionResult.innerHTML = `
                 <div class="alert alert-error">
                     <span class="alert-icon">❌</span>
-                    <span>Ошибка: ${error.message}</span>
+                    <span>${error.message}</span>
                 </div>
             `;
             actionResult.classList.remove('hidden');
@@ -220,12 +196,8 @@
     
     async function update() {
         const path = document.getElementById('projectPath').value;
-        if (!path) {
-            alert('Сначала введите путь к проекту');
-            return;
-        }
-        
-        if (!confirm(`Обновить ${path} до последней версии?`)) return;
+        if (!path) { alert('Enter project path first'); return; }
+        if (!confirm(`Update ${path} to latest version?`)) return;
         
         try {
             const response = await fetch('/api/update', {
@@ -250,7 +222,7 @@
             actionResult.innerHTML = `
                 <div class="alert alert-error">
                     <span class="alert-icon">❌</span>
-                    <span>Ошибка: ${error.message}</span>
+                    <span>${error.message}</span>
                 </div>
             `;
             actionResult.classList.remove('hidden');
@@ -258,4 +230,3 @@
     }
 </script>
 {% endblock %}
-
