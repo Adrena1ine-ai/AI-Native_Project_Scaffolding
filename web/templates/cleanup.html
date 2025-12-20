@@ -28,6 +28,12 @@
     
     <div id="analysisResult" class="hidden" style="margin-top: 2rem;"></div>
     
+    <!-- IDE Detection Section -->
+    <div id="ideSection" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">🖥️ {{ lang == 'ru' and 'Обнаруженные IDE' or 'Detected IDEs' }}</h3>
+        <div id="ideCheckboxes" class="checkbox-group"></div>
+    </div>
+    
     <div id="cleanupOptions" class="hidden" style="margin-top: 2rem;">
         <h3 style="margin-bottom: 1rem;">{{ t.cleanup_level_label }}</h3>
         
@@ -89,25 +95,39 @@
 
 {% block scripts %}
 <script>
+    const lang = "{{ lang }}";
     const translations = {
         noIssues: "{{ t.cleanup_no_issues }}",
         issuesFound: "{{ t.cleanup_issues_found }}",
-        analyzeAgain: "{{ t.cleanup_analyze_btn }}"
+        analyzeAgain: "{{ t.cleanup_analyze_btn }}",
+        detectedIdes: lang === 'ru' ? "Обнаруженные IDE" : "Detected IDEs",
+        noIdesFound: lang === 'ru' ? "IDE конфиги не найдены" : "No IDE configs found",
+        selectIdes: lang === 'ru' ? "Выберите IDE для работы:" : "Select IDEs to work with:"
+    };
+    
+    const ideNames = {
+        cursor: { icon: "💜", name: "Cursor" },
+        copilot: { icon: "💙", name: "GitHub Copilot" },
+        claude: { icon: "🟢", name: "Claude" },
+        windsurf: { icon: "🌊", name: "Windsurf" }
     };
     
     const loader = document.getElementById('loader');
     const analysisResult = document.getElementById('analysisResult');
     const cleanupOptions = document.getElementById('cleanupOptions');
     const cleanupResult = document.getElementById('cleanupResult');
+    const ideSection = document.getElementById('ideSection');
+    const ideCheckboxes = document.getElementById('ideCheckboxes');
     
     async function analyze() {
         const path = document.getElementById('projectPath').value;
-        if (!path) { alert('Enter project path'); return; }
+        if (!path) { alert(lang === 'ru' ? 'Введите путь к проекту' : 'Enter project path'); return; }
         
         loader.classList.add('active');
         analysisResult.classList.add('hidden');
         cleanupOptions.classList.add('hidden');
         cleanupResult.classList.add('hidden');
+        ideSection.classList.add('hidden');
         
         try {
             const response = await fetch('/api/analyze', {
@@ -119,6 +139,11 @@
             const data = await response.json();
             
             if (data.success) {
+                // Show detected IDEs
+                if (data.detected_ides) {
+                    showDetectedIdes(data.detected_ides);
+                }
+                
                 if (data.issues_count === 0) {
                     analysisResult.innerHTML = `
                         <div class="alert alert-success">
@@ -170,11 +195,36 @@
         analysisResult.classList.remove('hidden');
     }
     
+    function showDetectedIdes(detected) {
+        const hasAny = Object.values(detected).some(v => v);
+        
+        if (hasAny) {
+            let html = '';
+            for (const [ide, found] of Object.entries(detected)) {
+                const info = ideNames[ide];
+                html += `
+                    <label class="checkbox-item" style="${found ? '' : 'opacity: 0.5;'}">
+                        <input type="checkbox" name="ide_${ide}" ${found ? 'checked' : ''}>
+                        <span>${info.icon} ${info.name}</span>
+                        ${found ? '<span style="color: var(--accent-green); margin-left: auto;">✓ Found</span>' : 
+                                  '<span style="color: var(--text-muted); margin-left: auto;">Not found</span>'}
+                    </label>
+                `;
+            }
+            ideCheckboxes.innerHTML = html;
+            ideSection.classList.remove('hidden');
+        }
+    }
+    
     async function cleanup() {
         const path = document.getElementById('projectPath').value;
         const level = document.querySelector('input[name="level"]:checked').value;
         
-        if (level !== 'safe' && !confirm(`Run "${level}" cleanup? Backup recommended.`)) {
+        const confirmMsg = lang === 'ru' 
+            ? `Выполнить очистку "${level}"? Рекомендуется сделать бэкап.`
+            : `Run "${level}" cleanup? Backup recommended.`;
+        
+        if (level !== 'safe' && !confirm(confirmMsg)) {
             return;
         }
         

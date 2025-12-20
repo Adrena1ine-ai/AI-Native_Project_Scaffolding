@@ -22,7 +22,7 @@ from pydantic import BaseModel
 import uvicorn
 
 from src.core.constants import VERSION, TEMPLATES, IDE_CONFIGS, CLEANUP_LEVELS
-from src.core.config import set_default_ide, get_default_ide, get_default_ai_targets, get_language, set_language
+from src.core.config import set_default_ide, get_default_ide, get_default_ai_targets, get_language, set_language, is_first_run
 from src.core.file_utils import get_dir_size
 from src.commands.create import create_project
 from src.commands.cleanup import analyze_project, cleanup_project
@@ -95,6 +95,48 @@ def get_template_context(request: Request, **extra: Any) -> dict[str, Any]:
     }
 
 
+def detect_ides_in_project(project_path: Path) -> dict[str, bool]:
+    """
+    Detect which IDE configs exist in a project.
+    
+    Returns dict like:
+    {
+        "cursor": True,
+        "copilot": True,
+        "claude": False,
+        "windsurf": False
+    }
+    """
+    detected = {
+        "cursor": False,
+        "copilot": False,
+        "claude": False,
+        "windsurf": False,
+    }
+    
+    if not project_path.exists():
+        return detected
+    
+    # Check for Cursor
+    if (project_path / ".cursorrules").exists() or (project_path / ".cursorignore").exists():
+        detected["cursor"] = True
+    
+    # Check for Copilot
+    copilot_file = project_path / ".github" / "copilot-instructions.md"
+    if copilot_file.exists():
+        detected["copilot"] = True
+    
+    # Check for Claude
+    if (project_path / "CLAUDE.md").exists():
+        detected["claude"] = True
+    
+    # Check for Windsurf
+    if (project_path / ".windsurfrules").exists():
+        detected["windsurf"] = True
+    
+    return detected
+
+
 # ══════════════════════════════════════════════════════════════
 # Application
 # ══════════════════════════════════════════════════════════════
@@ -130,21 +172,40 @@ def create_app() -> FastAPI:
         
         set_language(lang)
         
-        # Get referer or redirect to home
-        referer = request.headers.get("referer", "/")
+        # Check for ?next= parameter
+        next_url = request.query_params.get("next")
+        if next_url:
+            redirect_url = next_url
+        else:
+            # Get referer or redirect to home
+            referer = request.headers.get("referer", "/")
+            
+            # Remove old lang param from referer
+            if "?" in referer:
+                base, params = referer.split("?", 1)
+                params_list = [p for p in params.split("&") if not p.startswith("lang=")]
+                if params_list:
+                    referer = f"{base}?{'&'.join(params_list)}"
+                else:
+                    referer = base
+            redirect_url = referer
         
-        # Remove old lang param from referer
-        if "?" in referer:
-            base, params = referer.split("?", 1)
-            params_list = [p for p in params.split("&") if not p.startswith("lang=")]
-            if params_list:
-                referer = f"{base}?{'&'.join(params_list)}"
-            else:
-                referer = base
-        
-        response = RedirectResponse(url=referer, status_code=302)
+        response = RedirectResponse(url=redirect_url, status_code=302)
         response.set_cookie("lang", lang, max_age=31536000)  # 1 year
+        response.set_cookie("welcomed", "true", max_age=31536000)  # Mark as welcomed
         return response
+    
+    # ══════════════════════════════════════════════════════════════
+    # Welcome Screen
+    # ══════════════════════════════════════════════════════════════
+    
+    @app.get("/welcome", response_class=HTMLResponse)
+    async def welcome_page(request: Request):
+        """Welcome page with language selection"""
+        return templates.TemplateResponse("welcome.html", {
+            "request": request,
+            "version": VERSION,
+        })
     
     # ══════════════════════════════════════════════════════════════
     # HTML Pages
@@ -152,7 +213,15 @@ def create_app() -> FastAPI:
     
     @app.get("/", response_class=HTMLResponse)
     async def home(request: Request):
-        """Home page"""
+        """Home page - redirects to welcome if first visit"""
+        # Check if user has been welcomed (has lang cookie)
+        welcomed = request.cookies.get("welcomed")
+        lang_cookie = request.cookies.get("lang")
+        
+        if not welcomed and not lang_cookie:
+            # First visit - show welcome screen
+            return RedirectResponse(url="/welcome", status_code=302)
+        
         context = get_template_context(request)
         return templates.TemplateResponse("index.html", context)
     
@@ -238,6 +307,9 @@ def create_app() -> FastAPI:
             
             issues = analyze_project(path)
             
+            # Also detect IDEs
+            detected_ides = detect_ides_in_project(path)
+            
             return {
                 "success": True,
                 "project_name": path.name,
@@ -251,7 +323,29 @@ def create_app() -> FastAPI:
                         "path": str(i.path) if i.path else None,
                     }
                     for i in issues
-                ]
+                ],
+                "detected_ides": detected_ides,
+            }
+        except Exception as e:
+            return {"success": False, "message": str(e)}
+    
+    @app.post("/api/detect-ides")
+    async def api_detect_ides(data: ProjectPath):
+        """API: Detect IDE configs in project"""
+        try:
+            path = Path(data.path)
+            if not path.exists():
+                return {"success": False, "message": "Path does not exist"}
+            
+            detected = detect_ides_in_project(path)
+            detected_list = [ide for ide, found in detected.items() if found]
+            
+            return {
+                "success": True,
+                "project_name": path.name,
+                "detected_ides": detected,
+                "detected_list": detected_list,
+                "has_any": any(detected.values()),
             }
         except Exception as e:
             return {"success": False, "message": str(e)}
@@ -394,7 +488,7 @@ def run_server(host: str = "127.0.0.1", port: int = 8080, open_browser: bool = T
 ║  🌐 AI-Native Project Scaffolding Dashboard v{VERSION}     ║
 ╠══════════════════════════════════════════════════════════╣
 ║                                                          ║
-║  Open in browser: http://{host}:{port}                    ║
+║  Open in browser: http://{host}:{port}                     ║
 ║                                                          ║
 ║  Press Ctrl+C to stop                                    ║
 ║                                                          ║
@@ -409,4 +503,17 @@ def run_server(host: str = "127.0.0.1", port: int = 8080, open_browser: bool = T
 
 
 if __name__ == "__main__":
-    run_server()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="AI Toolkit Dashboard")
+    parser.add_argument("--host", default="127.0.0.1", help="Host (default: 127.0.0.1)")
+    parser.add_argument("--port", "-p", type=int, default=8080, help="Port (default: 8080)")
+    parser.add_argument("--no-browser", action="store_true", help="Don't open browser")
+    
+    args = parser.parse_args()
+    
+    run_server(
+        host=args.host,
+        port=args.port,
+        open_browser=not args.no_browser
+    )

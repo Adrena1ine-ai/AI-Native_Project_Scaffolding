@@ -353,6 +353,35 @@
         
         .step-copy:hover { background: var(--accent-blue); color: white; }
         
+        /* Checkbox Group */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox-item:hover {
+            background: var(--bg-card);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+        
         /* Footer */
         .footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem; }
         .footer a { color: var(--accent-blue); text-decoration: none; }

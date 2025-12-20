@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome — AI-Native Project Scaffolding</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --text-primary: #e8e8ff;
+            --text-secondary: #a0a0c0;
+            --accent-blue: #4facfe;
+            --accent-purple: #9d50bb;
+            --accent-green: #38ef7d;
+            --gradient-primary: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --radius-lg: 20px;
+            --shadow-glow: 0 0 30px rgba(79, 172, 254, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Nunito', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(79, 172, 254, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(157, 80, 187, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(56, 239, 125, 0.05) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            text-align: center;
+            padding: 3rem;
+            max-width: 600px;
+        }
+        
+        .logo {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .version {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+        
+        .lang-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        
+        .lang-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .lang-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 3rem;
+            background: var(--bg-card);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .lang-btn:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .lang-flag {
+            font-size: 4rem;
+        }
+        
+        .lang-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .lang-native {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .features {
+            margin-top: 4rem;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .feature-icon {
+            font-size: 1.3rem;
+        }
+        
+        @media (max-width: 600px) {
+            .logo { font-size: 3.5rem; }
+            h1 { font-size: 1.8rem; }
+            .lang-btn { padding: 1.5rem 2rem; }
+            .lang-flag { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <div class="logo">🛠️</div>
+        
+        <h1>AI-Native Project Scaffolding</h1>
+        <div class="version">v{{ version }}</div>
+        
+        <p class="subtitle">
+            Create AI-friendly Python projects in seconds<br>
+            Создавай AI-friendly проекты за секунды
+        </p>
+        
+        <div class="lang-title">🌍 Select language / Выберите язык</div>
+        
+        <div class="lang-buttons">
+            <a href="/set-lang/en?next=/" class="lang-btn">
+                <span class="lang-flag">🇬🇧</span>
+                <span class="lang-name">English</span>
+                <span class="lang-native">Continue in English</span>
+            </a>
+            
+            <a href="/set-lang/ru?next=/" class="lang-btn">
+                <span class="lang-flag">🇷🇺</span>
+                <span class="lang-name">Русский</span>
+                <span class="lang-native">Продолжить на русском</span>
+            </a>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">💜</span>
+                <span>Cursor</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">💙</span>
+                <span>Copilot</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🟢</span>
+                <span>Claude</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🌊</span>
+                <span>Windsurf</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

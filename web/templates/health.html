@@ -26,6 +26,12 @@
         <span>{{ t.health_checking }}</span>
     </div>
     
+    <!-- IDE Detection Section -->
+    <div id="ideSection" class="hidden" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">🖥️ {{ lang == 'ru' and 'Обнаруженные IDE конфиги' or 'Detected IDE Configs' }}</h3>
+        <div id="ideList" class="issue-list"></div>
+    </div>
+    
     <div id="result" class="hidden" style="margin-top: 2rem;"></div>
 </div>
 
@@ -97,22 +103,93 @@
 
 {% block scripts %}
 <script>
+    const lang = "{{ lang }}";
     const translations = {
         allPassed: "{{ t.health_all_passed }}",
         warnings: "{{ t.health_warnings }}",
         results: "{{ t.health_results }}"
     };
     
+    const ideNames = {
+        cursor: { icon: "💜", name: "Cursor", files: ".cursorrules, .cursorignore" },
+        copilot: { icon: "💙", name: "GitHub Copilot", files: ".github/copilot-instructions.md" },
+        claude: { icon: "🟢", name: "Claude", files: "CLAUDE.md" },
+        windsurf: { icon: "🌊", name: "Windsurf", files: ".windsurfrules" }
+    };
+    
     const loader = document.getElementById('loader');
     const result = document.getElementById('result');
     const actionResult = document.getElementById('actionResult');
+    const ideSection = document.getElementById('ideSection');
+    const ideList = document.getElementById('ideList');
+    
+    async function detectIdes() {
+        const path = document.getElementById('projectPath').value;
+        if (!path) return;
+        
+        try {
+            const response = await fetch('/api/detect-ides', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showDetectedIdes(data.detected_ides);
+            }
+        } catch (error) {
+            console.error('IDE detection failed:', error);
+        }
+    }
+    
+    function showDetectedIdes(detected) {
+        let html = '';
+        let hasAny = false;
+        
+        for (const [ide, found] of Object.entries(detected)) {
+            const info = ideNames[ide];
+            hasAny = hasAny || found;
+            
+            html += `
+                <div class="issue-item ${found ? 'info' : ''}" style="${found ? '' : 'opacity: 0.5;'}">
+                    <span class="issue-icon">${info.icon}</span>
+                    <span class="issue-text">
+                        <strong>${info.name}</strong>
+                        <br><small style="color: var(--text-muted);">${info.files}</small>
+                    </span>
+                    <span style="margin-left: auto; color: ${found ? 'var(--accent-green)' : 'var(--text-muted)'};">
+                        ${found ? '✅ Found' : '—'}
+                    </span>
+                </div>
+            `;
+        }
+        
+        ideList.innerHTML = html;
+        
+        if (!html) {
+            ideList.innerHTML = `
+                <div class="alert alert-info">
+                    <span class="alert-icon">ℹ️</span>
+                    <span>${lang === 'ru' ? 'IDE конфиги не найдены. Используйте Миграцию для добавления.' : 'No IDE configs found. Use Migration to add them.'}</span>
+                </div>
+            `;
+        }
+        
+        ideSection.classList.remove('hidden');
+    }
     
     async function checkHealth() {
         const path = document.getElementById('projectPath').value;
-        if (!path) { alert('Enter project path'); return; }
+        if (!path) { alert(lang === 'ru' ? 'Введите путь к проекту' : 'Enter project path'); return; }
         
         loader.classList.add('active');
         result.classList.add('hidden');
+        ideSection.classList.add('hidden');
+        
+        // Detect IDEs first
+        await detectIdes();
         
         try {
             const response = await fetch('/api/health', {
@@ -161,8 +238,13 @@
     
     async function migrate() {
         const path = document.getElementById('projectPath').value;
-        if (!path) { alert('Enter project path first'); return; }
-        if (!confirm(`Add AI Toolkit to ${path}?`)) return;
+        if (!path) { alert(lang === 'ru' ? 'Сначала введите путь к проекту' : 'Enter project path first'); return; }
+        
+        const confirmMsg = lang === 'ru' 
+            ? `Добавить AI Toolkit в ${path}?`
+            : `Add AI Toolkit to ${path}?`;
+        
+        if (!confirm(confirmMsg)) return;
         
         try {
             const response = await fetch('/api/migrate', {
@@ -196,8 +278,13 @@
     
     async function update() {
         const path = document.getElementById('projectPath').value;
-        if (!path) { alert('Enter project path first'); return; }
-        if (!confirm(`Update ${path} to latest version?`)) return;
+        if (!path) { alert(lang === 'ru' ? 'Сначала введите путь к проекту' : 'Enter project path first'); return; }
+        
+        const confirmMsg = lang === 'ru' 
+            ? `Обновить ${path} до последней версии?`
+            : `Update ${path} to latest version?`;
+        
+        if (!confirm(confirmMsg)) return;
         
         try {
             const response = await fetch('/api/update', {
