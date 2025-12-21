@@ -1,5 +1,5 @@
 """
-Генератор AI конфигов (.cursorrules, copilot-instructions.md, CLAUDE.md)
+AI config generator (.cursorrules, copilot-instructions.md, CLAUDE.md)
 """
 
 from __future__ import annotations
@@ -12,50 +12,50 @@ from ..core.constants import COLORS
 
 
 def get_common_rules(project_name: str, date: str) -> str:
-    """Общие правила для всех AI"""
+    """Common rules for all AI assistants"""
     return f"""# Project: {project_name}
 # Generated: {date}
 
-## 🧠 ПЕРВОЕ ДЕЙСТВИЕ
+## FIRST ACTION
 
-Прочитай `_AI_INCLUDE/` — там все правила проекта.
+Read `_AI_INCLUDE/` - all project rules are there.
 
-## 🚫 ЗАПРЕТЫ
+## FORBIDDEN
 
-- НЕ создавай venv/, .venv/ внутри проекта → используй ../_venvs/
-- НЕ читай целиком большие файлы (logs, csv, sqlite)
-- НЕ дублируй существующие файлы
+- Do NOT create venv/, .venv/ inside project -> use ../_venvs/
+- Do NOT read large files fully (logs, csv, sqlite)
+- Do NOT duplicate existing files
 
-## ✅ ПРАВИЛЬНЫЕ ДЕЙСТВИЯ
+## CORRECT ACTIONS
 
 ```bash
-# Активация venv
+# Activate venv
 source ../_venvs/{project_name}-venv/bin/activate
 
-# Чтение данных
+# Read data
 head -10 data/file.csv
 tail -50 logs/bot.log
 sqlite3 database/app.sqlite3 ".schema"
 ```
 
-## 🎮 Context Switcher
+## Context Switcher
 
 ```bash
-python scripts/context.py bot   # Фокус на боте
-python scripts/context.py all   # Всё видно
+python scripts/context.py bot   # Focus on bot
+python scripts/context.py all   # Show all
 ```
 """
 
 
 def generate_cursor_rules(project_dir: Path, project_name: str, date: str) -> None:
-    """Генерация .cursorrules"""
+    """Generate .cursorrules"""
     content = get_common_rules(project_name, date)
     create_file(project_dir / ".cursorrules", content)
 
 
 def generate_cursor_ignore(project_dir: Path, project_name: str, date: str) -> None:
-    """Генерация .cursorignore"""
-    content = f"""# Cursor Ignore — {project_name}
+    """Generate .cursorignore"""
+    content = f"""# Cursor Ignore - {project_name}
 # Generated: {date}
 
 # Environments
@@ -99,59 +99,59 @@ build/
 
 
 def generate_copilot_instructions(project_dir: Path, project_name: str, date: str) -> None:
-    """Генерация .github/copilot-instructions.md"""
-    content = f"""# Copilot Instructions — {project_name}
+    """Generate .github/copilot-instructions.md"""
+    content = f"""# Copilot Instructions - {project_name}
 
 {get_common_rules(project_name, date)}
 
-## Дополнительно для Copilot
+## Additional for Copilot
 
-- Используй type hints в Python коде
-- Предпочитай async/await для I/O операций
-- Следуй структуре проекта в _AI_INCLUDE/
-- Используй pydantic для валидации данных
+- Use type hints in Python code
+- Prefer async/await for I/O operations
+- Follow project structure in _AI_INCLUDE/
+- Use pydantic for data validation
 """
     (project_dir / ".github").mkdir(exist_ok=True)
     create_file(project_dir / ".github" / "copilot-instructions.md", content)
 
 
 def generate_claude_md(project_dir: Path, project_name: str, date: str) -> None:
-    """Генерация CLAUDE.md"""
-    content = f"""# Claude Instructions — {project_name}
+    """Generate CLAUDE.md"""
+    content = f"""# Claude Instructions - {project_name}
 
 {get_common_rules(project_name, date)}
 
-## Дополнительно для Claude
+## Additional for Claude
 
-- При работе с файлами сначала проверяй их существование
-- Используй view tool для чтения _AI_INCLUDE/
-- Предлагай изменения через str_replace
-- Не читай большие файлы целиком
+- Check file existence before working with files
+- Use view tool to read _AI_INCLUDE/
+- Propose changes via str_replace
+- Do not read large files fully
 """
     create_file(project_dir / "CLAUDE.md", content)
 
 
 def generate_windsurf_rules(project_dir: Path, project_name: str, date: str) -> None:
-    """Генерация .windsurfrules"""
+    """Generate .windsurfrules"""
     content = get_common_rules(project_name, date)
     create_file(project_dir / ".windsurfrules", content)
 
 
 def generate_ai_include(project_dir: Path, project_name: str, date: str) -> None:
-    """Генерация _AI_INCLUDE/"""
+    """Generate _AI_INCLUDE/"""
     ai_dir = project_dir / "_AI_INCLUDE"
     ai_dir.mkdir(exist_ok=True)
     
     # PROJECT_CONVENTIONS.md
-    conventions = f"""# Project Conventions — {project_name}
-# Этот файл читает AI. Люди тоже могут.
+    conventions = f"""# Project Conventions - {project_name}
+# This file is read by AI. Humans can read it too.
 
 ## Source code (read/edit freely)
-bot/, handlers/, utils/, api/, webapp/, parser/, database/ — *.py files
+bot/, handlers/, utils/, api/, webapp/, parser/, database/ - *.py files
 
 ## Never create venv inside repo
-❌ Do NOT create: venv/, .venv/, */.venv*/
-✅ Use external: ../_venvs/{project_name}-venv
+Do NOT create: venv/, .venv/, */.venv*/
+Use external: ../_venvs/{project_name}-venv
 
 Create via: ./scripts/bootstrap.sh
 
@@ -168,24 +168,24 @@ Create via: ./scripts/bootstrap.sh
     create_file(ai_dir / "PROJECT_CONVENTIONS.md", conventions)
     
     # WHERE_IS_WHAT.md
-    where_is_what = f"""# Where Is What — {project_name}
+    where_is_what = f"""# Where Is What - {project_name}
 
 ## Code Structure
 ```
-bot/handlers/     — command handlers
-bot/keyboards/    — keyboards
-bot/utils/        — utilities
-webapp/           — Mini App (HTML/JS/CSS)
-scripts/          — helper scripts
-database/         — DB operations
-api/              — API server
+bot/handlers/     - command handlers
+bot/keyboards/    - keyboards
+bot/utils/        - utilities
+webapp/           - Mini App (HTML/JS/CSS)
+scripts/          - helper scripts
+database/         - DB operations
+api/              - API server
 ```
 
 ## Data (DON'T read fully)
 ```
-logs/             → tail -50 logs/bot.log
-data/             → head -10 data/file.csv
-database/*.db     → sqlite3 ... ".schema"
+logs/             -> tail -50 logs/bot.log
+data/             -> head -10 data/file.csv
+database/*.db     -> sqlite3 ... ".schema"
 ```
 
 ## Virtual Environment
@@ -202,18 +202,18 @@ def generate_ai_configs(
     date: str = None
 ) -> None:
     """
-    Создать все AI конфиги
+    Create all AI configs
     
     Args:
-        project_dir: Путь к проекту
-        project_name: Название проекта
-        ai_targets: Список AI (cursor, copilot, claude, windsurf)
-        date: Дата (по умолчанию сегодня)
+        project_dir: Project path
+        project_name: Project name
+        ai_targets: AI list (cursor, copilot, claude, windsurf)
+        date: Date (default today)
     """
     if date is None:
         date = datetime.now().strftime("%Y-%m-%d")
     
-    print(f"\n{COLORS.colorize('📄 AI configs...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('AI configs...', COLORS.CYAN)}")
     
     # Cursor
     if "cursor" in ai_targets:
@@ -232,6 +232,6 @@ def generate_ai_configs(
     if "windsurf" in ai_targets:
         generate_windsurf_rules(project_dir, project_name, date)
     
-    # _AI_INCLUDE всегда
-    print(f"\n{COLORS.colorize('📂 _AI_INCLUDE/...', COLORS.CYAN)}")
+    # _AI_INCLUDE always
+    print(f"\n{COLORS.colorize('_AI_INCLUDE/...', COLORS.CYAN)}")
     generate_ai_include(project_dir, project_name, date)

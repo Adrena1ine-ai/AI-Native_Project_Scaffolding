@@ -11,20 +11,11 @@
 
 [🚀 Quick Start](#-quick-start) •
 [📖 Documentation](#-documentation) •
-[🌐 Web Dashboard](#-web-dashboard) •
-[🇷🇺 Русская версия](README.ru.md)
+[🌐 Web Dashboard](#-web-dashboard)
 
 </div>
 
 ---
-
-## 🌍 Languages / Языки
-
-This tool supports **English** and **Russian**:
-- 🇬🇧 CLI and Dashboard in English
-- 🇷🇺 CLI и Dashboard на русском
-- Language selection on first launch
-- Language switcher in Web Dashboard
 
 ---
 
@@ -229,7 +220,6 @@ ai-toolkit dashboard
 ### Features:
 
 - 🎨 Beautiful dark design with animations
-- 🌍 **Language switcher** (🇬🇧 EN / 🇷🇺 RU)
 - 📱 Responsive — works on mobile
 - 🔒 Runs locally (127.0.0.1)
 - 📋 "Copy" buttons for commands
@@ -262,22 +252,7 @@ ai-toolkit
 aitk
 ```
 
-**On first launch — language selection:**
-
-```
-═══════════════════════════════════════════════════════════
-🛠️  AI-NATIVE PROJECT SCAFFOLDING v3.0
-═══════════════════════════════════════════════════════════
-
-🌍 Select language / Выберите язык:
-
-  1. 🇬🇧 English
-  2. 🇷🇺 Русский
-
-Choice / Выбор (1-2) [1]: 
-```
-
-**Then IDE selection and main menu:**
+**On first launch — IDE selection and main menu:**
 
 ```
 🖥️  Which IDE will you use?
@@ -596,7 +571,6 @@ ruff format src
 | [❓ FAQ](docs/FAQ.md) | Frequently asked questions |
 | [⚡ Quick Start](docs/QUICK_START.md) | Get started in 2 minutes |
 | [📋 Changelog](CHANGELOG.md) | Version history |
-| [🇷🇺 Russian](README.ru.md) | Russian version |
 
 ---
 
@@ -611,7 +585,7 @@ ruff format src
 - [x] 🖥️ GUI (Tkinter)
 - [x] 🔌 Plugin system
 - [x] 🐳 Docker + CI/CD
-- [x] 🌍 Localization (EN/RU)
+- [x] 🌍 English UI
 - [ ] 📊 Analytics and reports
 - [ ] 🎨 Custom templates
 - [ ] 🔐 Secrets manager

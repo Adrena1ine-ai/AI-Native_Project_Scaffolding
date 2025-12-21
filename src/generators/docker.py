@@ -1,5 +1,5 @@
 """
-Генератор Docker файлов
+Docker file generator
 """
 
 from __future__ import annotations
@@ -11,9 +11,9 @@ from ..core.constants import COLORS
 
 
 def generate_dockerfile(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация Dockerfile"""
+    """Generate Dockerfile"""
     
-    # Определяем команду запуска в зависимости от шаблона
+    # Determine run command based on template
     cmd_map = {
         "bot": 'CMD ["python", "bot/main.py"]',
         "webapp": 'CMD ["python", "-m", "http.server", "8000", "--directory", "webapp"]',
@@ -24,75 +24,75 @@ def generate_dockerfile(project_dir: Path, project_name: str, template: str) -> 
     
     cmd = cmd_map.get(template, 'CMD ["python", "main.py"]')
     
-    # Дополнительные пакеты для разных шаблонов
+    # Extra packages for different templates
     extra_packages = ""
     if template in ["parser", "full"]:
         extra_packages = """
-# Playwright (если нужен)
+# Playwright (if needed)
 # RUN pip install playwright && playwright install chromium --with-deps
 """
     
-    content = f"""# Dockerfile — {project_name}
+    content = f"""# Dockerfile - {project_name}
 # Build: docker build -t {project_name} .
 # Run: docker run -d --env-file .env {project_name}
 
 FROM python:3.12-slim
 
-# Метаданные
+# Metadata
 LABEL maintainer="your@email.com"
 LABEL version="1.0.0"
 LABEL description="{project_name}"
 
-# Переменные окружения
+# Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Рабочая директория
+# Working directory
 WORKDIR /app
 
-# Установка системных зависимостей (если нужны)
+# Install system dependencies (if needed)
 # RUN apt-get update && apt-get install -y --no-install-recommends \\
 #     gcc \\
 #     && rm -rf /var/lib/apt/lists/*
 {extra_packages}
-# Копируем requirements и устанавливаем зависимости
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем код
+# Copy code
 COPY . .
 
-# Создаём непривилегированного пользователя
+# Create non-privileged user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Открываем порт (если нужен)
+# Expose port (if needed)
 # EXPOSE 8000
 
-# Команда запуска
+# Run command
 {cmd}
 """
     create_file(project_dir / "Dockerfile", content)
 
 
 def generate_docker_compose(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация docker-compose.yml"""
+    """Generate docker-compose.yml"""
     
-    # Дополнительные сервисы
+    # Extra services
     extra_services = ""
     
     if template in ["bot", "full", "fastapi"]:
         extra_services = f"""
-  # Redis (раскомментируй если нужен)
+  # Redis (uncomment if needed)
   # redis:
   #   image: redis:7-alpine
   #   restart: unless-stopped
   #   volumes:
   #     - redis_data:/data
 
-  # PostgreSQL (раскомментируй если нужен)
+  # PostgreSQL (uncomment if needed)
   # postgres:
   #   image: postgres:16-alpine
   #   restart: unless-stopped
@@ -110,7 +110,7 @@ def generate_docker_compose(project_dir: Path, project_name: str, template: str)
 #   postgres_data:
 """ if extra_services else ""
 
-    # Порты
+    # Ports
     ports = ""
     if template in ["webapp", "fastapi"]:
         ports = """
@@ -118,7 +118,7 @@ def generate_docker_compose(project_dir: Path, project_name: str, template: str)
       - "8000:8000"
 """
 
-    content = f"""# Docker Compose — {project_name}
+    content = f"""# Docker Compose - {project_name}
 # Start: docker-compose up -d
 # Logs: docker-compose logs -f
 # Stop: docker-compose down
@@ -146,8 +146,8 @@ services:
 
 
 def generate_dockerignore(project_dir: Path, project_name: str) -> None:
-    """Генерация .dockerignore"""
-    content = f"""# Docker Ignore — {project_name}
+    """Generate .dockerignore"""
+    content = f"""# Docker Ignore - {project_name}
 
 # Git
 .git
@@ -176,11 +176,11 @@ env/
 htmlcov/
 .tox/
 
-# Logs (монтируем как volume)
+# Logs (mounted as volume)
 logs/
 *.log
 
-# Data (монтируем как volume)
+# Data (mounted as volume)
 data/
 *.db
 *.sqlite3
@@ -195,7 +195,7 @@ docs/
 *.md
 !README.md
 
-# AI configs (не нужны в контейнере)
+# AI configs (not needed in container)
 _AI_INCLUDE/
 .cursorrules
 .cursorignore
@@ -207,14 +207,14 @@ CLAUDE.md
 
 def generate_docker_files(project_dir: Path, project_name: str, template: str) -> None:
     """
-    Создать все Docker файлы
+    Create all Docker files
     
     Args:
-        project_dir: Путь к проекту
-        project_name: Название проекта
-        template: Шаблон проекта
+        project_dir: Project path
+        project_name: Project name
+        template: Project template
     """
-    print(f"\n{COLORS.colorize('🐳 Docker...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('Docker...', COLORS.CYAN)}")
     
     generate_dockerfile(project_dir, project_name, template)
     generate_docker_compose(project_dir, project_name, template)

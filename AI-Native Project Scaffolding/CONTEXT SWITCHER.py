@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-🛠️ BUILDER (ГЕНЕРАТОР ПРОЕКТА)
-Создает структуру, venv и скрипты.
+🛠️ BUILDER (PROJECT GENERATOR)
+Creates structure, venv and scripts.
 """
 import sys
 import os
 import stat
 from pathlib import Path
 
-# === ТВОЯ КИЛЛЕР-ФИЧА: Context Switcher ===
+# === YOUR KILLER FEATURE: Context Switcher ===
 CONTEXT_SCRIPT = '''#!/usr/bin/env python3
 """
-🎮 CONTEXT SWITCHER — Авторская методика
-Скрывает части проекта от Cursor, чтобы он не тупил.
+🎮 CONTEXT SWITCHER — Original Method
+Hides parts of the project from Cursor so it doesn't get confused.
 """
 import sys
 
@@ -47,7 +47,7 @@ def update(mode):
     
     with open(".cursorignore", "w", encoding="utf-8") as f:
         f.write("\\n".join(lines))
-    print(f"✅ Режим: {mode.upper()}")
+    print(f"✅ Mode: {mode.upper()}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -76,24 +76,24 @@ def create_file(path: Path, content: str, exe=False):
 def run(project_name):
     root = Path(project_name)
     if root.exists():
-        print(f"❌ {project_name} уже есть!")
+        print(f"❌ {project_name} already exists!")
         return
 
-    print(f"🏗️ Строю проект: {project_name}...")
+    print(f"🏗️ Building project: {project_name}...")
     
-    # Структура
+    # Structure
     for d in ["bot", "webapp", "parser", "database", "api", "scripts", "_AI_INCLUDE"]:
         (root / d).mkdir(parents=True, exist_ok=True)
 
-    # Создание файлов
+    # Create files
     create_file(root / "scripts/context.py", CONTEXT_SCRIPT, exe=True)
     create_file(root / "scripts/bootstrap.sh", BOOTSTRAP, exe=True)
     create_file(root / ".cursorignore", "venv/\n.env\n")
     create_file(root / "README.md", f"# {project_name}\nCreated by AI Toolkit")
     
-    # Сюда можно добавить создание main.py, handlers и т.д. из Файла 4
+    # You can add creation of main.py, handlers etc. from File 4 here
     
-    print("✅ Готово.")
+    print("✅ Done.")
 
 if __name__ == "__main__":
     run(sys.argv[1] if len(sys.argv) > 1 else "new_project")

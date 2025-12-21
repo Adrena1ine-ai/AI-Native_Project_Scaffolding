@@ -1,5 +1,5 @@
 """
-Генератор скриптов (bootstrap, health_check, context.py)
+Script generator (bootstrap, health_check, context.py)
 """
 
 from __future__ import annotations
@@ -11,124 +11,124 @@ from ..core.constants import COLORS
 
 
 def generate_bootstrap_sh(project_dir: Path, project_name: str) -> None:
-    """Генерация bootstrap.sh"""
+    """Generate bootstrap.sh"""
     content = f"""#!/usr/bin/env bash
-# Bootstrap — {project_name}
-# Создаёт venv ВНЕ проекта
+# Bootstrap - {project_name}
+# Creates venv OUTSIDE project
 
 set -euo pipefail
 
 PROJ="$(basename "$PWD")"
 VENV_DIR="../_venvs/${{PROJ}}-venv"
 
-echo "🚀 Bootstrap: $PROJ"
-echo "📁 Venv: $VENV_DIR"
+echo "Bootstrap: $PROJ"
+echo "Venv: $VENV_DIR"
 
-# Создаём папку для venv
+# Create venv folder
 mkdir -p "../_venvs"
 
-# Создаём venv если нет
+# Create venv if not exists
 if [ ! -d "$VENV_DIR" ]; then
-    echo "🐍 Creating venv..."
+    echo "Creating venv..."
     python3 -m venv "$VENV_DIR"
 fi
 
-# Активируем и обновляем pip
+# Activate and update pip
 source "$VENV_DIR/bin/activate"
 pip install -U pip wheel setuptools --quiet
 
-# Устанавливаем зависимости
+# Install dependencies
 if [ -f requirements.txt ]; then
-    echo "📦 Installing dependencies..."
+    echo "Installing dependencies..."
     pip install -r requirements.txt --quiet
 fi
 
-# Устанавливаем dev зависимости если есть
+# Install dev dependencies if exist
 if [ -f requirements-dev.txt ]; then
-    echo "🔧 Installing dev dependencies..."
+    echo "Installing dev dependencies..."
     pip install -r requirements-dev.txt --quiet
 fi
 
 echo ""
-echo "✅ Done!"
+echo "Done!"
 echo "Activate: source $VENV_DIR/bin/activate"
 """
     create_file(project_dir / "scripts" / "bootstrap.sh", content, executable=True)
 
 
 def generate_bootstrap_ps1(project_dir: Path, project_name: str) -> None:
-    """Генерация bootstrap.ps1 (Windows)"""
-    content = f"""# Bootstrap — {project_name} (Windows)
-# Создаёт venv ВНЕ проекта
+    """Generate bootstrap.ps1 (Windows)"""
+    content = f"""# Bootstrap - {project_name} (Windows)
+# Creates venv OUTSIDE project
 
 $ErrorActionPreference = "Stop"
 
 $Proj = Split-Path -Leaf (Get-Location)
 $VenvDir = "../_venvs/$Proj-venv"
 
-Write-Host "🚀 Bootstrap: $Proj"
-Write-Host "📁 Venv: $VenvDir"
+Write-Host "Bootstrap: $Proj"
+Write-Host "Venv: $VenvDir"
 
-# Создаём папку для venv
+# Create venv folder
 New-Item -ItemType Directory -Force -Path "../_venvs" | Out-Null
 
-# Создаём venv если нет
+# Create venv if not exists
 if (-not (Test-Path $VenvDir)) {{
-    Write-Host "🐍 Creating venv..."
+    Write-Host "Creating venv..."
     python -m venv $VenvDir
 }}
 
-# Активируем
+# Activate
 & "$VenvDir/Scripts/Activate.ps1"
 pip install -U pip wheel setuptools --quiet
 
-# Устанавливаем зависимости
+# Install dependencies
 if (Test-Path "requirements.txt") {{
-    Write-Host "📦 Installing dependencies..."
+    Write-Host "Installing dependencies..."
     pip install -r requirements.txt --quiet
 }}
 
 Write-Host ""
-Write-Host "✅ Done!"
+Write-Host "Done!"
 Write-Host "Activate: $VenvDir/Scripts/Activate.ps1"
 """
     create_file(project_dir / "scripts" / "bootstrap.ps1", content)
 
 
 def generate_check_repo_clean(project_dir: Path) -> None:
-    """Генерация check_repo_clean.sh"""
+    """Generate check_repo_clean.sh"""
     content = """#!/usr/bin/env bash
-# 🛡️ Check repo is clean (no venv inside)
-# Используется в pre-commit hook
+# Check repo is clean (no venv inside)
+# Used in pre-commit hook
 
 set -euo pipefail
 
 bad=0
 
-# Проверяем запрещённые папки
+# Check forbidden folders
 for p in venv .venv env .env; do
     if [ -d "$p" ] && [ -f "$p/bin/python" -o -f "$p/Scripts/python.exe" ]; then
-        echo "❌ ERROR: Virtual environment '$p' found in repo!"
+        echo "ERROR: Virtual environment '$p' found in repo!"
         echo "   Move it to: ../_venvs/$(basename $PWD)-venv"
         bad=1
     fi
 done
 
-# Проверяем site-packages
+# Check site-packages
 if find . -path "*/site-packages" -prune -print 2>/dev/null | grep -q .; then
-    echo "❌ ERROR: site-packages found inside repo!"
+    echo "ERROR: site-packages found inside repo!"
     bad=1
 fi
 
-# Проверяем большие файлы
+# Check large files
 large_files=$(find . -type f -size +10M 2>/dev/null | grep -v ".git" | head -5)
 if [ -n "$large_files" ]; then
-    echo "⚠️  WARNING: Large files (>10MB) found:"
+    echo "WARNING: Large files (>10MB) found:"
     echo "$large_files"
 fi
 
 if [ $bad -eq 0 ]; then
-    echo "✅ Repo is clean!"
+    echo "Repo is clean!"
 fi
 
 exit $bad
@@ -137,14 +137,14 @@ exit $bad
 
 
 def generate_health_check(project_dir: Path, project_name: str) -> None:
-    """Генерация health_check.sh"""
+    """Generate health_check.sh"""
     content = f"""#!/usr/bin/env bash
-# 🏥 Health Check — {project_name}
+# Health Check - {project_name}
 
 set -euo pipefail
 
-echo "🏥 Health Check: {project_name}"
-echo "════════════════════════════════════"
+echo "Health Check: {project_name}"
+echo "========================================"
 echo ""
 
 PROJ="$(basename "$PWD")"
@@ -152,106 +152,106 @@ VENV_DIR="../_venvs/${{PROJ}}-venv"
 errors=0
 warnings=0
 
-# 1. Проверяем venv
-echo "📍 Virtual Environment:"
+# 1. Check venv
+echo "Virtual Environment:"
 if [ -d "$VENV_DIR" ]; then
-    echo "   ✅ Venv exists: $VENV_DIR"
+    echo "   [OK] Venv exists: $VENV_DIR"
 else
-    echo "   ❌ Venv missing: $VENV_DIR"
+    echo "   [ERROR] Venv missing: $VENV_DIR"
     echo "      Run: ./scripts/bootstrap.sh"
     errors=$((errors + 1))
 fi
 
-# 2. Проверяем что venv НЕ в проекте
+# 2. Check venv NOT in project
 for p in venv .venv; do
     if [ -d "$p" ]; then
-        echo "   ❌ Forbidden: $p in project!"
+        echo "   [ERROR] Forbidden: $p in project!"
         errors=$((errors + 1))
     fi
 done
 
-# 3. Проверяем .env
+# 3. Check .env
 echo ""
-echo "📍 Configuration:"
+echo "Configuration:"
 if [ -f ".env" ]; then
-    echo "   ✅ .env exists"
+    echo "   [OK] .env exists"
 else
-    echo "   ⚠️  .env missing"
+    echo "   [WARN] .env missing"
     if [ -f ".env.example" ]; then
         echo "      Run: cp .env.example .env"
     fi
     warnings=$((warnings + 1))
 fi
 
-# 4. Проверяем requirements
+# 4. Check requirements
 if [ -f "requirements.txt" ]; then
-    echo "   ✅ requirements.txt exists"
+    echo "   [OK] requirements.txt exists"
 else
-    echo "   ⚠️  requirements.txt missing"
+    echo "   [WARN] requirements.txt missing"
     warnings=$((warnings + 1))
 fi
 
-# 5. Проверяем _AI_INCLUDE
+# 5. Check _AI_INCLUDE
 echo ""
-echo "📍 AI Configuration:"
+echo "AI Configuration:"
 if [ -d "_AI_INCLUDE" ]; then
-    echo "   ✅ _AI_INCLUDE/ exists"
+    echo "   [OK] _AI_INCLUDE/ exists"
 else
-    echo "   ❌ _AI_INCLUDE/ missing"
+    echo "   [ERROR] _AI_INCLUDE/ missing"
     errors=$((errors + 1))
 fi
 
-# 6. Проверяем AI конфиги
+# 6. Check AI configs
 for f in ".cursorrules" ".github/copilot-instructions.md" "CLAUDE.md"; do
     if [ -f "$f" ]; then
-        echo "   ✅ $f"
+        echo "   [OK] $f"
     fi
 done
 
-# 7. Проверяем Docker
+# 7. Check Docker
 echo ""
-echo "📍 Docker:"
+echo "Docker:"
 if [ -f "Dockerfile" ]; then
-    echo "   ✅ Dockerfile exists"
+    echo "   [OK] Dockerfile exists"
 else
-    echo "   ℹ️  No Dockerfile"
+    echo "   [INFO] No Dockerfile"
 fi
 
 if [ -f "docker-compose.yml" ]; then
-    echo "   ✅ docker-compose.yml exists"
+    echo "   [OK] docker-compose.yml exists"
 fi
 
-# 8. Проверяем CI/CD
+# 8. Check CI/CD
 echo ""
-echo "📍 CI/CD:"
+echo "CI/CD:"
 if [ -f ".github/workflows/ci.yml" ]; then
-    echo "   ✅ GitHub Actions configured"
+    echo "   [OK] GitHub Actions configured"
 else
-    echo "   ℹ️  No CI/CD configured"
+    echo "   [INFO] No CI/CD configured"
 fi
 
-# 9. Проверяем Git
+# 9. Check Git
 echo ""
-echo "📍 Git:"
+echo "Git:"
 if [ -d ".git" ]; then
-    echo "   ✅ Git repository initialized"
+    echo "   [OK] Git repository initialized"
     branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-    echo "   📌 Branch: $branch"
+    echo "   Branch: $branch"
 else
-    echo "   ⚠️  Not a git repository"
+    echo "   [WARN] Not a git repository"
     echo "      Run: git init"
     warnings=$((warnings + 1))
 fi
 
-# Итог
+# Summary
 echo ""
-echo "════════════════════════════════════"
+echo "========================================"
 if [ $errors -eq 0 ] && [ $warnings -eq 0 ]; then
-    echo "✅ All checks passed!"
+    echo "[OK] All checks passed!"
 elif [ $errors -eq 0 ]; then
-    echo "⚠️  $warnings warning(s), no errors"
+    echo "[WARN] $warnings warning(s), no errors"
 else
-    echo "❌ $errors error(s), $warnings warning(s)"
+    echo "[ERROR] $errors error(s), $warnings warning(s)"
 fi
 
 exit $errors
@@ -260,23 +260,23 @@ exit $errors
 
 
 def generate_context_switcher(project_dir: Path) -> None:
-    """Генерация context.py (Context Switcher)"""
+    """Generate context.py (Context Switcher)"""
     content = '''#!/usr/bin/env python3
 """
-🎮 Context Switcher — скрывает/показывает модули от AI
-Решает проблему когда AI тупит на большом проекте
+Context Switcher - hides/shows modules from AI
+Solves the problem when AI struggles with large projects
 
-Использование:
-    python scripts/context.py bot     # Видит только bot/
-    python scripts/context.py webapp  # Видит только webapp/
-    python scripts/context.py all     # Видит всё
-    python scripts/context.py status  # Показать текущий режим
+Usage:
+    python scripts/context.py bot     # Only sees bot/
+    python scripts/context.py webapp  # Only sees webapp/
+    python scripts/context.py all     # Sees everything
+    python scripts/context.py status  # Show current mode
 """
 
 import sys
 from pathlib import Path
 
-# Базовые исключения (всегда скрыты)
+# Base exclusions (always hidden)
 BASE_IGNORE = """
 # === ALWAYS IGNORED ===
 venv/
@@ -296,7 +296,7 @@ build/
 **/playwright/driver/
 """
 
-# Модули которые можно скрывать
+# Modules that can be hidden
 MODULES = {
     "bot": ["bot/", "handlers/", "keyboards/"],
     "webapp": ["webapp/", "frontend/", "static/"],
@@ -307,7 +307,7 @@ MODULES = {
 
 
 def get_current_mode() -> str:
-    """Определить текущий режим по .cursorignore"""
+    """Determine current mode from .cursorignore"""
     ignore_file = Path(".cursorignore")
     if not ignore_file.exists():
         return "unknown"
@@ -321,13 +321,13 @@ def get_current_mode() -> str:
 
 
 def update_ignore(mode: str) -> None:
-    """Обновить .cursorignore для режима"""
+    """Update .cursorignore for mode"""
     lines = [BASE_IGNORE.strip(), "", f"# MODE: {mode.upper()}", ""]
     
     if mode == "all":
         lines.append("# All modules visible")
     else:
-        # Скрываем все модули кроме выбранного
+        # Hide all modules except selected
         for module_name, paths in MODULES.items():
             if module_name != mode:
                 lines.append(f"# Hidden: {module_name}")
@@ -338,10 +338,10 @@ def update_ignore(mode: str) -> None:
 
 
 def show_status() -> None:
-    """Показать текущий статус"""
+    """Show current status"""
     mode = get_current_mode()
     
-    print("🎮 Context Switcher Status")
+    print("Context Switcher Status")
     print("=" * 40)
     print(f"Current mode: {mode.upper()}")
     print()
@@ -358,8 +358,8 @@ def show_status() -> None:
     print()
     print("Available modes:")
     for m in MODULES:
-        print(f"  {m:8} — focus on {m}")
-    print(f"  {'all':8} — show everything")
+        print(f"  {m:8} - focus on {m}")
+    print(f"  {'all':8} - show everything")
 
 
 def main():
@@ -376,13 +376,13 @@ def main():
         sys.exit(0)
     
     if mode not in [*MODULES.keys(), "all"]:
-        print(f"❌ Unknown mode: {mode}")
+        print(f"Unknown mode: {mode}")
         print(f"Available: {', '.join(MODULES.keys())}, all")
         sys.exit(1)
     
     update_ignore(mode)
     
-    print(f"✅ Mode: {mode.upper()}")
+    print(f"Mode: {mode.upper()}")
     if mode != "all":
         visible = MODULES.get(mode, [])
         hidden = [m for m in MODULES if m != mode]
@@ -400,13 +400,13 @@ if __name__ == "__main__":
 
 def generate_scripts(project_dir: Path, project_name: str) -> None:
     """
-    Создать все скрипты
+    Create all scripts
     
     Args:
-        project_dir: Путь к проекту
-        project_name: Название проекта
+        project_dir: Project path
+        project_name: Project name
     """
-    print(f"\n{COLORS.colorize('📜 Scripts...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('Scripts...', COLORS.CYAN)}")
     
     scripts_dir = project_dir / "scripts"
     scripts_dir.mkdir(exist_ok=True)

@@ -1,5 +1,5 @@
 """
-Генератор Git файлов и инициализация репозитория
+Git file generator and repository initialization
 """
 
 from __future__ import annotations
@@ -13,14 +13,14 @@ from ..core.constants import COLORS
 
 
 def generate_gitignore(project_dir: Path, project_name: str) -> None:
-    """Генерация .gitignore"""
+    """Generate .gitignore"""
     date = datetime.now().strftime("%Y-%m-%d")
-    content = f"""# Git Ignore — {project_name}
+    content = f"""# Git Ignore - {project_name}
 # Generated: {date}
 
-# ══════════════════════════════════════
+# ======================================
 # Python
-# ══════════════════════════════════════
+# ======================================
 venv/
 .venv/
 env/
@@ -50,9 +50,9 @@ wheels/
 .installed.cfg
 *.egg
 
-# ══════════════════════════════════════
+# ======================================
 # Testing
-# ══════════════════════════════════════
+# ======================================
 .pytest_cache/
 .coverage
 htmlcov/
@@ -63,18 +63,18 @@ coverage.xml
 *.py,cover
 .hypothesis/
 
-# ══════════════════════════════════════
+# ======================================
 # Type checking & Linting
-# ══════════════════════════════════════
+# ======================================
 .mypy_cache/
 .dmypy.json
 dmypy.json
 .ruff_cache/
 .pytype/
 
-# ══════════════════════════════════════
+# ======================================
 # Secrets & Environment
-# ══════════════════════════════════════
+# ======================================
 .env
 .env.local
 .env.*.local
@@ -83,9 +83,9 @@ dmypy.json
 secrets.json
 credentials.json
 
-# ══════════════════════════════════════
+# ======================================
 # Logs & Data
-# ══════════════════════════════════════
+# ======================================
 logs/
 *.log
 *.log.*
@@ -97,9 +97,9 @@ data/
 *.sqlite
 *.sqlite3
 
-# ══════════════════════════════════════
+# ======================================
 # IDE & Editors
-# ══════════════════════════════════════
+# ======================================
 .idea/
 .vscode/
 *.swp
@@ -109,9 +109,9 @@ data/
 .pydevproject
 .settings/
 
-# ══════════════════════════════════════
+# ======================================
 # OS
-# ══════════════════════════════════════
+# ======================================
 .DS_Store
 .DS_Store?
 ._*
@@ -121,9 +121,9 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 
-# ══════════════════════════════════════
+# ======================================
 # Frontend (if applicable)
-# ══════════════════════════════════════
+# ======================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -132,14 +132,14 @@ yarn-error.log*
 dist/
 build/
 
-# ══════════════════════════════════════
+# ======================================
 # Docker
-# ══════════════════════════════════════
+# ======================================
 .docker/
 
-# ══════════════════════════════════════
+# ======================================
 # Playwright
-# ══════════════════════════════════════
+# ======================================
 **/playwright/driver/
 playwright-report/
 test-results/
@@ -148,7 +148,7 @@ test-results/
 
 
 def generate_gitattributes(project_dir: Path) -> None:
-    """Генерация .gitattributes"""
+    """Generate .gitattributes"""
     content = """# Git Attributes
 
 # Auto detect text files and perform LF normalization
@@ -214,19 +214,19 @@ def generate_gitattributes(project_dir: Path) -> None:
 
 def init_git_repo(project_dir: Path, project_name: str, initial_commit: bool = True) -> bool:
     """
-    Инициализировать Git репозиторий
+    Initialize Git repository
     
     Args:
-        project_dir: Путь к проекту
-        project_name: Название проекта
-        initial_commit: Создать первый коммит
+        project_dir: Project path
+        project_name: Project name
+        initial_commit: Create first commit
         
     Returns:
-        True если успешно
+        True if successful
     """
-    print(f"\n{COLORS.colorize('🔗 Git...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('Git...', COLORS.CYAN)}")
     
-    # Генерируем файлы
+    # Generate files
     generate_gitignore(project_dir, project_name)
     generate_gitattributes(project_dir)
     
@@ -245,7 +245,7 @@ def init_git_repo(project_dir: Path, project_name: str, initial_commit: bool = T
         
         print(f"  {COLORS.success('git init')}")
         
-        # Настраиваем main как default branch
+        # Set main as default branch
         subprocess.run(
             ["git", "branch", "-M", "main"],
             cwd=project_dir,
@@ -262,7 +262,7 @@ def init_git_repo(project_dir: Path, project_name: str, initial_commit: bool = T
             
             # git commit
             result = subprocess.run(
-                ["git", "commit", "-m", f"🎉 Initial commit — {project_name}\n\nGenerated by AI Toolkit v3.0"],
+                ["git", "commit", "-m", f"Initial commit - {project_name}\n\nGenerated by AI Toolkit v3.0"],
                 cwd=project_dir,
                 capture_output=True,
                 text=True
@@ -271,7 +271,7 @@ def init_git_repo(project_dir: Path, project_name: str, initial_commit: bool = T
             if result.returncode == 0:
                 print(f"  {COLORS.success('Initial commit created')}")
             else:
-                # Возможно git не настроен (user.email, user.name)
+                # Git may not be configured (user.email, user.name)
                 print(f"  {COLORS.warning('Commit skipped (configure git user first)')}")
         
         return True

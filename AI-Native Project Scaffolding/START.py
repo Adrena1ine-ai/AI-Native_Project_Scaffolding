@@ -1,58 +1,58 @@
 #!/usr/bin/env python3
 """
-🚀 START.py — ТОЧКА ВХОДА
-Этот скрипт управляет созданием проекта через AI Agent.
+🚀 START.py — ENTRY POINT
+This script manages project creation through AI Agent.
 
-ЛОГИКА РАБОТЫ:
-1. Загружает "Конституцию" (manifesto.md) и показывает её Агенту.
-2. Запускает "Строителя" (builder.py) для создания файлов.
+WORKFLOW:
+1. Loads the "Constitution" (manifesto.md) and shows it to the Agent.
+2. Runs the "Builder" (builder.py) to create files.
 """
 
 import os
 import sys
 from pathlib import Path
 
-# Получаем путь, где лежат скрипты (твоя папка инструментов)
+# Get the path where the scripts are located (your tools folder)
 TOOLKIT_DIR = Path(__file__).parent.resolve()
 MANIFESTO_PATH = TOOLKIT_DIR / "manifesto.md"
 BUILDER_PATH = TOOLKIT_DIR / "builder.py"
 
 def main():
-    # 1. Проверяем наличие инструментов
+    # 1. Check for required tools
     if not MANIFESTO_PATH.exists() or not BUILDER_PATH.exists():
-        print("❌ ОШИБКА: Не найдены manifesto.md или builder.py")
-        print(f"Убедитесь, что они лежат в: {TOOLKIT_DIR}")
+        print("❌ ERROR: manifesto.md or builder.py not found")
+        print(f"Make sure they are in: {TOOLKIT_DIR}")
         return
 
-    # 2. Считываем и выводим Манифест для ИИ
+    # 2. Read and output the Manifesto for AI
     print("\n" + "="*60)
-    print("🧠 ЗАГРУЗКА БАЗЫ ЗНАНИЙ (Файл №1)...")
+    print("🧠 LOADING KNOWLEDGE BASE (File #1)...")
     print("="*60)
     print(MANIFESTO_PATH.read_text(encoding='utf-8'))
     print("\n" + "="*60)
-    print("🤖 ИНСТРУКЦИЯ ДЛЯ CURSOR AGENT:")
-    print("1. Ты только что прочитал Манифест выше. Это ЗАКОН.")
-    print("2. Сейчас я запущу генератор структуры.")
-    print("3. Твоя задача — проверить результат и создать _AI_INCLUDE файлы на основе Манифеста.")
+    print("🤖 INSTRUCTIONS FOR CURSOR AGENT:")
+    print("1. You just read the Manifesto above. This is LAW.")
+    print("2. Now I will run the structure generator.")
+    print("3. Your task — verify the result and create _AI_INCLUDE files based on the Manifesto.")
     print("="*60 + "\n")
 
-    # 3. Спрашиваем имя и запускаем Билдер
+    # 3. Ask for name and run Builder
     if len(sys.argv) > 1:
         project_name = sys.argv[1]
     else:
-        project_name = input("Введите название нового проекта: ").strip()
+        project_name = input("Enter new project name: ").strip()
 
     if not project_name:
         return
 
-    # Импортируем и запускаем builder.py как модуль
+    # Import and run builder.py as module
     sys.path.append(str(TOOLKIT_DIR))
     import builder
     builder.run(project_name)
 
-    print(f"\n✨ Проект {project_name} инициализирован.")
-    print(f"📂 Теперь перейди в папку: cd {project_name}")
-    print("💡 И скажи Cursor'у: 'Настрой детали согласно Манифесту'.")
+    print(f"\n✨ Project {project_name} initialized.")
+    print(f"📂 Now go to folder: cd {project_name}")
+    print("💡 And tell Cursor: 'Configure details according to the Manifesto'.")
 
 if __name__ == "__main__":
     main()

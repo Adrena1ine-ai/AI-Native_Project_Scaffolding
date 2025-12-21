@@ -1,94 +1,94 @@
 # 🤖 Claude Instructions — AI Toolkit
 
-## 🚨 ПЕРВОЕ ДЕЙСТВИЕ
+## 🚨 FIRST ACTION
 
-Прочитай `_AI_INCLUDE/` — там правила этого проекта.
+Read `_AI_INCLUDE/` — it contains the rules for this project.
 
 ```
 _AI_INCLUDE/
-├── PROJECT_CONVENTIONS.md  ← Архитектура, запреты, правила
-└── WHERE_IS_WHAT.md        ← Где что искать
+├── PROJECT_CONVENTIONS.md  ← Architecture, restrictions, rules
+└── WHERE_IS_WHAT.md        ← Where to find what
 ```
 
 ---
 
-## 📌 Это проект AI Toolkit
+## 📌 This is the AI Toolkit project
 
-Инструмент для создания AI-friendly проектов. Генерирует:
-- Структуру проекта
-- AI конфиги (.cursorrules, copilot-instructions.md, CLAUDE.md)
+A tool for creating AI-friendly projects. It generates:
+- Project structure
+- AI configs (.cursorrules, copilot-instructions.md, CLAUDE.md)
 - Scripts (bootstrap.sh, health_check.sh)
 - Docker, CI/CD, Git
 
 ---
 
-## 🏗️ Ключевая архитектура
+## 🏗️ Key Architecture
 
 ```
 src/
-├── core/           # Базовые компоненты
-│   ├── constants.py    ← ВСЕ константы здесь!
-│   └── config.py       ← Работа с конфигом
-├── generators/     # Генераторы файлов
+├── core/           # Base components
+│   ├── constants.py    ← ALL constants here!
+│   └── config.py       ← Configuration management
+├── generators/     # File generators
 │   ├── ai_configs.py   ← .cursorrules, copilot, CLAUDE.md
 │   ├── scripts.py      ← bootstrap.sh, health_check.sh
 │   ├── docker.py       ← Dockerfile
 │   └── ci_cd.py        ← GitHub Actions
-├── commands/       # CLI команды
-│   ├── create.py       ← Создание проекта
-│   └── cleanup.py      ← Очистка
-└── cli.py          # Главный CLI
+├── commands/       # CLI commands
+│   ├── create.py       ← Project creation
+│   └── cleanup.py      ← Cleanup
+└── cli.py          # Main CLI
 ```
 
 ---
 
-## ⚠️ ЗАПРЕТЫ
+## ⚠️ RESTRICTIONS
 
-1. **НЕ создавай venv/** внутри этого проекта
-2. **НЕ меняй constants.py** без понимания связей
-3. **НЕ добавляй зависимости** без необходимости
-
----
-
-## ✅ Как добавить новую фичу
-
-### Новый генератор:
-1. Создать в `src/generators/new_generator.py`
-2. Добавить в `src/generators/__init__.py`
-3. Вызвать в `src/commands/create.py`
-
-### Новая команда:
-1. Создать в `src/commands/new_command.py`
-2. Добавить в `src/commands/__init__.py`
-3. Добавить в `src/cli.py` (меню + argparse)
-
-### Новый шаблон:
-1. Добавить в `TEMPLATES` в `src/core/constants.py`
-2. Добавить генерацию в `src/commands/create.py`
+1. **DO NOT create venv/** inside this project
+2. **DO NOT modify constants.py** without understanding dependencies
+3. **DO NOT add dependencies** without necessity
 
 ---
 
-## 🧪 Тестирование
+## ✅ How to add a new feature
+
+### New generator:
+1. Create in `src/generators/new_generator.py`
+2. Add to `src/generators/__init__.py`
+3. Call in `src/commands/create.py`
+
+### New command:
+1. Create in `src/commands/new_command.py`
+2. Add to `src/commands/__init__.py`
+3. Add to `src/cli.py` (menu + argparse)
+
+### New template:
+1. Add to `TEMPLATES` in `src/core/constants.py`
+2. Add generation in `src/commands/create.py`
+
+---
+
+## 🧪 Testing
 
 ```bash
-# Запуск
+# Run
 python __main__.py
 
 # CLI
 python __main__.py create test_bot --template bot --ai copilot
 
-# Проверка
-./scripts/health_check.sh (если есть)
+# Check
+./scripts/health_check.sh (if available)
 ```
 
 ---
 
-## 📁 Быстрые ссылки
+## 📁 Quick Links
 
-| Нужно | Файл |
-|-------|------|
-| Все шаблоны | `src/core/constants.py` → `TEMPLATES` |
-| Все IDE | `src/core/constants.py` → `IDE_CONFIGS` |
-| Генерация AI файлов | `src/generators/ai_configs.py` |
-| Главная логика создания | `src/commands/create.py` |
-| CLI меню | `src/cli.py` |
+| Need | File |
+|------|------|
+| All templates | `src/core/constants.py` → `TEMPLATES` |
+| All IDEs | `src/core/constants.py` → `IDE_CONFIGS` |
+| AI file generation | `src/generators/ai_configs.py` |
+| Main creation logic | `src/commands/create.py` |
+| CLI menu | `src/cli.py` |

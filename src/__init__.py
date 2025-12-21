@@ -1,16 +1,16 @@
 """
-🛠️ AI Toolkit v3.0
-====================
-Создание и управление AI-friendly проектами
+AI Toolkit v3.0
+================
+Create and manage AI-friendly projects
 
-Возможности:
-- Создание проектов (bot, webapp, fastapi, parser, monorepo)
-- Очистка грязных проектов
-- Миграция существующих проектов
+Features:
+- Create projects (bot, webapp, fastapi, parser, monorepo)
+- Cleanup dirty projects
+- Migrate existing projects
 - Health check
-- Docker и CI/CD интеграция
-- GUI интерфейс
-- Плагины
+- Docker and CI/CD integration
+- GUI interface
+- Plugins
 """
 
 __version__ = "3.0.0"

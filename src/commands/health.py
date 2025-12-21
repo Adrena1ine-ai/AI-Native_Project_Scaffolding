@@ -1,5 +1,5 @@
 """
-Команда health — проверка здоровья проекта
+Health command - check project health
 """
 
 from __future__ import annotations
@@ -11,59 +11,59 @@ from ..core.constants import COLORS, VERSION
 
 def health_check(project_path: Path) -> bool:
     """
-    Проверить здоровье проекта
+    Check project health
     
     Returns:
-        True если все проверки пройдены
+        True if all checks passed
     """
     project_name = project_path.name
     
     print(f"""
-{COLORS.colorize('═' * 50, COLORS.CYAN)}
-{COLORS.colorize(f'🏥 Health Check: {project_name}', COLORS.CYAN)}
-{COLORS.colorize('═' * 50, COLORS.CYAN)}
+{COLORS.colorize('=' * 50, COLORS.CYAN)}
+{COLORS.colorize(f'Health Check: {project_name}', COLORS.CYAN)}
+{COLORS.colorize('=' * 50, COLORS.CYAN)}
 """)
     
     errors = 0
     warnings = 0
     
     # 1. Venv
-    print(f"{COLORS.colorize('📍 Virtual Environment', COLORS.BOLD)}")
+    print(f"{COLORS.colorize('Virtual Environment', COLORS.BOLD)}")
     venv_path = project_path.parent / "_venvs" / f"{project_name}-venv"
     
     if venv_path.exists():
         print(f"   {COLORS.success(f'Venv: {venv_path}')}")
     else:
-        print(f"   {COLORS.error(f'Venv не найден: {venv_path}')}")
+        print(f"   {COLORS.error(f'Venv not found: {venv_path}')}")
         errors += 1
     
     for bad in ["venv", ".venv", "env"]:
         if (project_path / bad).is_dir():
-            print(f"   {COLORS.error(f'ЗАПРЕЩЕНО: {bad}/ в проекте!')}")
+            print(f"   {COLORS.error(f'FORBIDDEN: {bad}/ in project!')}")
             errors += 1
     
-    # 2. Конфигурация
-    print(f"\n{COLORS.colorize('📍 Configuration', COLORS.BOLD)}")
+    # 2. Configuration
+    print(f"\n{COLORS.colorize('Configuration', COLORS.BOLD)}")
     
     if (project_path / ".env").exists():
         print(f"   {COLORS.success('.env')}")
     else:
-        print(f"   {COLORS.warning('.env отсутствует')}")
+        print(f"   {COLORS.warning('.env missing')}")
         warnings += 1
     
     if (project_path / "requirements.txt").exists():
         print(f"   {COLORS.success('requirements.txt')}")
     else:
-        print(f"   {COLORS.warning('requirements.txt отсутствует')}")
+        print(f"   {COLORS.warning('requirements.txt missing')}")
         warnings += 1
     
-    # 3. AI конфиги
-    print(f"\n{COLORS.colorize('📍 AI Configuration', COLORS.BOLD)}")
+    # 3. AI configs
+    print(f"\n{COLORS.colorize('AI Configuration', COLORS.BOLD)}")
     
     if (project_path / "_AI_INCLUDE").exists():
         print(f"   {COLORS.success('_AI_INCLUDE/')}")
     else:
-        print(f"   {COLORS.error('_AI_INCLUDE/ отсутствует')}")
+        print(f"   {COLORS.error('_AI_INCLUDE/ missing')}")
         errors += 1
     
     ai_files = [
@@ -78,86 +78,86 @@ def health_check(project_path: Path) -> bool:
             print(f"   {COLORS.success(name)}")
     
     # 4. Scripts
-    print(f"\n{COLORS.colorize('📍 Scripts', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('Scripts', COLORS.BOLD)}")
     
     scripts = ["bootstrap.sh", "health_check.sh", "context.py"]
     for script in scripts:
         if (project_path / "scripts" / script).exists():
             print(f"   {COLORS.success(script)}")
         else:
-            print(f"   {COLORS.warning(f'{script} отсутствует')}")
+            print(f"   {COLORS.warning(f'{script} missing')}")
             warnings += 1
     
     # 5. Docker
-    print(f"\n{COLORS.colorize('📍 Docker', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('Docker', COLORS.BOLD)}")
     
     if (project_path / "Dockerfile").exists():
         print(f"   {COLORS.success('Dockerfile')}")
     else:
-        print(f"   {COLORS.info('Dockerfile отсутствует')}")
+        print(f"   {COLORS.info('Dockerfile missing')}")
     
     if (project_path / "docker-compose.yml").exists():
         print(f"   {COLORS.success('docker-compose.yml')}")
     
     # 6. CI/CD
-    print(f"\n{COLORS.colorize('📍 CI/CD', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('CI/CD', COLORS.BOLD)}")
     
     if (project_path / ".github" / "workflows" / "ci.yml").exists():
         print(f"   {COLORS.success('GitHub Actions')}")
     else:
-        print(f"   {COLORS.info('CI не настроен')}")
+        print(f"   {COLORS.info('CI not configured')}")
     
     # 7. Git
-    print(f"\n{COLORS.colorize('📍 Git', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('Git', COLORS.BOLD)}")
     
     if (project_path / ".git").exists():
-        print(f"   {COLORS.success('Git репозиторий')}")
+        print(f"   {COLORS.success('Git repository')}")
     else:
-        print(f"   {COLORS.warning('Не git репозиторий')}")
+        print(f"   {COLORS.warning('Not a git repository')}")
         warnings += 1
     
     # 8. Toolkit version
-    print(f"\n{COLORS.colorize('📍 Toolkit', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('Toolkit', COLORS.BOLD)}")
     
     version_file = project_path / ".toolkit-version"
     if version_file.exists():
         version = version_file.read_text().strip()
         if version == VERSION:
-            print(f"   {COLORS.success(f'Версия: {version}')}")
+            print(f"   {COLORS.success(f'Version: {version}')}")
         else:
-            print(f"   {COLORS.warning(f'Версия {version} → доступна {VERSION}')}")
+            print(f"   {COLORS.warning(f'Version {version} -> available {VERSION}')}")
             warnings += 1
     else:
-        print(f"   {COLORS.warning('Версия не указана')}")
+        print(f"   {COLORS.warning('Version not specified')}")
         warnings += 1
     
-    # Итог
+    # Summary
     print(f"""
-{COLORS.colorize('═' * 50, COLORS.CYAN)}""")
+{COLORS.colorize('=' * 50, COLORS.CYAN)}""")
     
     if errors == 0 and warnings == 0:
-        print(f"{COLORS.success('Все проверки пройдены!')}")
+        print(f"{COLORS.success('All checks passed!')}")
         return True
     elif errors == 0:
-        print(f"{COLORS.warning(f'{warnings} предупреждений')}")
+        print(f"{COLORS.warning(f'{warnings} warnings')}")
         return True
     else:
-        print(f"{COLORS.error(f'{errors} ошибок, {warnings} предупреждений')}")
+        print(f"{COLORS.error(f'{errors} errors, {warnings} warnings')}")
         return False
 
 
 def cmd_health() -> None:
-    """Интерактивная команда health check"""
-    print(COLORS.colorize("\n🏥 HEALTH CHECK\n", COLORS.GREEN))
+    """Interactive health check command"""
+    print(COLORS.colorize("\nHEALTH CHECK\n", COLORS.GREEN))
     
-    path_str = input("Путь к проекту: ").strip()
+    path_str = input("Project path: ").strip()
     if not path_str:
-        print(COLORS.warning("Отменено"))
+        print(COLORS.warning("Cancelled"))
         return
     
     path = Path(path_str).resolve()
     if not path.exists():
-        print(COLORS.error(f"Путь не существует: {path}"))
+        print(COLORS.error(f"Path does not exist: {path}"))
         return
     
     health_check(path)

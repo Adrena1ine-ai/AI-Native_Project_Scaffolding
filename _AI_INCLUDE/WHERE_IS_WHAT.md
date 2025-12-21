@@ -1,24 +1,24 @@
 # 📍 Where Is What — AI Toolkit
 
-## Быстрая навигация для AI
+## Quick Navigation for AI
 
 ---
 
-### 🎯 Хочу изменить...
+### 🎯 I want to change...
 
-| Что | Где |
-|-----|-----|
-| **Список шаблонов** | `src/core/constants.py` → `TEMPLATES` |
-| **Список IDE** | `src/core/constants.py` → `IDE_CONFIGS` |
-| **Уровни очистки** | `src/core/constants.py` → `CLEANUP_LEVELS` |
-| **Версию** | `src/core/constants.py` → `VERSION` |
-| **Цвета терминала** | `src/core/constants.py` → `COLORS` |
+| What | Where |
+|------|-------|
+| **Template list** | `src/core/constants.py` → `TEMPLATES` |
+| **IDE list** | `src/core/constants.py` → `IDE_CONFIGS` |
+| **Cleanup levels** | `src/core/constants.py` → `CLEANUP_LEVELS` |
+| **Version** | `src/core/constants.py` → `VERSION` |
+| **Terminal colors** | `src/core/constants.py` → `COLORS` |
 
 ---
 
-### 📄 Генерация файлов
+### 📄 File Generation
 
-| Файл проекта | Генератор |
+| Project File | Generator |
 |--------------|-----------|
 | `.cursorrules` | `generators/ai_configs.py` → `generate_cursor_rules()` |
 | `.cursorignore` | `generators/ai_configs.py` → `generate_cursor_ignore()` |
@@ -40,9 +40,9 @@
 
 ---
 
-### 🤖 Модули проекта
+### 🤖 Project Modules
 
-| Модуль | Генератор |
+| Module | Generator |
 |--------|-----------|
 | `bot/` | `commands/create.py` → `generate_bot_module()` |
 | `database/` | `commands/create.py` → `generate_database_module()` |
@@ -54,8 +54,8 @@
 
 ### 🖥️ CLI
 
-| Команда | Интерактивная | CLI |
-|---------|---------------|-----|
+| Command | Interactive | CLI |
+|---------|-------------|-----|
 | create | `commands/create.py` → `cmd_create()` | `--template --ai --path` |
 | cleanup | `commands/cleanup.py` → `cmd_cleanup()` | `--level` |
 | migrate | `commands/migrate.py` → `cmd_migrate()` | `--ai` |
@@ -64,7 +64,7 @@
 
 ---
 
-### 📦 Импорты
+### 📦 Imports
 
 ```python
 # Core
@@ -93,24 +93,24 @@ from src.commands import (
 
 ---
 
-### 🧪 Тесты
+### 🧪 Tests
 
 ```
 tests/
-├── test_create.py      # Тесты создания
-├── test_cleanup.py     # Тесты очистки
-├── test_generators.py  # Тесты генераторов
+├── test_create.py      # Creation tests
+├── test_cleanup.py     # Cleanup tests
+├── test_generators.py  # Generator tests
 └── conftest.py         # Fixtures
 ```
 
 ---
 
-### 📚 Документация
+### 📚 Documentation
 
 ```
 docs/
-├── manifesto.md        # Философия (копируется в проекты)
-├── templates.md        # Описание шаблонов
-├── prompts.md          # Промпты для AI
-└── api.md              # API документация
+├── manifesto.md        # Philosophy (copied to projects)
+├── templates.md        # Template descriptions
+├── prompts.md          # AI prompts
+└── api.md              # API documentation
 ```

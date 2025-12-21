@@ -1,5 +1,5 @@
 """
-Команда cleanup — очистка грязных проектов
+Cleanup command - clean dirty projects
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from ..core.file_utils import get_dir_size
 
 @dataclass
 class Issue:
-    """Найденная проблема"""
+    """Found issue"""
     type: str
     severity: str  # error, warning, info
     path: Path | None
@@ -25,16 +25,16 @@ class Issue:
     fix_action: str
     
     def __str__(self) -> str:
-        icons = {"error": "❌", "warning": "⚠️", "info": "ℹ️"}
+        icons = {"error": "[ERROR]", "warning": "[WARN]", "info": "[INFO]"}
         size = f" ({self.size_mb:.1f} MB)" if self.size_mb > 0 else ""
-        return f"{icons.get(self.severity, '•')} {self.message}{size}"
+        return f"{icons.get(self.severity, '*')} {self.message}{size}"
 
 
 def analyze_project(project_path: Path) -> list[Issue]:
-    """Анализировать проект на проблемы"""
+    """Analyze project for issues"""
     issues: list[Issue] = []
     
-    # 1. venv внутри проекта
+    # 1. venv inside project
     for venv_name in ["venv", ".venv", "env"]:
         venv_path = project_path / venv_name
         if venv_path.is_dir() and (venv_path / "bin").exists():
@@ -44,7 +44,7 @@ def analyze_project(project_path: Path) -> list[Issue]:
                 severity="error",
                 path=venv_path,
                 size_mb=size,
-                message=f"Найден {venv_name}/ внутри проекта",
+                message=f"Found {venv_name}/ inside project",
                 fix_action=f"move:../_venvs/{project_path.name}-venv"
             ))
     
@@ -57,11 +57,11 @@ def analyze_project(project_path: Path) -> list[Issue]:
                 severity="error",
                 path=sp,
                 size_mb=size,
-                message="Найден site-packages/",
+                message="Found site-packages/",
                 fix_action="delete"
             ))
     
-    # 3. Большие логи
+    # 3. Large logs
     logs_dir = project_path / "logs"
     if logs_dir.exists():
         for log_file in logs_dir.glob("*.log"):
@@ -72,11 +72,11 @@ def analyze_project(project_path: Path) -> list[Issue]:
                     severity="warning",
                     path=log_file,
                     size_mb=size,
-                    message=f"Большой лог: {log_file.name}",
+                    message=f"Large log: {log_file.name}",
                     fix_action="truncate:1000"
                 ))
     
-    # 4. Большие данные
+    # 4. Large data
     data_dir = project_path / "data"
     if data_dir.exists():
         size = get_dir_size(data_dir)
@@ -86,7 +86,7 @@ def analyze_project(project_path: Path) -> list[Issue]:
                 severity="warning",
                 path=data_dir,
                 size_mb=size,
-                message="Большая папка data/",
+                message="Large data/ folder",
                 fix_action=f"move:../_data/{project_path.name}"
             ))
     
@@ -98,11 +98,11 @@ def analyze_project(project_path: Path) -> list[Issue]:
             severity="info",
             path=None,
             size_mb=0,
-            message=f"Найдено {pycache_count} папок __pycache__",
+            message=f"Found {pycache_count} __pycache__ folders",
             fix_action="delete_all"
         ))
     
-    # 6. Отсутствующие конфиги
+    # 6. Missing configs
     missing = []
     if not (project_path / ".cursorignore").exists():
         missing.append(".cursorignore")
@@ -117,7 +117,7 @@ def analyze_project(project_path: Path) -> list[Issue]:
             severity="warning",
             path=None,
             size_mb=0,
-            message=f"Отсутствуют: {', '.join(missing)}",
+            message=f"Missing: {', '.join(missing)}",
             fix_action="create"
         ))
     
@@ -125,65 +125,65 @@ def analyze_project(project_path: Path) -> list[Issue]:
 
 
 def select_cleanup_level() -> str:
-    """Выбор уровня очистки"""
-    print("\n🧹 Выбери уровень очистки:\n")
+    """Select cleanup level"""
+    print("\nSelect cleanup level:\n")
     
     levels = list(CLEANUP_LEVELS.items())
     for i, (name, level) in enumerate(levels, 1):
-        print(f"  {i}. {level['name']} — {level['description']}")
+        print(f"  {i}. {level['name']} - {level['description']}")
     
     while True:
-        choice = input(f"\nВыбор (1-{len(levels)}): ").strip()
+        choice = input(f"\nChoice (1-{len(levels)}): ").strip()
         try:
             idx = int(choice) - 1
             if 0 <= idx < len(levels):
                 return levels[idx][0]
         except ValueError:
             pass
-        print("  Неверный выбор")
+        print("  Invalid choice")
 
 
 def create_backup(project_path: Path) -> Path:
-    """Создать бэкап"""
+    """Create backup"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_name = f"{project_path.name}_backup_{timestamp}.tar.gz"
     backup_path = project_path.parent / backup_name
     
-    print(f"\n{COLORS.colorize(f'📦 Создаю бэкап: {backup_name}', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize(f'Creating backup: {backup_name}', COLORS.CYAN)}")
     
     with tarfile.open(backup_path, "w:gz") as tar:
         tar.add(project_path, arcname=project_path.name)
     
     size = backup_path.stat().st_size / (1024 * 1024)
-    print(f"  {COLORS.success(f'Бэкап создан ({size:.1f} MB)')}")
+    print(f"  {COLORS.success(f'Backup created ({size:.1f} MB)')}")
     
     return backup_path
 
 
 def cleanup_project(project_path: Path, level: str) -> bool:
-    """Выполнить очистку"""
+    """Run cleanup"""
     level_config = CLEANUP_LEVELS.get(level)
     if not level_config:
-        print(COLORS.error(f"Неизвестный уровень: {level}"))
+        print(COLORS.error(f"Unknown level: {level}"))
         return False
     
     actions = level_config["actions"]
     
-    print(f"\n{COLORS.colorize(f'🧹 Очистка: {project_path.name}', COLORS.CYAN)}")
-    print(f"   Уровень: {level_config['name']}")
+    print(f"\n{COLORS.colorize(f'Cleanup: {project_path.name}', COLORS.CYAN)}")
+    print(f"   Level: {level_config['name']}")
     
-    # Safe — только анализ
+    # Safe - analysis only
     if level == "safe":
-        print(f"\n{COLORS.warning('Режим safe — без изменений')}")
+        print(f"\n{COLORS.warning('Safe mode - no changes')}")
         return True
     
-    # Бэкап
+    # Backup
     if "backup" in actions:
         create_backup(project_path)
     
     freed_mb = 0.0
     
-    # Перемещение venv
+    # Move venv
     if "move_venv" in actions:
         for venv_name in ["venv", ".venv", "env"]:
             venv_path = project_path / venv_name
@@ -194,19 +194,19 @@ def cleanup_project(project_path: Path, level: str) -> bool:
                 new_path = venvs_dir / f"{project_path.name}-venv"
                 
                 if new_path.exists():
-                    print(f"  {COLORS.warning(f'{new_path} существует, удаляю старый venv')}")
+                    print(f"  {COLORS.warning(f'{new_path} exists, deleting old venv')}")
                     shutil.rmtree(venv_path)
                 else:
-                    print(f"  {COLORS.colorize(f'Перемещаю {venv_name}/ → {new_path}', COLORS.CYAN)}")
+                    print(f"  {COLORS.colorize(f'Moving {venv_name}/ -> {new_path}', COLORS.CYAN)}")
                     shutil.move(str(venv_path), str(new_path))
                 
                 freed_mb += size
     
-    # Удаление __pycache__
+    # Delete __pycache__
     for pycache in project_path.rglob("__pycache__"):
         shutil.rmtree(pycache, ignore_errors=True)
     
-    # Очистка логов
+    # Clean logs
     if "move_data" in actions:
         logs_dir = project_path / "logs"
         if logs_dir.exists():
@@ -215,63 +215,63 @@ def cleanup_project(project_path: Path, level: str) -> bool:
                 if size > 10:
                     lines = log_file.read_text(errors="ignore").splitlines()
                     log_file.write_text("\n".join(lines[-1000:]))
-                    print(f"  {COLORS.colorize(f'Очищен {log_file.name}', COLORS.CYAN)}")
+                    print(f"  {COLORS.colorize(f'Cleaned {log_file.name}', COLORS.CYAN)}")
                     freed_mb += size * 0.9
     
-    # Создание конфигов
+    # Create configs
     if "create_configs" in actions:
         from .migrate import migrate_project
-        print(f"\n{COLORS.colorize('📄 Создаю конфиги...', COLORS.CYAN)}")
+        print(f"\n{COLORS.colorize('Creating configs...', COLORS.CYAN)}")
         migrate_project(project_path, ["cursor", "copilot", "claude"], quiet=True)
     
     print(f"""
-{COLORS.colorize('═' * 50, COLORS.GREEN)}
-{COLORS.success('Очистка завершена!')}
-{COLORS.colorize('═' * 50, COLORS.GREEN)}
-   Освобождено: ~{freed_mb:.1f} MB
+{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.success('Cleanup complete!')}
+{COLORS.colorize('=' * 50, COLORS.GREEN)}
+   Freed: ~{freed_mb:.1f} MB
 """)
     
     return True
 
 
 def cmd_cleanup() -> None:
-    """Интерактивная команда очистки"""
-    print(COLORS.colorize("\n🧹 ОЧИСТКА ПРОЕКТА\n", COLORS.GREEN))
+    """Interactive cleanup command"""
+    print(COLORS.colorize("\nCLEANUP PROJECT\n", COLORS.GREEN))
     
-    path_str = input("Путь к проекту: ").strip()
+    path_str = input("Project path: ").strip()
     if not path_str:
-        print(COLORS.warning("Отменено"))
+        print(COLORS.warning("Cancelled"))
         return
     
     path = Path(path_str).resolve()
     if not path.exists():
-        print(COLORS.error(f"Путь не существует: {path}"))
+        print(COLORS.error(f"Path does not exist: {path}"))
         return
     
-    # Анализ
-    print(f"\n{COLORS.colorize('🔍 Анализирую...', COLORS.CYAN)}\n")
+    # Analyze
+    print(f"\n{COLORS.colorize('Analyzing...', COLORS.CYAN)}\n")
     issues = analyze_project(path)
     
     if not issues:
-        print(COLORS.success("Проект чистый! Проблем не найдено."))
+        print(COLORS.success("Project is clean! No issues found."))
         return
     
-    # Показать проблемы
-    print(f"{COLORS.colorize('Найдены проблемы:', COLORS.RED)}\n")
+    # Show issues
+    print(f"{COLORS.colorize('Issues found:', COLORS.RED)}\n")
     for issue in issues:
         print(f"   {issue}")
     
-    # Выбор уровня
+    # Select level
     level = select_cleanup_level()
     
     if level == "safe":
-        print(f"\n{COLORS.warning('Режим safe — только рекомендации')}")
+        print(f"\n{COLORS.warning('Safe mode - recommendations only')}")
         return
     
-    # Подтверждение
-    confirm = input(f"\nВыполнить очистку '{level}'? (y/N): ").strip().lower()
+    # Confirm
+    confirm = input(f"\nRun cleanup '{level}'? (y/N): ").strip().lower()
     if confirm != 'y':
-        print(COLORS.warning("Отменено"))
+        print(COLORS.warning("Cancelled"))
         return
     
     cleanup_project(path, level)

@@ -1,5 +1,5 @@
 """
-Команда migrate — добавление Toolkit в существующий проект
+Migrate command - add Toolkit to existing project
 """
 
 from __future__ import annotations
@@ -24,13 +24,13 @@ def migrate_project(
     quiet: bool = False,
 ) -> bool:
     """
-    Добавить Toolkit в существующий проект
+    Add Toolkit to existing project
     
     Args:
-        project_path: Путь к проекту
-        ai_targets: Список AI
-        include_ci: Добавить CI/CD
-        quiet: Тихий режим
+        project_path: Project path
+        ai_targets: AI list
+        include_ci: Add CI/CD
+        quiet: Quiet mode
     """
     if ai_targets is None:
         ai_targets = get_default_ai_targets()
@@ -40,24 +40,24 @@ def migrate_project(
     
     if not quiet:
         print(f"""
-{COLORS.colorize('═' * 50, COLORS.CYAN)}
-{COLORS.colorize(f'📦 Migrating: {project_name}', COLORS.CYAN)}
-{COLORS.colorize('═' * 50, COLORS.CYAN)}
+{COLORS.colorize('=' * 50, COLORS.CYAN)}
+{COLORS.colorize(f'Migrating: {project_name}', COLORS.CYAN)}
+{COLORS.colorize('=' * 50, COLORS.CYAN)}
 """)
     
-    # AI конфиги (если не существуют)
+    # AI configs (if not exist)
     if not (project_path / "_AI_INCLUDE").exists():
         generate_ai_configs(project_path, project_name, ai_targets, date)
     else:
         if not quiet:
-            print(f"  {COLORS.warning('_AI_INCLUDE/ уже существует, пропускаю')}")
+            print(f"  {COLORS.warning('_AI_INCLUDE/ already exists, skipping')}")
     
     # Scripts
     if not (project_path / "scripts" / "bootstrap.sh").exists():
         generate_scripts(project_path, project_name)
     else:
         if not quiet:
-            print(f"  {COLORS.warning('scripts/ уже существуют, пропускаю')}")
+            print(f"  {COLORS.warning('scripts/ already exist, skipping')}")
     
     # CI/CD
     if include_ci and not (project_path / ".github" / "workflows").exists():
@@ -69,34 +69,34 @@ def migrate_project(
     
     if not quiet:
         print(f"""
-{COLORS.colorize('═' * 50, COLORS.GREEN)}
-{COLORS.success('Миграция завершена!')}
-{COLORS.colorize('═' * 50, COLORS.GREEN)}
+{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.success('Migration complete!')}
+{COLORS.colorize('=' * 50, COLORS.GREEN)}
 """)
     
     return True
 
 
 def cmd_migrate() -> None:
-    """Интерактивная команда миграции"""
-    print(COLORS.colorize("\n📦 МИГРАЦИЯ ПРОЕКТА\n", COLORS.GREEN))
+    """Interactive migrate command"""
+    print(COLORS.colorize("\nMIGRATE PROJECT\n", COLORS.GREEN))
     
-    path_str = input("Путь к проекту: ").strip()
+    path_str = input("Project path: ").strip()
     if not path_str:
-        print(COLORS.warning("Отменено"))
+        print(COLORS.warning("Cancelled"))
         return
     
     path = Path(path_str).resolve()
     if not path.exists():
-        print(COLORS.error(f"Путь не существует: {path}"))
+        print(COLORS.error(f"Path does not exist: {path}"))
         return
     
     ai_targets = get_default_ai_targets()
     print(f"\n  AI: {', '.join(ai_targets)}")
     
-    confirm = input(f"\nДобавить Toolkit в {path.name}? (Y/n): ").strip().lower()
+    confirm = input(f"\nAdd Toolkit to {path.name}? (Y/n): ").strip().lower()
     if confirm == 'n':
-        print(COLORS.warning("Отменено"))
+        print(COLORS.warning("Cancelled"))
         return
     
     migrate_project(path, ai_targets)

@@ -1,5 +1,5 @@
 """
-Загрузчик шаблонов из файлов
+Template loader from files
 """
 
 from __future__ import annotations
@@ -8,22 +8,21 @@ from pathlib import Path
 from typing import Any
 
 from .file_utils import create_file
-from .constants import COLORS
 
 
-# Путь к папке templates
+# Path to templates folder
 TEMPLATES_DIR = Path(__file__).parent.parent.parent / "templates"
 
 
 def load_template(template_path: str) -> str | None:
     """
-    Загрузить шаблон из файла
+    Load template from file
     
     Args:
-        template_path: Относительный путь к шаблону (например, "bot/main.py.template")
+        template_path: Relative path to template (e.g., "bot/main.py.template")
         
     Returns:
-        Содержимое шаблона или None если не найден
+        Template content or None if not found
     """
     full_path = TEMPLATES_DIR / template_path
     
@@ -35,22 +34,22 @@ def load_template(template_path: str) -> str | None:
 
 def render_template(content: str, context: dict[str, Any]) -> str:
     """
-    Рендеринг шаблона с подстановкой переменных
+    Render template with variable substitution
     
-    Поддерживает синтаксис:
-        {{variable}} — обязательная переменная
-        {{variable|default}} — с дефолтным значением
+    Supports syntax:
+        {{variable}} - required variable
+        {{variable|default}} - with default value
     
     Args:
-        content: Содержимое шаблона
-        context: Словарь переменных
+        content: Template content
+        context: Variables dictionary
         
     Returns:
-        Отрендеренный шаблон
+        Rendered template
     """
     import re
     
-    # Паттерн для {{variable}} или {{variable|default}}
+    # Pattern for {{variable}} or {{variable|default}}
     pattern = r'\{\{(\w+)(?:\|([^}]*))?\}\}'
     
     def replacer(match: re.Match) -> str:
@@ -62,7 +61,7 @@ def render_template(content: str, context: dict[str, Any]) -> str:
         elif default is not None:
             return default
         else:
-            return match.group(0)  # Оставить как есть
+            return match.group(0)  # Leave as is
     
     return re.sub(pattern, replacer, content)
 
@@ -74,16 +73,16 @@ def copy_template_file(
     executable: bool = False
 ) -> bool:
     """
-    Скопировать файл шаблона с рендерингом
+    Copy template file with rendering
     
     Args:
-        template_name: Имя шаблона (например, "bot/main.py.template")
-        dest_path: Путь назначения
-        context: Контекст для рендеринга
-        executable: Сделать файл исполняемым
+        template_name: Template name (e.g., "bot/main.py.template")
+        dest_path: Destination path
+        context: Rendering context
+        executable: Make file executable
         
     Returns:
-        True если успешно
+        True if successful
     """
     content = load_template(template_name)
     
@@ -98,10 +97,10 @@ def copy_template_file(
 
 def list_templates() -> dict[str, list[str]]:
     """
-    Получить список всех доступных шаблонов
+    Get list of all available templates
     
     Returns:
-        Словарь {категория: [файлы]}
+        Dictionary {category: [files]}
     """
     templates: dict[str, list[str]] = {}
     
@@ -123,20 +122,20 @@ def list_templates() -> dict[str, list[str]]:
 
 def get_template_info(template_name: str) -> dict[str, Any] | None:
     """
-    Получить информацию о шаблоне
+    Get template information
     
     Args:
-        template_name: Имя категории шаблона (bot, webapp, etc.)
+        template_name: Template category name (bot, webapp, etc.)
         
     Returns:
-        Словарь с информацией или None
+        Dictionary with info or None
     """
     template_dir = TEMPLATES_DIR / template_name
     
     if not template_dir.is_dir():
         return None
     
-    # Ищем README или описание
+    # Look for README or description
     readme = template_dir / "README.md"
     description = ""
     

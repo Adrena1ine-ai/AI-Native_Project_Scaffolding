@@ -1,5 +1,5 @@
 """
-Команды CLI
+CLI Commands
 """
 
 from .create import cmd_create, create_project

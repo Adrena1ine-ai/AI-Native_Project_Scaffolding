@@ -1,77 +1,77 @@
 # 📜 AI Toolkit Manifesto
 
-## 🎯 Главный принцип
+## 🎯 Main Principle
 
-> **Проект должен оставаться чистым для AI-ассистента**
+> **The project must remain clean for AI assistants**
 
 ---
 
-## 🚫 Три главных запрета
+## 🚫 Three Main Restrictions
 
-### 1. Никогда не создавать venv внутри проекта
+### 1. Never create venv inside the project
 
-**Плохо:**
+**Bad:**
 ```
 my_project/
-├── venv/           ← 500 MB мусора
+├── venv/           ← 500 MB of junk
 ├── bot/
 └── ...
 ```
 
-**Хорошо:**
+**Good:**
 ```
 projects/
 ├── _venvs/
-│   └── my_project-venv/    ← Здесь!
+│   └── my_project-venv/    ← Here!
 └── my_project/
     ├── bot/
     └── ...
 ```
 
-**Почему?** AI (Cursor, Copilot) индексирует все файлы. 500 MB Python-пакетов = тормоза + шум в контексте.
+**Why?** AI (Cursor, Copilot) indexes all files. 500 MB of Python packages = slowdowns + noise in context.
 
 ---
 
-### 2. Никогда не читать большие файлы целиком
+### 2. Never read large files entirely
 
-**Плохо:**
+**Bad:**
 ```python
-content = open("logs/bot.log").read()  # 100 MB в память
+content = open("logs/bot.log").read()  # 100 MB in memory
 ```
 
-**Хорошо:**
+**Good:**
 ```bash
 tail -50 logs/bot.log
 head -10 data/export.csv
 sqlite3 db.sqlite3 ".schema"
 ```
 
-**Почему?** Контекст AI ограничен. 100 MB лога = потеря важной информации.
+**Why?** AI context is limited. 100 MB log = loss of important information.
 
 ---
 
-### 3. Всегда проверять перед созданием
+### 3. Always check before creating
 
-**Плохо:**
+**Bad:**
 ```
-Создаю новый файл utils.py...
-# А он уже есть в bot/utils/
+Creating new file utils.py...
+# But it already exists in bot/utils/
 ```
 
-**Хорошо:**
+**Good:**
 ```
-1. Читаю _AI_INCLUDE/WHERE_IS_WHAT.md
-2. Проверяю существующие файлы
-3. Создаю только если нужно
+1. Read _AI_INCLUDE/WHERE_IS_WHAT.md
+2. Check existing files
+3. Create only if needed
 ```
 
 ---
 
-## ✅ Правильная структура
+## ✅ Correct Structure
 
 ```
 project/
-├── _AI_INCLUDE/              # Правила для AI
+├── _AI_INCLUDE/              # Rules for AI
 │   ├── PROJECT_CONVENTIONS.md
 │   └── WHERE_IS_WHAT.md
 ├── .cursorrules              # Cursor
@@ -81,13 +81,13 @@ project/
 │   └── workflows/            # CI/CD
 ├── CLAUDE.md                 # Claude
 ├── scripts/
-│   ├── bootstrap.sh          # Создание venv вне проекта
-│   ├── health_check.sh       # Проверка здоровья
+│   ├── bootstrap.sh          # Create venv outside project
+│   ├── health_check.sh       # Health check
 │   └── context.py            # Context Switcher
-├── bot/                      # Код бота
-├── database/                 # База данных
-├── logs/                     # Логи (gitignored)
-├── data/                     # Данные (gitignored)
+├── bot/                      # Bot code
+├── database/                 # Database
+├── logs/                     # Logs (gitignored)
+├── data/                     # Data (gitignored)
 ├── Dockerfile
 ├── docker-compose.yml
 └── requirements.txt
@@ -97,33 +97,33 @@ project/
 
 ## 🎮 Context Switcher
 
-Когда AI тупит на большом проекте:
+When AI struggles on a large project:
 
 ```bash
-python scripts/context.py bot     # Видит только bot/
-python scripts/context.py webapp  # Видит только webapp/
-python scripts/context.py all     # Видит всё
+python scripts/context.py bot     # Sees only bot/
+python scripts/context.py webapp  # Sees only webapp/
+python scripts/context.py all     # Sees everything
 ```
 
-Обновляет `.cursorignore` чтобы скрыть ненужные модули.
+Updates `.cursorignore` to hide unnecessary modules.
 
 ---
 
-## 🛡️ Защиты
+## 🛡️ Protections
 
-1. **pre-commit hook** — блокирует коммит если venv в проекте
-2. **health_check.sh** — проверяет правильность настройки
-3. **.cursorignore** — скрывает мусор от AI
+1. **pre-commit hook** — blocks commit if venv is in project
+2. **health_check.sh** — verifies correct setup
+3. **.cursorignore** — hides junk from AI
 
 ---
 
-## 📋 Чеклист нового проекта
+## 📋 New Project Checklist
 
-- [ ] venv создан в `../_venvs/`
-- [ ] `_AI_INCLUDE/` существует
-- [ ] `.cursorrules` настроен
-- [ ] `.cursorignore` настроен
-- [ ] `scripts/bootstrap.sh` работает
-- [ ] `.env` создан из `.env.example`
-- [ ] Git репозиторий инициализирован
-- [ ] `health_check.sh` проходит
+- [ ] venv created in `../_venvs/`
+- [ ] `_AI_INCLUDE/` exists
+- [ ] `.cursorrules` configured
+- [ ] `.cursorignore` configured
+- [ ] `scripts/bootstrap.sh` works
+- [ ] `.env` created from `.env.example`
+- [ ] Git repository initialized
+- [ ] `health_check.sh` passes

@@ -1,5 +1,5 @@
 """
-Утилиты для работы с файлами
+File utilities
 """
 
 from __future__ import annotations
@@ -8,8 +8,6 @@ import os
 import stat
 import shutil
 from pathlib import Path
-from typing import Optional
-from string import Template
 
 from .constants import COLORS
 
@@ -21,16 +19,16 @@ def create_file(
     quiet: bool = False
 ) -> None:
     """
-    Создать файл с содержимым
+    Create file with content
     
     Args:
-        path: Путь к файлу
-        content: Содержимое
-        executable: Сделать исполняемым
-        quiet: Не выводить сообщение
+        path: File path
+        content: Content
+        executable: Make executable
+        quiet: Don't print message
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    # Добавляем перенос строки в конце если его нет
+    # Add newline at end if not present
     if content and not content.endswith("\n"):
         content = content + "\n"
     path.write_text(content, encoding="utf-8")
@@ -44,7 +42,7 @@ def create_file(
 
 
 def make_executable(path: Path) -> None:
-    """Сделать файл исполняемым"""
+    """Make file executable"""
     st = os.stat(path)
     os.chmod(path, st.st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
 
@@ -56,20 +54,20 @@ def copy_template(
     executable: bool = False
 ) -> None:
     """
-    Скопировать шаблон с подстановкой переменных
+    Copy template with variable substitution
     
     Args:
-        src: Исходный файл шаблона
-        dst: Целевой путь
-        context: Словарь переменных для подстановки
-        executable: Сделать исполняемым
+        src: Source template file
+        dst: Target path
+        context: Variables dictionary for substitution
+        executable: Make executable
     """
     if not src.exists():
         return
     
     content = src.read_text(encoding="utf-8")
     
-    # Подстановка переменных {{variable}}
+    # Variable substitution {{variable}}
     for key, value in context.items():
         content = content.replace(f"{{{{{key}}}}}", str(value))
         content = content.replace(f"{{{key}}}", str(value))
@@ -78,7 +76,7 @@ def copy_template(
 
 
 def get_dir_size(path: Path) -> float:
-    """Получить размер директории в MB"""
+    """Get directory size in MB"""
     total = 0
     try:
         for p in path.rglob("*"):
@@ -90,7 +88,7 @@ def get_dir_size(path: Path) -> float:
 
 
 def remove_dir(path: Path) -> bool:
-    """Безопасно удалить директорию"""
+    """Safely remove directory"""
     try:
         if path.exists():
             shutil.rmtree(path)
@@ -100,7 +98,7 @@ def remove_dir(path: Path) -> bool:
 
 
 def copy_dir(src: Path, dst: Path) -> bool:
-    """Скопировать директорию"""
+    """Copy directory"""
     try:
         shutil.copytree(src, dst)
         return True
@@ -109,30 +107,9 @@ def copy_dir(src: Path, dst: Path) -> bool:
 
 
 def move_dir(src: Path, dst: Path) -> bool:
-    """Переместить директорию"""
+    """Move directory"""
     try:
         shutil.move(str(src), str(dst))
         return True
-    except Exception:
-        return False
-
-    except Exception:
-        return False
-
-    except Exception:
-        return False
-
-    except Exception:
-        return False
-
-    except Exception:
-        return False
-
-    except Exception:
-        return False
-
-    except Exception:
-        return False
-
     except Exception:
         return False

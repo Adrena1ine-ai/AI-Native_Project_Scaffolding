@@ -1,5 +1,5 @@
 """
-Команда create — создание нового проекта
+Create command - create new project
 """
 
 from __future__ import annotations
@@ -22,35 +22,35 @@ from ..generators import (
 
 
 def select_template() -> str:
-    """Интерактивный выбор шаблона"""
-    print("\n📦 Выбери шаблон:\n")
+    """Interactive template selection"""
+    print("\nSelect template:\n")
     
     templates = list(TEMPLATES.items())
     for i, (name, tmpl) in enumerate(templates, 1):
-        icon = tmpl.get("icon", "📁")
+        icon = tmpl.get("icon", "")
         desc = tmpl.get("description", "")
-        print(f"  {i}. {icon} {tmpl['name']} — {desc}")
+        print(f"  {i}. [{icon}] {tmpl['name']} - {desc}")
     
     while True:
-        choice = input(f"\nВыбор (1-{len(templates)}): ").strip()
+        choice = input(f"\nChoice (1-{len(templates)}): ").strip()
         try:
             idx = int(choice) - 1
             if 0 <= idx < len(templates):
                 return templates[idx][0]
         except ValueError:
             pass
-        print("  Неверный выбор")
+        print("  Invalid choice")
 
 
 def generate_bot_module(project_dir: Path, project_name: str) -> None:
-    """Генерация модуля бота"""
+    """Generate bot module"""
     
     for d in ["bot/handlers", "bot/keyboards", "bot/utils", "bot/middlewares"]:
         (project_dir / d).mkdir(parents=True, exist_ok=True)
     
     create_file(project_dir / "bot/__init__.py", '"""Bot package"""')
     
-    main_content = f'''"""🤖 {project_name} — Telegram Bot"""
+    main_content = f'''"""Telegram Bot - {project_name}"""
 
 import asyncio
 import logging
@@ -74,7 +74,7 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
-    logger.info("🚀 Starting bot...")
+    logger.info("Starting bot...")
     
     bot = Bot(
         token=settings.bot_token,
@@ -84,7 +84,7 @@ async def main():
     setup_handlers(dp)
     
     try:
-        logger.info("✅ Bot started!")
+        logger.info("Bot started!")
         await dp.start_polling(bot)
     finally:
         await bot.session.close()
@@ -113,11 +113,11 @@ router = Router()
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer(f"👋 Привет, <b>{message.from_user.first_name}</b>!")
+    await message.answer(f"Hello, <b>{message.from_user.first_name}</b>!")
 
 @router.message(Command("help"))
 async def cmd_help(message: Message):
-    await message.answer("📚 /start — Начать\\n/help — Помощь")
+    await message.answer("/start - Start\\n/help - Help")
 '''
     create_file(project_dir / "bot/handlers/start.py", start_content)
     
@@ -126,7 +126,7 @@ async def cmd_help(message: Message):
 
 
 def generate_database_module(project_dir: Path) -> None:
-    """Генерация модуля БД"""
+    """Generate database module"""
     (project_dir / "database").mkdir(exist_ok=True)
     create_file(project_dir / "database/__init__.py", '"""Database"""')
     
@@ -157,12 +157,12 @@ async def get_user(telegram_id: int):
 
 
 def generate_api_module(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация модуля API"""
+    """Generate API module"""
     (project_dir / "api").mkdir(exist_ok=True)
     create_file(project_dir / "api/__init__.py", '"""API"""')
     
     if template == "fastapi":
-        content = f'''"""⚡ {project_name} API"""
+        content = f'''"""FastAPI - {project_name}"""
 from fastapi import FastAPI
 from config import settings
 
@@ -177,13 +177,13 @@ async def health():
     return {{"status": "ok"}}
 '''
     else:
-        content = '"""API — TODO"""'
+        content = '"""API - TODO"""'
     
     create_file(project_dir / "api/main.py", content)
 
 
 def generate_webapp_module(project_dir: Path, project_name: str) -> None:
-    """Генерация модуля WebApp"""
+    """Generate WebApp module"""
     (project_dir / "webapp").mkdir(exist_ok=True)
     
     html = f'''<!DOCTYPE html>
@@ -195,7 +195,7 @@ def generate_webapp_module(project_dir: Path, project_name: str) -> None:
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>🚀 {project_name}</h1>
+    <h1>{project_name}</h1>
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
@@ -208,7 +208,7 @@ def generate_webapp_module(project_dir: Path, project_name: str) -> None:
 
 
 def generate_parser_module(project_dir: Path) -> None:
-    """Генерация модуля парсера"""
+    """Generate parser module"""
     (project_dir / "parser").mkdir(exist_ok=True)
     create_file(project_dir / "parser/__init__.py", '"""Parser"""')
     
@@ -228,11 +228,11 @@ def parse_html(html: str) -> BeautifulSoup:
 
 
 def generate_module_files(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация файлов модулей"""
+    """Generate module files"""
     tmpl = TEMPLATES.get(template, {})
     modules = tmpl.get("modules", [])
     
-    print(f"\n{COLORS.colorize('📂 Modules...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('Modules...', COLORS.CYAN)}")
     
     if "bot" in modules or "handlers" in modules:
         generate_bot_module(project_dir, project_name)
@@ -257,17 +257,17 @@ def create_project(
     include_manifesto: bool = True,
 ) -> bool:
     """
-    Создать новый проект
+    Create new project
     
     Args:
-        name: Название проекта
-        path: Базовый путь
-        template: Шаблон
-        ai_targets: Список AI
-        include_docker: Добавить Docker
-        include_ci: Добавить CI/CD
-        include_git: Инициализировать Git
-        include_manifesto: Включить manifesto
+        name: Project name
+        path: Base path
+        template: Template
+        ai_targets: AI list
+        include_docker: Add Docker
+        include_ci: Add CI/CD
+        include_git: Initialize Git
+        include_manifesto: Include manifesto
     """
     if ai_targets is None:
         ai_targets = get_default_ai_targets()
@@ -276,27 +276,27 @@ def create_project(
     date = datetime.now().strftime("%Y-%m-%d")
     
     if project_dir.exists():
-        print(f"{COLORS.error(f'Папка уже существует: {project_dir}')}")
+        print(f"{COLORS.error(f'Folder already exists: {project_dir}')}")
         return False
     
     tmpl = TEMPLATES.get(template, {})
     
     print(f"""
-{COLORS.colorize('═' * 60, COLORS.CYAN)}
-{COLORS.colorize(f'🆕 Creating project: {name}', COLORS.CYAN)}
-{COLORS.colorize('═' * 60, COLORS.CYAN)}
-📁 Path: {project_dir}
-📦 Template: {tmpl.get('icon', '')} {tmpl.get('name', template)}
-🤖 AI: {', '.join(ai_targets)}
-🐳 Docker: {'Yes' if include_docker else 'No'}
-🚀 CI/CD: {'Yes' if include_ci else 'No'}
-🔗 Git: {'Yes' if include_git else 'No'}
+{COLORS.colorize('=' * 60, COLORS.CYAN)}
+{COLORS.colorize(f'Creating project: {name}', COLORS.CYAN)}
+{COLORS.colorize('=' * 60, COLORS.CYAN)}
+Path: {project_dir}
+Template: [{tmpl.get('icon', '')}] {tmpl.get('name', template)}
+AI: {', '.join(ai_targets)}
+Docker: {'Yes' if include_docker else 'No'}
+CI/CD: {'Yes' if include_ci else 'No'}
+Git: {'Yes' if include_git else 'No'}
 """)
     
-    # Создаём директорию
+    # Create directory
     project_dir.mkdir(parents=True)
     
-    # AI конфиги
+    # AI configs
     generate_ai_configs(project_dir, name, ai_targets, date)
     
     # Scripts
@@ -330,9 +330,9 @@ def create_project(
             print(f"  {COLORS.success('_AI_INCLUDE/FULL_MANIFESTO.md')}")
     
     print(f"""
-{COLORS.colorize('═' * 60, COLORS.GREEN)}
-{COLORS.colorize('✅ Project created!', COLORS.GREEN)}
-{COLORS.colorize('═' * 60, COLORS.GREEN)}
+{COLORS.colorize('=' * 60, COLORS.GREEN)}
+{COLORS.colorize('Project created!', COLORS.GREEN)}
+{COLORS.colorize('=' * 60, COLORS.GREEN)}
 
 Next steps:
 
@@ -347,52 +347,52 @@ Next steps:
 
 
 def cmd_create() -> None:
-    """Интерактивная команда создания проекта"""
+    """Interactive create command"""
     from ..core.config import get_default_ide
     
-    print(COLORS.colorize("\n🆕 СОЗДАНИЕ НОВОГО ПРОЕКТА\n", COLORS.GREEN))
+    print(COLORS.colorize("\nCREATE NEW PROJECT\n", COLORS.GREEN))
     
-    # Показываем IDE
+    # Show IDE
     ide = get_default_ide()
     ide_names = {
-        "cursor": "💜 Cursor",
-        "vscode_copilot": "💙 VS Code + Copilot",
-        "vscode_claude": "🟢 VS Code + Claude",
-        "windsurf": "🌊 Windsurf",
-        "all": "🔄 Универсальный",
+        "cursor": "[C] Cursor",
+        "vscode_copilot": "[GH] VS Code + Copilot",
+        "vscode_claude": "[CL] VS Code + Claude",
+        "windsurf": "[WS] Windsurf",
+        "all": "[ALL] Universal",
     }
     print(f"  IDE: {ide_names.get(ide, ide)}\n")
     
-    # Имя
-    name = input("Название проекта: ").strip()
+    # Name
+    name = input("Project name: ").strip()
     if not name:
-        print(COLORS.warning("Отменено"))
+        print(COLORS.warning("Cancelled"))
         return
     
     if not name.replace('_', '').replace('-', '').isalnum():
-        print(COLORS.error("Название: только буквы, цифры, _ и -"))
+        print(COLORS.error("Name: only letters, numbers, _ and -"))
         return
     
-    # Путь
-    path_str = input("Путь (Enter = текущая папка): ").strip()
+    # Path
+    path_str = input("Path (Enter = current folder): ").strip()
     path = Path(path_str).resolve() if path_str else Path.cwd()
     
-    # Шаблон
+    # Template
     template = select_template()
     
-    # Опции
-    print("\n📋 Опции:\n")
-    include_docker = input("  Добавить Docker? (Y/n): ").strip().lower() != 'n'
-    include_ci = input("  Добавить CI/CD? (Y/n): ").strip().lower() != 'n'
-    include_git = input("  Инициализировать Git? (Y/n): ").strip().lower() != 'n'
+    # Options
+    print("\nOptions:\n")
+    include_docker = input("  Add Docker? (Y/n): ").strip().lower() != 'n'
+    include_ci = input("  Add CI/CD? (Y/n): ").strip().lower() != 'n'
+    include_git = input("  Initialize Git? (Y/n): ").strip().lower() != 'n'
     
-    # Подтверждение
-    confirm = input("\nСоздать проект? (Y/n): ").strip().lower()
+    # Confirm
+    confirm = input("\nCreate project? (Y/n): ").strip().lower()
     if confirm == 'n':
-        print(COLORS.warning("Отменено"))
+        print(COLORS.warning("Cancelled"))
         return
     
-    # Создание
+    # Create
     create_project(
         name=name,
         path=path,

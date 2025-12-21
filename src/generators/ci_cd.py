@@ -1,5 +1,5 @@
 """
-Генератор CI/CD файлов (GitHub Actions)
+CI/CD file generator (GitHub Actions)
 """
 
 from __future__ import annotations
@@ -11,9 +11,9 @@ from ..core.constants import COLORS
 
 
 def generate_ci_workflow(project_dir: Path, project_name: str) -> None:
-    """Генерация .github/workflows/ci.yml"""
-    content = f"""# CI — {project_name}
-# Запускается при push и pull request
+    """Generate .github/workflows/ci.yml"""
+    content = f"""# CI - {project_name}
+# Runs on push and pull request
 
 name: CI
 
@@ -28,7 +28,7 @@ env:
 
 jobs:
   lint:
-    name: 🔍 Lint
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
         run: ruff check .
 
   test:
-    name: 🧪 Test
+    name: Test
     runs-on: ubuntu-latest
     needs: lint
     steps:
@@ -72,7 +72,7 @@ jobs:
           fail_ci_if_error: false
 
   check-repo:
-    name: 🛡️ Check repo clean
+    name: Check repo clean
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,13 +80,13 @@ jobs:
       - name: Check no venv in repo
         run: |
           if [ -d "venv" ] || [ -d ".venv" ]; then
-            echo "❌ ERROR: venv found in repository!"
+            echo "ERROR: venv found in repository!"
             exit 1
           fi
-          echo "✅ Repo is clean"
+          echo "Repo is clean"
 
   build:
-    name: 🐳 Build Docker
+    name: Build Docker
     runs-on: ubuntu-latest
     needs: [lint, test]
     if: github.event_name == 'push'
@@ -96,7 +96,7 @@ jobs:
       - name: Build image
         run: docker build -t {project_name}:${{{{ github.sha }}}} .
       
-      # Раскомментируй для push в registry
+      # Uncomment to push to registry
       # - name: Login to Docker Hub
       #   uses: docker/login-action@v3
       #   with:
@@ -114,31 +114,29 @@ jobs:
 
 
 def generate_cd_workflow(project_dir: Path, project_name: str) -> None:
-    """Генерация .github/workflows/cd.yml (deploy)"""
-    content = f"""# CD — {project_name}
-# Автоматический деплой при push в main
+    """Generate .github/workflows/cd.yml (deploy)"""
+    content = f"""# CD - {project_name}
+# Auto deploy on push to main
 
 name: CD
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # Ручной запуск
+  workflow_dispatch:  # Manual trigger
 
 env:
   PYTHON_VERSION: "3.12"
 
 jobs:
   deploy:
-    name: 🚀 Deploy
+    name: Deploy
     runs-on: ubuntu-latest
-    # Только если CI прошёл
-    # needs: ci  # раскомментируй если нужно
     
     steps:
       - uses: actions/checkout@v4
       
-      # === Вариант 1: Deploy через SSH ===
+      # === Option 1: Deploy via SSH ===
       # - name: Deploy via SSH
       #   uses: appleboy/ssh-action@v1.0.3
       #   with:
@@ -150,13 +148,13 @@ jobs:
       #       git pull origin main
       #       docker-compose up -d --build
       
-      # === Вариант 2: Deploy в Railway/Render/Fly.io ===
+      # === Option 2: Deploy to Railway/Render/Fly.io ===
       # - name: Deploy to Railway
       #   uses: bervProject/railway-deploy@main
       #   with:
       #     railway_token: ${{{{ secrets.RAILWAY_TOKEN }}}}
       
-      # === Вариант 3: Deploy в VPS через Docker ===
+      # === Option 3: Deploy to VPS via Docker ===
       # - name: Build and push
       #   run: |
       #     docker build -t ghcr.io/${{{{ github.repository }}}}:latest .
@@ -172,8 +170,8 @@ jobs:
 
 
 def generate_dependabot(project_dir: Path) -> None:
-    """Генерация .github/dependabot.yml"""
-    content = """# Dependabot — автоматическое обновление зависимостей
+    """Generate .github/dependabot.yml"""
+    content = """# Dependabot - automatic dependency updates
 
 version: 2
 
@@ -215,12 +213,12 @@ updates:
 
 
 def generate_pre_commit_config(project_dir: Path, project_name: str) -> None:
-    """Генерация .pre-commit-config.yaml"""
-    content = f"""# Pre-commit hooks — {project_name}
+    """Generate .pre-commit-config.yaml"""
+    content = f"""# Pre-commit hooks - {project_name}
 # Install: pip install pre-commit && pre-commit install
 
 repos:
-  # Проверка что venv не в проекте
+  # Check that venv is not in project
   - repo: local
     hooks:
       - id: check-repo-clean
@@ -230,7 +228,7 @@ repos:
         pass_filenames: false
         always_run: true
 
-  # Стандартные проверки
+  # Standard checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -253,7 +251,7 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  # Type checking (опционально)
+  # Type checking (optional)
   # - repo: https://github.com/pre-commit/mirrors-mypy
   #   rev: v1.9.0
   #   hooks:
@@ -265,13 +263,13 @@ repos:
 
 def generate_ci_files(project_dir: Path, project_name: str) -> None:
     """
-    Создать все CI/CD файлы
+    Create all CI/CD files
     
     Args:
-        project_dir: Путь к проекту
-        project_name: Название проекта
+        project_dir: Project path
+        project_name: Project name
     """
-    print(f"\n{COLORS.colorize('🚀 CI/CD...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('CI/CD...', COLORS.CYAN)}")
     
     generate_ci_workflow(project_dir, project_name)
     generate_cd_workflow(project_dir, project_name)

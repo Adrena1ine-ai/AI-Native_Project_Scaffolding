@@ -1,5 +1,5 @@
 """
-Генератор основных файлов проекта (config, requirements, README)
+Project file generator (config, requirements, README)
 """
 
 from __future__ import annotations
@@ -12,9 +12,9 @@ from ..core.constants import COLORS, TEMPLATES, VERSION
 
 
 def generate_requirements(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация requirements.txt"""
+    """Generate requirements.txt"""
     
-    # Базовые зависимости
+    # Base dependencies
     deps = [
         "# Core",
         "python-dotenv>=1.0",
@@ -40,7 +40,7 @@ def generate_requirements(project_dir: Path, project_name: str, template: str) -
         deps.extend([
             "# Database",
             "aiosqlite>=0.20",
-            "# sqlalchemy>=2.0  # если нужен ORM",
+            "# sqlalchemy>=2.0  # if ORM needed",
             "",
         ])
     
@@ -60,16 +60,16 @@ def generate_requirements(project_dir: Path, project_name: str, template: str) -
             "httpx>=0.27",
             "beautifulsoup4>=4.12",
             "lxml>=5.1",
-            "# playwright>=1.42  # если нужен браузер",
+            "# playwright>=1.42  # if browser needed",
             "",
         ])
     
-    content = f"# Requirements — {project_name}\n\n" + "\n".join(deps)
+    content = f"# Requirements - {project_name}\n\n" + "\n".join(deps)
     create_file(project_dir / "requirements.txt", content)
 
 
 def generate_requirements_dev(project_dir: Path) -> None:
-    """Генерация requirements-dev.txt"""
+    """Generate requirements-dev.txt"""
     content = """# Development dependencies
 
 # Testing
@@ -93,10 +93,10 @@ ipython>=8.22
 
 
 def generate_env_example(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация .env.example"""
+    """Generate .env.example"""
     
     lines = [
-        f"# Environment — {project_name}",
+        f"# Environment - {project_name}",
         "# Copy to .env and fill in values",
         "",
         "# App",
@@ -136,12 +136,12 @@ def generate_env_example(project_dir: Path, project_name: str, template: str) ->
 
 
 def generate_config_py(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация config.py"""
+    """Generate config.py"""
     
     tmpl = TEMPLATES.get(template, {})
     modules = tmpl.get("modules", [])
     
-    # Поля конфига
+    # Config fields
     fields = ['    debug: bool = False']
     
     if "bot" in modules:
@@ -159,7 +159,7 @@ def generate_config_py(project_dir: Path, project_name: str, template: str) -> N
     fields_str = "\n".join(fields)
     
     content = f'''"""
-Configuration — {project_name}
+Configuration - {project_name}
 """
 
 from pathlib import Path
@@ -185,12 +185,12 @@ settings = Settings()
 
 
 def generate_readme(project_dir: Path, project_name: str, template: str) -> None:
-    """Генерация README.md"""
+    """Generate README.md"""
     
     tmpl = TEMPLATES.get(template, {})
     description = tmpl.get("description", "Project")
     
-    # Quick start в зависимости от шаблона
+    # Quick start based on template
     run_cmd = {
         "bot": "python bot/main.py",
         "webapp": "python -m http.server 8000 --directory webapp",
@@ -199,86 +199,86 @@ def generate_readme(project_dir: Path, project_name: str, template: str) -> None
         "full": "python bot/main.py",
     }.get(template, "python main.py")
     
-    content = f"""# 🚀 {project_name}
+    content = f"""# {project_name}
 
 {description}
 
-## 📋 Requirements
+## Requirements
 
 - Python 3.10+
 - See `requirements.txt`
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# 1. Bootstrap (создаёт venv ВНЕ проекта)
+# 1. Bootstrap (creates venv OUTSIDE project)
 ./scripts/bootstrap.sh
 
-# 2. Активация
+# 2. Activate
 source ../_venvs/{project_name}-venv/bin/activate
 
-# 3. Настройка
+# 3. Configure
 cp .env.example .env
-# Отредактируй .env
+# Edit .env
 
-# 4. Запуск
+# 4. Run
 {run_cmd}
 ```
 
-## 🐳 Docker
+## Docker
 
 ```bash
 # Build & Run
 docker-compose up -d
 
-# Логи
+# Logs
 docker-compose logs -f
 
-# Остановка
+# Stop
 docker-compose down
 ```
 
-## 📁 Structure
+## Structure
 
 ```
 {project_name}/
-├── _AI_INCLUDE/        # Правила для AI
-├── bot/                # Telegram bot
-├── webapp/             # Mini App
-├── api/                # API server
-├── database/           # Database
-├── scripts/            # Helper scripts
-├── logs/               # Logs (gitignored)
-├── data/               # Data (gitignored)
-├── .github/            # GitHub Actions
-├── Dockerfile
-└── docker-compose.yml
+  _AI_INCLUDE/        # Rules for AI
+  bot/                # Telegram bot
+  webapp/             # Mini App
+  api/                # API server
+  database/           # Database
+  scripts/            # Helper scripts
+  logs/               # Logs (gitignored)
+  data/               # Data (gitignored)
+  .github/            # GitHub Actions
+  Dockerfile
+  docker-compose.yml
 ```
 
-## 🏥 Health Check
+## Health Check
 
 ```bash
 ./scripts/health_check.sh
 ```
 
-## 🎮 Context Switcher
+## Context Switcher
 
-Если AI тупит на большом проекте:
+If AI struggles with large project:
 
 ```bash
-python scripts/context.py bot     # Фокус на боте
-python scripts/context.py webapp  # Фокус на webapp
-python scripts/context.py all     # Всё видно
+python scripts/context.py bot     # Focus on bot
+python scripts/context.py webapp  # Focus on webapp
+python scripts/context.py all     # Show all
 ```
 
-## 🧪 Testing
+## Testing
 
 ```bash
 pytest
 pytest --cov=.
 ```
 
-## 📝 License
+## License
 
 MIT
 
@@ -290,12 +290,12 @@ Generated by [AI Toolkit v{VERSION}](https://github.com/mickhael/ai-toolkit)
 
 
 def generate_toolkit_version(project_dir: Path) -> None:
-    """Генерация .toolkit-version"""
+    """Generate .toolkit-version"""
     create_file(project_dir / ".toolkit-version", VERSION)
 
 
 def generate_pyproject_toml(project_dir: Path, project_name: str) -> None:
-    """Генерация pyproject.toml"""
+    """Generate pyproject.toml"""
     content = f"""[project]
 name = "{project_name}"
 version = "0.1.0"
@@ -332,14 +332,14 @@ def generate_project_files(
     template: str
 ) -> None:
     """
-    Создать основные файлы проекта
+    Create main project files
     
     Args:
-        project_dir: Путь к проекту
-        project_name: Название проекта
-        template: Шаблон проекта
+        project_dir: Project path
+        project_name: Project name
+        template: Project template
     """
-    print(f"\n{COLORS.colorize('📦 Project files...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('Project files...', COLORS.CYAN)}")
     
     generate_requirements(project_dir, project_name, template)
     generate_requirements_dev(project_dir)
@@ -349,7 +349,7 @@ def generate_project_files(
     generate_toolkit_version(project_dir)
     generate_pyproject_toml(project_dir, project_name)
     
-    # Создаём пустые директории
+    # Create empty directories
     for d in ["logs", "data", "tests"]:
         (project_dir / d).mkdir(exist_ok=True)
         create_file(project_dir / d / ".gitkeep", "", quiet=True)

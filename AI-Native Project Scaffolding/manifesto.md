@@ -1,14 +1,16 @@
-Если делать проект “с нуля” так, чтобы через 100 итераций не получить снова `venv/`, логи на сотни мегабайт и индексируемые зависимости, нужно сразу заложить 3 вещи:
+# AI-Native Project Scaffolding Manifesto
 
-1) **жёсткую структуру проекта** (где код, где данные, где логи)  
-2) **файлы исключений** для Cursor/VS Code/Git  
-3) **охранные правила** (скрипт/чек), который не позволит случайно создать `venv` внутри репо
+When starting a project from scratch, to avoid ending up with `venv/`, logs of hundreds of megabytes, and indexed dependencies after 100 iterations, you need to establish 3 things right away:
 
-Ниже — готовый “нулевой шаблон”: файлы + промпт для агента.
+1) **A strict project structure** (where code, data, and logs live)
+2) **Exclusion files** for Cursor/VS Code/Git
+3) **Protective rules** (script/check) that prevent accidentally creating `venv` inside the repo
+
+Below is a ready-to-use "zero template": files + prompt for the agent.
 
 ---
 
-## 1) Рекомендуемая структура нового проекта
+## 1) Recommended Structure for a New Project
 
 ```
 my_project/
@@ -16,30 +18,30 @@ my_project/
   utils/
   api/
   webapp/                 # mini app
-  parser/                 # или parser_faberlic_links/ если так привычнее
+  parser/
   database/
   scripts/
   _AI_INCLUDE/
   .vscode/
   .cursorignore
   .gitignore
-  requirements.txt        # или pyproject.toml
+  requirements.txt        # or pyproject.toml
   .env.example
   README.md
 ```
 
-Снаружи репозитория (рядом с папкой проекта) будут жить тяжёлые вещи:
+Outside the repository (next to the project folder) will live heavy things:
 
 ```
 ../_venvs/my_project-main
 ../_data/my_project/
 ../_artifacts/my_project/logs/
-../_pw-browsers/          # если используешь Playwright
+../_pw-browsers/          # if using Playwright
 ```
 
 ---
 
-## 2) Файлы, которые создаёшь сразу
+## 2) Files to Create Immediately
 
 ### `.cursorignore`
 ```gitignore
@@ -64,7 +66,7 @@ dist/
 build/
 .next/
 
-# Heavy artifacts/data (обычно не нужны для правок логики)
+# Heavy artifacts/data (usually not needed for logic edits)
 **/*.csv
 **/*.jsonl
 **/*.db
@@ -167,9 +169,9 @@ Never commit or index large dumps/logs.
 
 ---
 
-## 3) Скрипты, которые предотвращают повтор проблем
+## 3) Scripts That Prevent Repeated Problems
 
-### `scripts/bootstrap.sh` (создаёт/переиспользует venv снаружи)
+### `scripts/bootstrap.sh` (creates/reuses venv outside)
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -191,9 +193,9 @@ fi
 echo "Activate: source $VENV_DIR/bin/activate"
 ```
 
-> `venv` — стандартный модуль Python для виртуальных окружений. Документация: https://docs.python.org/3/library/venv.html
+> `venv` is Python's standard module for virtual environments. Documentation: https://docs.python.org/3/library/venv.html
 
-### `scripts/check_repo_clean.sh` (охранник: не даёт случайно завести venv/мусор в репо)
+### `scripts/check_repo_clean.sh` (guard: prevents accidentally adding venv/junk to repo)
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -214,13 +216,13 @@ fi
 exit $bad
 ```
 
-Запускай его иногда вручную или повесь на pre-commit/CI.
+Run it occasionally by hand or hook it up to pre-commit/CI.
 
 ---
 
-## 4) Чтобы агент “не плодил дубликаты” — один универсальный промпт для новых проектов
+## 4) Universal Prompt for New Projects (to prevent duplicates)
 
-Скопируй в Cursor Agent (когда создаёшь проект с 0):
+Copy into Cursor Agent (when creating a project from scratch):
 
 ```text
 Bootstrap a new repo for a Telegram bot + Mini App + Python parser with strict hygiene.
@@ -249,9 +251,10 @@ Output: show the exact file contents or patches for everything you create/change
 
 ---
 
-## 5) Если в будущем появится Playwright
-Чтобы не было повторных скачиваний/дубликатов браузеров, задавай общий кэш, например:
+## 5) If Playwright is Needed in the Future
+
+To avoid repeated downloads/duplicate browsers, set a shared cache, e.g.:
 - `PLAYWRIGHT_BROWSERS_PATH=../_pw-browsers`
-и делай установку один раз. Документация: https://playwright.dev/python/docs/browsers
+and install once. Documentation: https://playwright.dev/python/docs/browsers
 
 ---

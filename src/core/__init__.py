@@ -1,5 +1,5 @@
 """
-Core модуль — базовые компоненты
+Core module - base components
 """
 
 from .config import Config, get_config, set_default_ide, get_default_ide, get_default_ai_targets

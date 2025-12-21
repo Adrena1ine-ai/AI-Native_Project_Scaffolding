@@ -1,11 +1,11 @@
 """
-📜 Manifesto Parser — Загрузка и применение правил из manifesto.md
+Manifesto Parser - Load and apply rules from manifesto.md
 
-Manifesto — это "Конституция" проекта, определяющая:
-- Структуру проекта
-- Файлы исключений
-- Защитные скрипты
-- Правила для AI-ассистентов
+Manifesto is the project's "Constitution", defining:
+- Project structure
+- Exclusion files
+- Protective scripts
+- Rules for AI assistants
 """
 
 from __future__ import annotations
@@ -23,38 +23,38 @@ MANIFESTO_BACKUP = Path(__file__).parent.parent.parent / "docs" / "manifesto.md"
 
 @dataclass
 class ManifestoRules:
-    """Правила извлечённые из manifesto.md"""
+    """Rules extracted from manifesto.md"""
     
-    # Структура проекта
+    # Project structure
     recommended_folders: list[str] = field(default_factory=list)
     external_folders: list[str] = field(default_factory=list)
     
-    # Файлы исключений
+    # Exclusion files
     cursorignore_content: str = ""
     gitignore_content: str = ""
     vscode_settings: str = ""
     project_conventions: str = ""
     
-    # Скрипты
+    # Scripts
     bootstrap_script: str = ""
     check_repo_script: str = ""
     
-    # Prompt для AI
+    # AI Prompt
     ai_prompt: str = ""
     
-    # Главные правила (3 запрета)
+    # Main rules (3 prohibitions)
     main_rules: list[str] = field(default_factory=list)
 
 
 def load_manifesto(path: Optional[Path] = None) -> str:
     """
-    Загрузить содержимое manifesto.md
+    Load manifesto.md content
     
     Args:
-        path: Путь к файлу (или None для автопоиска)
+        path: Path to file (or None for auto-search)
         
     Returns:
-        Содержимое файла
+        File content
     """
     if path and path.exists():
         return path.read_text(encoding="utf-8")
@@ -72,14 +72,14 @@ def load_manifesto(path: Optional[Path] = None) -> str:
 
 def extract_code_block(content: str, marker: str) -> str:
     """
-    Извлечь содержимое code block после определённого маркера
+    Extract code block content after a specific marker
     
     Args:
-        content: Полный текст manifesto
-        marker: Текст заголовка перед блоком (например "### `.cursorignore`")
+        content: Full manifesto text
+        marker: Header text before block (e.g. "### `.cursorignore`")
         
     Returns:
-        Содержимое code block
+        Code block content
     """
     # Find the marker
     idx = content.find(marker)
@@ -99,27 +99,27 @@ def extract_code_block(content: str, marker: str) -> str:
 
 def parse_manifesto(content: str) -> ManifestoRules:
     """
-    Парсить manifesto.md и извлечь правила
+    Parse manifesto.md and extract rules
     
     Args:
-        content: Содержимое manifesto.md
+        content: Manifesto.md content
         
     Returns:
-        ManifestoRules с извлечёнными правилами
+        ManifestoRules with extracted rules
     """
     rules = ManifestoRules()
     
     if not content:
         return rules
     
-    # Главные правила (из текста)
+    # Main rules (from text)
     rules.main_rules = [
-        "Никогда не создавать venv внутри проекта",
-        "Логи и данные хранить вне репозитория",
-        "Использовать файлы исключений для AI и Git",
+        "Never create venv inside project",
+        "Store logs and data outside repository",
+        "Use exclusion files for AI and Git",
     ]
     
-    # Рекомендуемые папки проекта
+    # Recommended project folders
     rules.recommended_folders = [
         "handlers/",
         "utils/",
@@ -132,7 +132,7 @@ def parse_manifesto(content: str) -> ManifestoRules:
         ".vscode/",
     ]
     
-    # Внешние папки (вне проекта)
+    # External folders (outside project)
     rules.external_folders = [
         "../_venvs/{project}-main",
         "../_data/{project}/",
@@ -140,18 +140,18 @@ def parse_manifesto(content: str) -> ManifestoRules:
         "../_pw-browsers/",
     ]
     
-    # Извлекаем файлы исключений
+    # Extract exclusion files
     rules.cursorignore_content = extract_code_block(content, "### `.cursorignore`")
     rules.gitignore_content = extract_code_block(content, "### `.gitignore`")
     rules.vscode_settings = extract_code_block(content, "### `.vscode/settings.json`")
     rules.project_conventions = extract_code_block(content, "### `_AI_INCLUDE/PROJECT_CONVENTIONS.md`")
     
-    # Извлекаем скрипты
+    # Extract scripts
     rules.bootstrap_script = extract_code_block(content, "### `scripts/bootstrap.sh`")
     rules.check_repo_script = extract_code_block(content, "### `scripts/check_repo_clean.sh`")
     
     # AI Prompt
-    ai_prompt_marker = "## 4) Чтобы агент"
+    ai_prompt_marker = "## 4) Universal Prompt"
     idx = content.find(ai_prompt_marker)
     if idx != -1:
         after = content[idx:]
@@ -164,34 +164,34 @@ def parse_manifesto(content: str) -> ManifestoRules:
 
 def get_manifesto_rules() -> ManifestoRules:
     """
-    Получить правила из manifesto (главная функция)
+    Get rules from manifesto (main function)
     
     Returns:
-        ManifestoRules с правилами
+        ManifestoRules with rules
     """
     content = load_manifesto()
     return parse_manifesto(content)
 
 
 def get_cursorignore_content() -> str:
-    """Получить содержимое для .cursorignore из manifesto"""
+    """Get .cursorignore content from manifesto"""
     rules = get_manifesto_rules()
     return rules.cursorignore_content or DEFAULT_CURSORIGNORE
 
 
 def get_gitignore_content() -> str:
-    """Получить содержимое для .gitignore из manifesto"""
+    """Get .gitignore content from manifesto"""
     rules = get_manifesto_rules()
     return rules.gitignore_content or DEFAULT_GITIGNORE
 
 
 def get_bootstrap_script() -> str:
-    """Получить скрипт bootstrap.sh из manifesto"""
+    """Get bootstrap.sh script from manifesto"""
     rules = get_manifesto_rules()
     return rules.bootstrap_script or DEFAULT_BOOTSTRAP
 
 
-# Дефолтные значения если manifesto недоступен
+# Default values if manifesto is unavailable
 DEFAULT_CURSORIGNORE = """# Environments / deps
 venv/
 .venv/
@@ -282,18 +282,18 @@ echo "Activate: source $VENV_DIR/bin/activate"
 
 def apply_manifesto_to_project(project_path: Path) -> dict[str, bool]:
     """
-    Применить правила manifesto к существующему проекту
+    Apply manifesto rules to an existing project
     
     Args:
-        project_path: Путь к проекту
+        project_path: Path to project
         
     Returns:
-        Словарь с результатами {файл: успех}
+        Dictionary with results {file: success}
     """
     results = {}
     rules = get_manifesto_rules()
     
-    # Создаём .cursorignore
+    # Create .cursorignore
     cursorignore = project_path / ".cursorignore"
     if not cursorignore.exists():
         cursorignore.write_text(rules.cursorignore_content or DEFAULT_CURSORIGNORE, encoding="utf-8")
@@ -301,7 +301,7 @@ def apply_manifesto_to_project(project_path: Path) -> dict[str, bool]:
     else:
         results[".cursorignore"] = False  # Already exists
     
-    # Создаём .gitignore
+    # Create .gitignore
     gitignore = project_path / ".gitignore"
     if not gitignore.exists():
         gitignore.write_text(rules.gitignore_content or DEFAULT_GITIGNORE, encoding="utf-8")
@@ -309,7 +309,7 @@ def apply_manifesto_to_project(project_path: Path) -> dict[str, bool]:
     else:
         results[".gitignore"] = False
     
-    # Создаём .vscode/settings.json
+    # Create .vscode/settings.json
     vscode_dir = project_path / ".vscode"
     vscode_dir.mkdir(exist_ok=True)
     vscode_settings = vscode_dir / "settings.json"
@@ -319,7 +319,7 @@ def apply_manifesto_to_project(project_path: Path) -> dict[str, bool]:
     else:
         results[".vscode/settings.json"] = False
     
-    # Создаём _AI_INCLUDE/PROJECT_CONVENTIONS.md
+    # Create _AI_INCLUDE/PROJECT_CONVENTIONS.md
     ai_include_dir = project_path / "_AI_INCLUDE"
     ai_include_dir.mkdir(exist_ok=True)
     conventions = ai_include_dir / "PROJECT_CONVENTIONS.md"
@@ -329,7 +329,7 @@ def apply_manifesto_to_project(project_path: Path) -> dict[str, bool]:
     else:
         results["_AI_INCLUDE/PROJECT_CONVENTIONS.md"] = False
     
-    # Создаём scripts/bootstrap.sh
+    # Create scripts/bootstrap.sh
     scripts_dir = project_path / "scripts"
     scripts_dir.mkdir(exist_ok=True)
     bootstrap = scripts_dir / "bootstrap.sh"
@@ -341,4 +341,3 @@ def apply_manifesto_to_project(project_path: Path) -> dict[str, bool]:
         results["scripts/bootstrap.sh"] = False
     
     return results
-

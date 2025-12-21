@@ -1,12 +1,12 @@
 """
-Константы проекта
+Project constants
 """
 
 VERSION = "3.0.0"
 
 
 class COLORS:
-    """ANSI цвета для терминала"""
+    """ANSI colors for terminal"""
     BLUE = "\033[94m"
     GREEN = "\033[92m"
     YELLOW = "\033[93m"
@@ -19,115 +19,115 @@ class COLORS:
     
     @classmethod
     def colorize(cls, text: str, color: str) -> str:
-        """Раскрасить текст"""
+        """Colorize text"""
         return f"{color}{text}{cls.END}"
     
     @classmethod
     def success(cls, text: str) -> str:
-        return cls.colorize(f"✅ {text}", cls.GREEN)
+        return cls.colorize(f"[OK] {text}", cls.GREEN)
     
     @classmethod
     def error(cls, text: str) -> str:
-        return cls.colorize(f"❌ {text}", cls.RED)
+        return cls.colorize(f"[ERROR] {text}", cls.RED)
     
     @classmethod
     def warning(cls, text: str) -> str:
-        return cls.colorize(f"⚠️  {text}", cls.YELLOW)
+        return cls.colorize(f"[WARN] {text}", cls.YELLOW)
     
     @classmethod
     def info(cls, text: str) -> str:
-        return cls.colorize(f"ℹ️  {text}", cls.CYAN)
+        return cls.colorize(f"[INFO] {text}", cls.CYAN)
 
 
-# IDE конфигурации
+# IDE configurations
 IDE_CONFIGS = {
     "cursor": {
         "name": "Cursor",
-        "icon": "💜",
+        "icon": "C",
         "files": [".cursorrules", ".cursorignore"],
         "ai_targets": ["cursor"],
     },
     "vscode_copilot": {
         "name": "VS Code + Copilot",
-        "icon": "💙",
+        "icon": "GH",
         "files": [".github/copilot-instructions.md"],
         "ai_targets": ["copilot"],
     },
     "vscode_claude": {
         "name": "VS Code + Claude",
-        "icon": "🟢",
+        "icon": "CL",
         "files": ["CLAUDE.md"],
         "ai_targets": ["claude"],
     },
     "windsurf": {
         "name": "Windsurf",
-        "icon": "🌊",
+        "icon": "WS",
         "files": [".windsurfrules"],
         "ai_targets": ["windsurf"],
     },
     "all": {
-        "name": "Универсальный",
-        "icon": "🔄",
+        "name": "Universal",
+        "icon": "ALL",
         "files": ["all"],
         "ai_targets": ["cursor", "copilot", "claude", "windsurf"],
     },
 }
 
-# Шаблоны проектов
+# Project templates
 TEMPLATES = {
     "bot": {
         "name": "Telegram Bot",
-        "description": "Telegram бот на aiogram 3.x",
+        "description": "Telegram bot using aiogram 3.x",
         "modules": ["bot", "handlers", "keyboards", "database"],
-        "icon": "🤖",
+        "icon": "BOT",
     },
     "webapp": {
         "name": "Mini App",
         "description": "Telegram Mini App (HTML/JS/CSS)",
         "modules": ["webapp", "api"],
-        "icon": "🌐",
+        "icon": "WEB",
     },
     "fastapi": {
         "name": "FastAPI",
-        "description": "REST API на FastAPI",
+        "description": "REST API using FastAPI",
         "modules": ["api", "database", "models"],
-        "icon": "⚡",
+        "icon": "API",
     },
     "parser": {
         "name": "Web Parser",
-        "description": "Парсер/скрапер",
+        "description": "Web scraper/parser",
         "modules": ["parser", "database"],
-        "icon": "🕷️",
+        "icon": "PAR",
     },
     "full": {
         "name": "Full Stack",
         "description": "Bot + WebApp + API + Parser",
         "modules": ["bot", "webapp", "api", "parser", "database"],
-        "icon": "🚀",
+        "icon": "FULL",
     },
     "monorepo": {
         "name": "Monorepo",
-        "description": "Несколько проектов в одном репозитории",
+        "description": "Multiple projects in one repository",
         "modules": ["apps", "packages", "shared"],
-        "icon": "📦",
+        "icon": "MONO",
     },
 }
 
-# Уровни очистки
+# Cleanup levels
 CLEANUP_LEVELS = {
     "safe": {
-        "name": "Безопасный",
-        "description": "Только анализ и рекомендации",
+        "name": "Safe",
+        "description": "Analysis and recommendations only",
         "actions": ["analyze", "report"],
     },
     "medium": {
-        "name": "Средний",
-        "description": "Переместить venv, создать конфиги",
+        "name": "Medium",
+        "description": "Move venv, create configs",
         "actions": ["analyze", "backup", "move_venv", "create_configs"],
     },
     "full": {
-        "name": "Полный",
-        "description": "Полная реструктуризация",
+        "name": "Full",
+        "description": "Complete restructuring",
         "actions": ["analyze", "backup", "move_venv", "move_data", "create_configs", "restructure"],
     },
 }

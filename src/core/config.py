@@ -1,12 +1,12 @@
 """
-Работа с конфигурацией
+Configuration management
 """
 
 from __future__ import annotations
 
 import yaml
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional, Any
 
 from .constants import IDE_CONFIGS, TEMPLATES, CLEANUP_LEVELS
@@ -14,27 +14,27 @@ from .constants import IDE_CONFIGS, TEMPLATES, CLEANUP_LEVELS
 
 @dataclass
 class Config:
-    """Главный конфиг Toolkit"""
+    """Main Toolkit config"""
     version: str = "3.0.0"
     
-    # Пути
+    # Paths
     venvs_path: str = "../_venvs"
     data_path: str = "../_data"
     artifacts_path: str = "../_artifacts"
     
-    # Дефолты
+    # Defaults
     default_template: str = "bot"
     default_ide: str = "all"
     include_docker: bool = True
     include_ci: bool = True
     include_git: bool = True
     
-    # Плагины
+    # Plugins
     plugins_dir: str = "~/.ai_toolkit/plugins"
     
     @classmethod
     def load(cls, path: Optional[Path] = None) -> Config:
-        """Загрузить конфиг из файла"""
+        """Load config from file"""
         if path is None:
             path = Path(__file__).parent.parent.parent / "toolkit.yaml"
         
@@ -61,7 +61,7 @@ class Config:
             return cls()
     
     def save(self, path: Optional[Path] = None) -> None:
-        """Сохранить конфиг"""
+        """Save config to file"""
         if path is None:
             path = Path(__file__).parent.parent.parent / "toolkit.yaml"
         
@@ -86,28 +86,28 @@ class Config:
             yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
     
     def get_template(self, name: str) -> Optional[dict]:
-        """Получить шаблон по имени"""
+        """Get template by name"""
         return TEMPLATES.get(name)
     
     def get_ide_config(self, name: str) -> Optional[dict]:
-        """Получить конфиг IDE"""
+        """Get IDE config"""
         return IDE_CONFIGS.get(name)
     
     def get_cleanup_level(self, name: str) -> Optional[dict]:
-        """Получить уровень очистки"""
+        """Get cleanup level"""
         return CLEANUP_LEVELS.get(name)
 
 
-# === Глобальное состояние ===
+# === Global state ===
 
 _config: Optional[Config] = None
 _current_ide: str = "all"
 _current_ai_targets: list[str] = ["cursor", "copilot", "claude", "windsurf"]
-_current_language: str = "en"  # Default language
+_current_language: str = "en"
 
 
 def get_config() -> Config:
-    """Получить глобальный конфиг"""
+    """Get global config"""
     global _config
     if _config is None:
         _config = Config.load()
@@ -115,72 +115,32 @@ def get_config() -> Config:
 
 
 def set_default_ide(ide: str, ai_targets: list[str]) -> None:
-    """Установить IDE для текущей сессии"""
+    """Set IDE for current session"""
     global _current_ide, _current_ai_targets
     _current_ide = ide
     _current_ai_targets = ai_targets
 
 
 def get_default_ide() -> str:
-    """Получить текущую IDE"""
+    """Get current IDE"""
     return _current_ide
 
 
 def get_default_ai_targets() -> list[str]:
-    """Получить AI targets для текущей IDE"""
+    """Get AI targets for current IDE"""
     return _current_ai_targets.copy()
 
 
 # === Language settings ===
 
 def get_language() -> str:
-    """Get current language code ('en' or 'ru')."""
-    global _current_language
-    
-    # Try to load from user config
-    user_config_path = Path.home() / ".ai_toolkit" / "config.yaml"
-    if user_config_path.exists():
-        try:
-            with open(user_config_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-                _current_language = data.get("language", "en")
-        except Exception:
-            pass
-    
-    return _current_language
+    """Get current language code (always 'en' now)."""
+    return "en"
 
 
 def set_language(lang: str) -> None:
-    """
-    Set current language and save to user config.
-    
-    Args:
-        lang: Language code ('en' or 'ru')
-    """
-    global _current_language
-    _current_language = lang
-    
-    # Save to user config
-    user_config_dir = Path.home() / ".ai_toolkit"
-    user_config_dir.mkdir(parents=True, exist_ok=True)
-    
-    user_config_path = user_config_dir / "config.yaml"
-    
-    # Load existing config or create new
-    data: dict[str, Any] = {}
-    if user_config_path.exists():
-        try:
-            with open(user_config_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-        except Exception:
-            pass
-    
-    # Update language
-    data["language"] = lang
-    
-    # Save
-    with open(user_config_path, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+    """Set current language (no-op, English only now)."""
+    pass
 
 
 def is_first_run() -> bool:

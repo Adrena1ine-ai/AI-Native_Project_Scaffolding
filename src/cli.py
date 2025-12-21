@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🛠️ AI-Native Project Scaffolding v3.0 — CLI
+AI-Native Project Scaffolding v3.0 - CLI
 """
 
 from __future__ import annotations
@@ -15,10 +15,8 @@ from .core.config import (
     get_default_ide, 
     get_default_ai_targets,
     is_first_run,
-    set_language,
-    get_language,
 )
-from .core.i18n import t, select_language_prompt
+from .core.i18n import t
 
 from .commands import (
     cmd_create,
@@ -37,9 +35,9 @@ from .commands import (
 def print_header():
     """Print header"""
     print(f"""
-{COLORS.colorize('═' * 60, COLORS.BLUE)}
-{COLORS.colorize(f'🛠️  AI-NATIVE PROJECT SCAFFOLDING v{VERSION}', COLORS.BLUE)}
-{COLORS.colorize('═' * 60, COLORS.BLUE)}
+{COLORS.colorize('=' * 60, COLORS.BLUE)}
+{COLORS.colorize(f'  AI-NATIVE PROJECT SCAFFOLDING v{VERSION}', COLORS.BLUE)}
+{COLORS.colorize('=' * 60, COLORS.BLUE)}
 """)
 
 
@@ -79,19 +77,12 @@ def select_ide() -> str:
         print(f"  {COLORS.error(t('invalid_choice'))}")
 
 
-def select_lang() -> str:
-    """Language selection"""
-    return select_language_prompt()
-
-
 def print_menu():
     """Main menu"""
     ide = get_default_ide()
     ide_config = IDE_CONFIGS.get(ide, {})
-    lang = get_language()
     
     print(f"{t('current_ide')} {ide_config.get('icon', '')} {ide_config.get('name', ide)}")
-    print(f"🌍 {'English' if lang == 'en' else 'Русский'}\n")
     print(f"{t('what_to_do')}\n")
     
     items = [
@@ -101,7 +92,6 @@ def print_menu():
         ("4", t("menu_health")),
         ("5", t("menu_update")),
         ("6", t("menu_change_ide")),
-        ("7", t("menu_change_lang")),
         ("0", t("menu_exit")),
     ]
     
@@ -114,10 +104,6 @@ def interactive_mode():
     """Interactive mode"""
     print_header()
     
-    # First run - select language
-    if is_first_run():
-        select_language_prompt()
-    
     select_ide()
     
     commands = {
@@ -127,13 +113,12 @@ def interactive_mode():
         "4": cmd_health,
         "5": cmd_update,
         "6": select_ide,
-        "7": select_lang,
     }
     
     while True:
         print_menu()
         
-        choice = input(t("choose_0_to_n", n=7)).strip()
+        choice = input(t("choose_0_to_n", n=6)).strip()
         
         if choice == "0":
             print(f"\n{COLORS.colorize(t('goodbye'), COLORS.CYAN)}\n")
@@ -158,7 +143,6 @@ def cli_mode():
         description=t("cli_description"),
     )
     parser.add_argument("-v", "--version", action="version", version=f"AI-Native Project Scaffolding v{VERSION}")
-    parser.add_argument("--lang", choices=["en", "ru"], help="Set language")
     
     subparsers = parser.add_subparsers(dest="command", help="Commands")
     
@@ -201,10 +185,6 @@ def cli_mode():
     update_p.add_argument("path", type=Path, help=t("cli_arg_path"))
     
     args = parser.parse_args()
-    
-    # Set language if specified
-    if hasattr(args, 'lang') and args.lang:
-        set_language(args.lang)
     
     if not args.command:
         interactive_mode()
