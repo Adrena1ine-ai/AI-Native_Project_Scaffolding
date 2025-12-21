@@ -391,8 +391,8 @@ def create_app() -> FastAPI:
         """API: Get manifesto rules"""
         try:
             rules = get_manifesto_rules()
-            return {
-                "success": True,
+        return {
+            "success": True,
                 "main_rules": rules.main_rules,
                 "recommended_folders": rules.recommended_folders,
                 "external_folders": rules.external_folders,
