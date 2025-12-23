@@ -432,10 +432,33 @@ class Doctor:
     # === FIX FUNCTIONS ===
     
     def fix_venv_inside(self, issue: Issue) -> bool:
-        """Delete venv inside project and create external one."""
+        """Move venv inside project to archive and create external one."""
         if issue.path and issue.path.exists():
-            shutil.rmtree(issue.path)
-            print(COLORS.success(f"Deleted {issue.path.name}/"))
+            # Create archive directory
+            self.archive_dir.mkdir(parents=True, exist_ok=True)
+            venv_subdir = self.archive_dir / "venvs"
+            venv_subdir.mkdir(exist_ok=True)
+            
+            # Calculate size before moving
+            size = self._get_dir_size(issue.path)
+            
+            # Move venv to archive
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            archive_dest = venv_subdir / f"{issue.path.name}_{timestamp}"
+            
+            shutil.move(str(issue.path), str(archive_dest))
+            
+            # Record change
+            self.changes.append(ChangeRecord(
+                action="moved",
+                item_type="venv",
+                source=issue.path,
+                destination=archive_dest,
+                size_bytes=size,
+                description=f"Moved {issue.path.name}/ to archive"
+            ))
+            
+            print(COLORS.success(f"Moved {issue.path.name}/ to archive ({self._format_size(size)})"))
             return True
         return False
     
