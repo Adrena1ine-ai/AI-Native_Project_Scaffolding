@@ -811,7 +811,7 @@ Write-Host "✅ Done! Activate: $VENV_DIR\\Scripts\\Activate.ps1"
         return success_count == len(sorted_issues)
 
 
-def print_report(report: DiagnosticReport) -> None:
+def print_report(report: DiagnosticReport, show_menu: bool = True) -> None:
     """Print formatted diagnostic report."""
     print()
     print("╔══════════════════════════════════════════════════════════════════╗")
@@ -882,14 +882,15 @@ def print_report(report: DiagnosticReport) -> None:
             remaining = len(high_token_files) - 5
             print(f"║  ... and {remaining} more files >1K tokens                                ║")
     
-    print("╠══════════════════════════════════════════════════════════════════╣")
-    
-    if report.issues:
-        print("║  ACTIONS:                                                        ║")
-        print("║  [1-9] Fix specific issue    [A] Fix ALL    [R] Report    [Q] Quit║")
-        print("║  [T] Show full token breakdown                                   ║")
-    else:
-        print("║  [R] Generate report    [T] Token breakdown    [Q] Quit          ║")
+    if show_menu:
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        
+        if report.issues:
+            print("║  ACTIONS:                                                        ║")
+            print("║  [1-9] Fix specific issue    [A] Fix ALL    [R] Report    [Q] Quit║")
+            print("║  [T] Show full token breakdown                                   ║")
+        else:
+            print("║  [R] Generate report    [T] Token breakdown    [Q] Quit          ║")
     
     print("╚══════════════════════════════════════════════════════════════════╝")
 
@@ -1099,9 +1100,10 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
     
     # Run diagnosis
     report = doctor.diagnose()
-    print_report(report)
+    print_report(report, show_menu=not report_only)
     
     if report_only:
+        # In report-only mode, just exit after showing report
         return True
     
     if not report.issues:
