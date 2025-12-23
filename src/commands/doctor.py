@@ -39,6 +39,7 @@ class Issue:
 
 
 @dataclass
+<<<<<<< HEAD
 class FileTokens:
     """Token consumption for a single file."""
     path: Path
@@ -49,13 +50,18 @@ class FileTokens:
 
 
 @dataclass
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
 class DiagnosticReport:
     """Complete diagnostic report for a project."""
     project_path: Path
     project_name: str
     total_tokens: int
     issues: List[Issue] = field(default_factory=list)
+<<<<<<< HEAD
     file_tokens: List[FileTokens] = field(default_factory=list)
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
     external_venv_exists: bool = False
     external_venv_path: Optional[Path] = None
     
@@ -70,11 +76,14 @@ class DiagnosticReport:
     @property
     def suggestion_count(self) -> int:
         return sum(1 for i in self.issues if i.severity == Severity.SUGGESTION)
+<<<<<<< HEAD
     
     @property
     def high_token_files(self) -> List[FileTokens]:
         """Return files with >1000 tokens."""
         return [f for f in self.file_tokens if f.tokens > 1000]
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
 
 
 class Doctor:
@@ -138,6 +147,7 @@ class Doctor:
             return f"{tokens/1_000:.1f}K"
         return str(tokens)
     
+<<<<<<< HEAD
     def _analyze_file_movability(self, file_path: Path, rel_path: str, tokens: int) -> tuple[bool, str]:
         """
         Analyze if a file can be safely moved to _AI_ARCHIVE.
@@ -206,16 +216,22 @@ class Doctor:
         
         return False, ""
     
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
     def diagnose(self) -> DiagnosticReport:
         """Run full project diagnosis."""
         issues = []
         total_tokens = 0
+<<<<<<< HEAD
         file_tokens_list = []
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
         
         # Calculate total tokens (only for relevant files)
         for ext in ["*.py", "*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.toml"]:
             for file in self.project_path.rglob(ext):
                 if not any(p in str(file) for p in ["venv", "node_modules", "__pycache__", ".git"]):
+<<<<<<< HEAD
                     tokens = self._count_tokens(file)
                     total_tokens += tokens
                     
@@ -271,6 +287,32 @@ class Doctor:
                             tokens_impact=tokens,
                             fix_function="fix_venv_inside"
                         ))
+=======
+                    total_tokens += self._count_tokens(file)
+        
+        # Check for venv inside project
+        for venv_name in ["venv", ".venv", "venv_gate", ".venv_parser", "env", ".env"]:
+            venv_path = self.project_path / venv_name
+            if venv_path.exists() and venv_path.is_dir():
+                # Verify it's actually a venv (has bin/Scripts or pyvenv.cfg)
+                is_venv = (
+                    (venv_path / "bin").exists() or 
+                    (venv_path / "Scripts").exists() or
+                    (venv_path / "pyvenv.cfg").exists()
+                )
+                if is_venv:
+                    tokens = self._count_tokens(venv_path)
+                    size = self._get_dir_size(venv_path)
+                    issues.append(Issue(
+                        id=self._next_issue_id(),
+                        severity=Severity.CRITICAL,
+                        title=f"{venv_name}/ inside project",
+                        description=f"Virtual environment consuming {self._format_tokens(tokens)} tokens ({self._format_size(size)})",
+                        path=venv_path,
+                        tokens_impact=tokens,
+                        fix_function="fix_venv_inside"
+                    ))
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
         
         # Check for __pycache__
         pycache_dirs = list(self.project_path.rglob("__pycache__"))
@@ -369,10 +411,13 @@ class Doctor:
                 fix_function="fix_missing_cursorignore"
             ))
         
+<<<<<<< HEAD
         # Check for external venv (must check this before other checks that use it)
         external_venv = self.venvs_dir / f"{self.project_name}-main"
         external_venv_exists = external_venv.exists()
         
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
         # Check for missing bootstrap scripts
         bootstrap_sh = self.project_path / "scripts" / "bootstrap.sh"
         bootstrap_ps1 = self.project_path / "scripts" / "bootstrap.ps1"
@@ -385,6 +430,7 @@ class Doctor:
                 fix_function="fix_missing_bootstrap"
             ))
         
+<<<<<<< HEAD
         # Check for missing Cursor/VSCode settings
         vscode_settings = self.project_path / ".vscode" / "settings.json"
         if not vscode_settings.exists() and external_venv_exists:
@@ -395,6 +441,11 @@ class Doctor:
                 description="Cursor won't automatically use external venv",
                 fix_function="fix_missing_vscode_settings"
             ))
+=======
+        # Check for external venv
+        external_venv = self.venvs_dir / f"{self.project_name}-main"
+        external_venv_exists = external_venv.exists()
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
         
         if not external_venv_exists and not issues:
             # No venv anywhere
@@ -411,7 +462,10 @@ class Doctor:
             project_name=self.project_name,
             total_tokens=total_tokens,
             issues=issues,
+<<<<<<< HEAD
             file_tokens=file_tokens_list,
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
             external_venv_exists=external_venv_exists,
             external_venv_path=external_venv if external_venv_exists else None
         )
@@ -435,6 +489,7 @@ class Doctor:
     def fix_venv_inside(self, issue: Issue) -> bool:
         """Delete venv inside project and create external one."""
         if issue.path and issue.path.exists():
+<<<<<<< HEAD
             # Show location being deleted
             try:
                 rel_path = issue.path.relative_to(self.project_path)
@@ -444,6 +499,10 @@ class Doctor:
             
             shutil.rmtree(issue.path)
             print(COLORS.success(f"Deleted {location}/"))
+=======
+            shutil.rmtree(issue.path)
+            print(COLORS.success(f"Deleted {issue.path.name}/"))
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
             return True
         return False
     
@@ -675,6 +734,7 @@ Write-Host "Done! Activate: $VENV_DIR\\Scripts\\Activate.ps1"
             print(COLORS.error(f"Failed to create venv: {e}"))
             return False
     
+<<<<<<< HEAD
     def fix_missing_vscode_settings(self, issue: Issue) -> bool:
         """Create .vscode/settings.json with external venv path."""
         import json
@@ -722,6 +782,8 @@ Write-Host "Done! Activate: $VENV_DIR\\Scripts\\Activate.ps1"
         print(COLORS.info("   Cursor/VSCode will now use external venv automatically"))
         return True
     
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
     def fix_issue(self, issue: Issue) -> bool:
         """Fix a single issue by calling its fix function."""
         if not issue.fix_function:
@@ -838,6 +900,7 @@ def print_report(report: DiagnosticReport) -> None:
     
     print("╠══════════════════════════════════════════════════════════════════╣")
     
+<<<<<<< HEAD
     # Show token breakdown for high-token files
     high_token_files = report.high_token_files[:10]  # Top 10
     if high_token_files:
@@ -948,6 +1011,13 @@ def print_token_breakdown(report: DiagnosticReport) -> None:
         count_display = f"({data['count']} files)"
         line = f"  {ext.ljust(10)} {tokens_display} {count_display}"[:65]
         print(f"║{line:<67}║")
+=======
+    if report.issues:
+        print("║  ACTIONS:                                                        ║")
+        print("║  [1-9] Fix specific issue    [A] Fix ALL    [R] Report    [Q] Quit║")
+    else:
+        print("║  [R] Generate report    [Q] Quit                                 ║")
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
     
     print("╚══════════════════════════════════════════════════════════════════╝")
 
@@ -1045,9 +1115,12 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
         
         if choice == "Q":
             break
+<<<<<<< HEAD
         elif choice == "T":
             # Show token breakdown
             print_token_breakdown(report)
+=======
+>>>>>>> dd425f30a30dc9cec97769630838a0f18d14718a
         elif choice == "R":
             # Just update status
             update_status(project_path, skip_tests=True)
