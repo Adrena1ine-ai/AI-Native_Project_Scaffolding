@@ -206,36 +206,64 @@ class Doctor:
         
         return False, ""
     
-    def diagnose(self) -> DiagnosticReport:
+    def diagnose(self, show_progress: bool = True) -> DiagnosticReport:
         """Run full project diagnosis."""
         issues = []
         total_tokens = 0
         file_tokens_list = []
         
-        # Calculate total tokens (only for relevant files)
+        if show_progress:
+            print(f"   [1/5] 📂 Scanning files...", end="", flush=True)
+        
+        # First, count total files for progress
+        all_files = []
         for ext in ["*.py", "*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.toml"]:
             for file in self.project_path.rglob(ext):
                 if not any(p in str(file) for p in ["venv", "node_modules", "__pycache__", ".git"]):
-                    tokens = self._count_tokens(file)
-                    total_tokens += tokens
-                    
-                    # Track per-file tokens and analyze movability
-                    try:
-                        rel_path = file.relative_to(self.project_path)
-                        is_movable, move_reason = self._analyze_file_movability(file, str(rel_path), tokens)
-                        
-                        file_tokens_list.append(FileTokens(
-                            path=file,
-                            tokens=tokens,
-                            relative_path=str(rel_path),
-                            is_movable=is_movable,
-                            move_reason=move_reason
-                        ))
-                    except ValueError:
-                        pass
+                    all_files.append(file)
+        
+        total_files = len(all_files)
+        if show_progress:
+            print(f" found {total_files} files")
+            print(f"   [2/5] 🔢 Counting tokens...", end="", flush=True)
+        
+        # Calculate total tokens (only for relevant files)
+        processed = 0
+        for file in all_files:
+            tokens = self._count_tokens(file)
+            total_tokens += tokens
+            processed += 1
+            
+            # Show progress every 50 files
+            if show_progress and processed % 50 == 0:
+                pct = int(processed / total_files * 100)
+                print(f"\r   [2/5] 🔢 Counting tokens... {pct}%", end="", flush=True)
+            
+            # Track per-file tokens and analyze movability
+            try:
+                rel_path = file.relative_to(self.project_path)
+                is_movable, move_reason = self._analyze_file_movability(file, str(rel_path), tokens)
+                
+                file_tokens_list.append(FileTokens(
+                    path=file,
+                    tokens=tokens,
+                    relative_path=str(rel_path),
+                    is_movable=is_movable,
+                    move_reason=move_reason
+                ))
+            except ValueError:
+                pass
+        
+        if show_progress:
+            print(f"\r   [2/5] 🔢 Counting tokens... done ({self._format_tokens(total_tokens)} total)")
+            print(f"   [3/5] 🔍 Checking for issues...", end="", flush=True)
         
         # Sort by tokens (descending)
         file_tokens_list.sort(key=lambda x: x.tokens, reverse=True)
+        
+        if show_progress:
+            print(f" found {len(issues)} issues so far")
+            print(f"   [4/5] 🔎 Checking venvs & configs...", end="", flush=True)
         
         # Check for venv inside project (recursively search all subdirectories)
         venv_patterns = ["venv", ".venv", "venv_*", ".venv_*", "env", ".env"]
@@ -405,6 +433,16 @@ class Doctor:
                 description=f"Expected at {external_venv}",
                 fix_function="fix_create_venv"
             ))
+        
+        if show_progress:
+            print(f" done")
+            print(f"   [5/5] 📊 Analyzing recommendations...", end="", flush=True)
+            # Quick analysis summary
+            critical = sum(1 for i in issues if i.severity == Severity.CRITICAL)
+            warnings = sum(1 for i in issues if i.severity == Severity.WARNING)
+            suggestions = sum(1 for i in issues if i.severity == Severity.SUGGESTION)
+            print(f" done")
+            print(f"\n   ✅ Scan complete: {critical} critical, {warnings} warnings, {suggestions} suggestions\n")
         
         return DiagnosticReport(
             project_path=self.project_path,
