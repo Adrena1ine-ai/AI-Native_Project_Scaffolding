@@ -228,19 +228,15 @@ class Doctor:
                         fix_function="fix_venv_inside"
                     ))
         
-        # Check for __pycache__ (this can be slow on large projects)
+        # Check for __pycache__
         if show_progress:
             print(f"\r   [3/5] 🔍 Checking for issues... __pycache__", end="", flush=True)
         
         pycache_dirs = []
         try:
-            # Use a generator and limit to avoid hanging on huge projects
             for pycache in self.project_path.rglob("__pycache__"):
                 if pycache.is_dir():
                     pycache_dirs.append(pycache)
-                    # Limit to first 100 to avoid hanging on huge projects
-                    if len(pycache_dirs) >= 100:
-                        break
         except Exception:
             pass  # Skip if there's an error
         
@@ -249,7 +245,7 @@ class Doctor:
             issues.append(Issue(
                 id=self._next_issue_id(),
                 severity=Severity.WARNING,
-                title=f"__pycache__/ in {len(pycache_dirs)} locations" + (" (showing first 100)" if len(pycache_dirs) >= 100 else ""),
+                title=f"__pycache__/ in {len(pycache_dirs)} locations",
                 description=f"Python cache files consuming {self._format_tokens(tokens)} tokens",
                 tokens_impact=tokens,
                 fix_function="fix_pycache"
@@ -278,20 +274,15 @@ class Doctor:
             except Exception:
                 pass  # Skip if there's an error
         
-        # Check for .log files (can be slow - limit search)
+        # Check for .log files
         if show_progress:
             print(f"\r   [3/5] 🔍 Checking for issues... .log files", end="", flush=True)
         
         log_files = []
         try:
-            count = 0
             for f in self.project_path.rglob("*.log"):
                 if "venv" not in str(f) and f.is_file():
                     log_files.append(f)
-                    count += 1
-                    # Limit to first 50 to avoid hanging
-                    if count >= 50:
-                        break
         except Exception:
             pass
         
@@ -300,7 +291,7 @@ class Doctor:
             issues.append(Issue(
                 id=self._next_issue_id(),
                 severity=Severity.WARNING,
-                title=f"{len(log_files)} .log files in project" + (" (showing first 50)" if len(log_files) >= 50 else ""),
+                title=f"{len(log_files)} .log files in project",
                 description=f"Scattered log files consuming {self._format_tokens(tokens)} tokens",
                 tokens_impact=tokens,
                 fix_function="fix_log_files"
@@ -323,23 +314,16 @@ class Doctor:
                 fix_function="fix_node_modules"
             ))
         
-        # Check for large data files (can be slow - limit search)
+        # Check for large data files
         if show_progress:
             print(f"\r   [3/5] 🔍 Checking for issues... large files", end="", flush=True)
         
         large_files = []
         try:
-            count = 0
             for ext in ["*.csv", "*.db", "*.sqlite", "*.sqlite3", "*.jsonl"]:
                 for f in self.project_path.rglob(ext):
                     if f.is_file() and f.stat().st_size > 1_000_000:  # > 1MB
                         large_files.append(f)
-                        count += 1
-                        # Limit to first 20 to avoid hanging
-                        if count >= 20:
-                            break
-                if count >= 20:
-                    break
         except Exception:
             pass
         
@@ -348,7 +332,7 @@ class Doctor:
             issues.append(Issue(
                 id=self._next_issue_id(),
                 severity=Severity.WARNING,
-                title=f"{len(large_files)} large data files (>1MB)" + (" (showing first 20)" if len(large_files) >= 20 else ""),
+                title=f"{len(large_files)} large data files (>1MB)",
                 description=f"Data files ({self._format_size(total_size)}) should be moved to ../_data/",
                 tokens_impact=0,
                 fix_function="fix_large_files"
