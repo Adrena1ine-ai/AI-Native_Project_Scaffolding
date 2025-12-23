@@ -442,6 +442,10 @@ class Doctor:
             # Calculate size before moving
             size = self._get_dir_size(issue.path)
             
+            # Check if requirements.txt exists (to reinstall packages later)
+            requirements = self.project_path / "requirements.txt"
+            has_requirements = requirements.exists()
+            
             # Move venv to archive
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             archive_dest = venv_subdir / f"{issue.path.name}_{timestamp}"
@@ -455,10 +459,66 @@ class Doctor:
                 source=issue.path,
                 destination=archive_dest,
                 size_bytes=size,
-                description=f"Moved {issue.path.name}/ to archive"
+                description=f"Moved {issue.path.name}/ to archive (will recreate externally)"
             ))
             
             print(COLORS.success(f"Moved {issue.path.name}/ to archive ({self._format_size(size)})"))
+            
+            # Create new external venv
+            print(COLORS.info("   Creating new external venv..."))
+            self.venvs_dir.mkdir(parents=True, exist_ok=True)
+            external_venv = self.venvs_dir / f"{self.project_name}-main"
+            
+            # Remove old external venv if exists
+            if external_venv.exists():
+                shutil.rmtree(external_venv)
+            
+            try:
+                # Create new venv using the same Python that's running this script
+                import sys
+                python_exe = sys.executable
+                
+                # Try python3 first, fallback to python
+                python_cmd = "python3" if shutil.which("python3") else "python"
+                if not shutil.which(python_cmd):
+                    python_cmd = python_exe  # Use current interpreter as last resort
+                
+                subprocess.run(
+                    [python_cmd, "-m", "venv", str(external_venv)],
+                    check=True,
+                    capture_output=True
+                )
+                
+                # Install packages if requirements.txt exists
+                if has_requirements:
+                    print(COLORS.info("   Installing packages from requirements.txt..."))
+                    if os.name == "nt":  # Windows
+                        pip_exe = external_venv / "Scripts" / "pip.exe"
+                    else:  # Linux/Mac
+                        pip_exe = external_venv / "bin" / "pip"
+                    
+                    subprocess.run(
+                        [str(pip_exe), "install", "-r", str(requirements)],
+                        check=False,  # Don't fail if some packages can't install
+                        capture_output=True
+                    )
+                    print(COLORS.success(f"   Created external venv at {external_venv}"))
+                else:
+                    print(COLORS.warning("   No requirements.txt found - venv created but empty"))
+                    print(COLORS.success(f"   Created external venv at {external_venv}"))
+                
+                # Record creation
+                self.changes.append(ChangeRecord(
+                    action="created",
+                    item_type="venv",
+                    source=external_venv,
+                    description=f"Created external venv at {external_venv}"
+                ))
+                
+            except Exception as e:
+                print(COLORS.warning(f"   Could not create external venv automatically: {e}"))
+                print(COLORS.info("   Run: scripts/bootstrap.sh (or bootstrap.ps1 on Windows) to create venv"))
+            
             return True
         return False
     
