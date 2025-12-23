@@ -13,6 +13,8 @@
 
 - `MANIFEST.in`
 
+- `PROJECT_STATUS.md`
+
 - `README.md`
 
 - `SECURITY.md`
@@ -636,4 +638,4 @@
 - `plugins/installed/.gitkeep`
 
 ---
-**Stats:** Scanned 112 files. Map size: ~3279 tokens.
+**Stats:** Scanned 113 files. Map size: ~3285 tokens.
