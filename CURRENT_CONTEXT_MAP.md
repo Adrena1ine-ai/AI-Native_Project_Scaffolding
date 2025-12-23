@@ -1,10 +1,6 @@
 # 🗺️ PROJECT CONTEXT MAP
 > Auto-generated structure. AI: Read this file to understand where code is located.
 
-- `.cursorignore`
-
-- `.cursorrules`
-
 - `.gitignore`
 
 - `CHANGELOG.md`
@@ -22,8 +18,6 @@
 - `SECURITY.md`
 
 - `__main__.py`
-
-- `main.py`
 
 - `pyproject.toml`
 
@@ -66,6 +60,84 @@
 
 - `AI-Native Project Scaffolding/manifesto.md`
 
+- `web/__init__.py`
+
+- `web/app.py`
+  📦 CreateProjectRequest
+  📦 CleanupRequest
+  📦 ProjectPath
+  📦 ApplyManifestoRequest
+    ƒ get_lang_from_request
+    ƒ get_template_context
+    ƒ detect_ides_in_project
+    ƒ create_app
+    ƒ set_lang
+    ƒ welcome_page
+    ƒ home
+    ƒ create_page
+    ƒ cleanup_page
+    ƒ health_page
+    ƒ settings_page
+    ƒ help_page
+    ƒ existing_page
+    ƒ api_create_project
+    ƒ api_analyze
+    ƒ api_detect_ides
+    ƒ api_apply_manifesto
+    ƒ api_get_manifesto
+    ƒ api_cleanup
+    ƒ api_health
+    ƒ api_migrate
+    ƒ api_update
+    ƒ api_set_ide
+    ƒ api_stats
+    ƒ run_server
+
+- `web/i18n.py`
+    ƒ get_translations
+
+- `web/templates/base.html`
+
+- `web/templates/cleanup.html`
+
+- `web/templates/create.html`
+
+- `web/templates/existing.html`
+
+- `web/templates/health.html`
+
+- `web/templates/help.html`
+
+- `web/templates/index.html`
+
+- `web/templates/settings.html`
+
+- `web/templates/welcome.html`
+
+- `web/static/.gitkeep`
+
+- `gui/__init__.py`
+
+- `gui/app.py`
+  📦 AIToolkitApp
+    ƒ __init__
+    ƒ setup_styles
+    ƒ create_ui
+    ƒ create_create_tab
+    ƒ create_cleanup_tab
+    ƒ create_health_tab
+    ƒ create_settings_tab
+    ƒ browse_path
+    ƒ browse_folder
+    ƒ do_create_project
+    ƒ create
+    ƒ do_analyze
+    ƒ do_cleanup
+    ƒ do_health_check
+    ƒ save_settings
+    ƒ run
+    ƒ run_gui
+
 - `templates/parser/scraper.py.template`
 
 - `templates/webapp/app.js.template`
@@ -90,6 +162,10 @@
 
 - `_AI_INCLUDE/WHERE_IS_WHAT.md`
 
+- `docs/CURSOR_INTEGRATION.md`
+
+- `docs/DOCTOR_COMMAND.md`
+
 - `docs/FAQ.md`
 
 - `docs/FUTURE_IMPROVEMENTS.md`
@@ -97,6 +173,8 @@
 - `docs/GUIDE.md`
 
 - `docs/QUICK_START.md`
+
+- `docs/TOKEN_CALCULATION.md`
 
 - `docs/manifesto.md`
 
@@ -115,10 +193,6 @@
 - `tests/__init__.py`
 
 - `tests/conftest.py`
-    ƒ temp_dir
-    ƒ temp_project
-    ƒ temp_project_with_venv
-    ƒ clean_project
 
 - `tests/test_cleanup.py`
   📦 TestAnalyzeProject
@@ -176,6 +250,32 @@
     ƒ test_scripts_created
     ƒ test_requirements_created
 
+- `tests/test_doctor.py`
+    ƒ temp_project
+    ƒ project_with_venv
+    ƒ project_with_pycache
+  📦 TestDoctorDiagnosis
+    ƒ test_empty_project_has_suggestions
+    ƒ test_detects_venv_inside
+    ƒ test_detects_pycache
+    ƒ test_detects_missing_cursorignore
+    ƒ test_detects_missing_ai_include
+    ƒ test_detects_log_files
+    ƒ test_healthy_project_no_critical
+  📦 TestDoctorFixes
+    ƒ test_fix_pycache
+    ƒ test_fix_missing_cursorignore
+    ƒ test_fix_missing_ai_include
+    ƒ test_fix_missing_bootstrap
+    ƒ test_fix_log_files
+    ƒ test_fix_venv_inside
+  📦 TestDoctorBackup
+    ƒ test_creates_backup
+    ƒ test_backup_excludes_venv
+  📦 TestDoctorReport
+    ƒ test_report_properties
+    ƒ test_token_estimation
+
 - `tests/test_generators.py`
   📦 TestAIConfigs
     ƒ test_common_rules_contains_project_name
@@ -189,22 +289,17 @@
     ƒ test_bootstrap_sh_created
     ƒ test_bootstrap_ps1_created
     ƒ test_context_switcher_created
-    ƒ test_health_check_created
-    ƒ test_check_repo_clean_created
   📦 TestDocker
-    ƒ test_dockerfile_bot
-    ƒ test_dockerfile_fastapi
+    ƒ test_dockerfile_created
     ƒ test_docker_compose_created
     ƒ test_dockerignore_created
   📦 TestCICD
     ƒ test_ci_workflow_created
     ƒ test_cd_workflow_created
-    ƒ test_pre_commit_config_created
+    ƒ test_pre_commit_created
     ƒ test_dependabot_created
   📦 TestProjectFiles
-    ƒ test_requirements_bot
-    ƒ test_requirements_fastapi
-    ƒ test_requirements_parser
+    ƒ test_requirements_created
     ƒ test_config_py_created
     ƒ test_env_example_created
     ƒ test_readme_created
@@ -227,6 +322,39 @@
     ƒ test_migrate_adds_version
     ƒ test_migrate_skips_existing
     ƒ test_migrate_adds_ci_if_requested
+
+- `tests/test_status.py`
+    ƒ temp_project
+    ƒ cmd_test
+    ƒ cmd_another
+  📦 TestScanCommands
+    ƒ test_scan_commands_finds_cmd_functions
+    ƒ test_scan_commands_extracts_docstrings
+    ƒ test_scan_commands_empty_dir
+    ƒ test_scan_commands_ignores_private_files
+    ƒ cmd_hidden
+  📦 TestScanUtilities
+    ƒ test_scan_utilities_finds_modules
+    ƒ test_scan_utilities_extracts_docstrings
+  📦 TestScanGenerators
+    ƒ test_scan_generators_finds_modules
+  📦 TestGetVersion
+    ƒ test_get_version_from_constants
+    ƒ test_get_version_fallback
+  📦 TestCheckFileExists
+    ƒ test_check_existing_file
+    ƒ test_check_missing_file
+    ƒ test_check_nested_file
+  📦 TestGenerateStatusMd
+    ƒ test_generate_status_md_contains_header
+    ƒ test_generate_status_md_lists_commands
+    ƒ test_generate_status_md_lists_utilities
+    ƒ test_generate_status_md_shows_version
+    ƒ test_generate_status_md_skip_tests
+  📦 TestUpdateStatus
+    ƒ test_update_status_creates_file
+    ƒ test_update_status_writes_content
+    ƒ test_update_status_overwrites_existing
 
 - `tests/test_update.py`
   📦 TestUpdateProject
@@ -252,7 +380,35 @@
     ƒ cli_mode
     ƒ main
 
+- `src/py.typed`
+
+- `src/types.py`
+  📦 TemplateConfig
+  📦 IDEConfig
+  📦 CleanupLevelConfig
+  📦 ProjectContext
+  📦 IssueDict
+  📦 HealthCheckResult
+  📦 GeneratorFunc
+    ƒ __call__
+  📦 CommandFunc
+    ƒ __call__
+
+- `src/locales/__init__.py`
+
+- `src/locales/en.py`
+
 - `src/utils/__init__.py`
+
+- `src/utils/status_generator.py`
+    ƒ scan_commands
+    ƒ scan_utilities
+    ƒ scan_generators
+    ƒ run_tests
+    ƒ check_file_exists
+    ƒ get_version
+    ƒ generate_status_md
+    ƒ update_status
 
 - `src/generators/__init__.py`
 
@@ -320,6 +476,9 @@
     ƒ set_default_ide
     ƒ get_default_ide
     ƒ get_default_ai_targets
+    ƒ get_language
+    ƒ set_language
+    ƒ is_first_run
 
 - `src/core/constants.py`
   📦 COLORS
@@ -337,6 +496,28 @@
     ƒ remove_dir
     ƒ copy_dir
     ƒ move_dir
+
+- `src/core/i18n.py`
+    ƒ t
+
+- `src/core/manifesto.py`
+  📦 ManifestoRules
+    ƒ load_manifesto
+    ƒ extract_code_block
+    ƒ parse_manifesto
+    ƒ get_manifesto_rules
+    ƒ get_cursorignore_content
+    ƒ get_gitignore_content
+    ƒ get_bootstrap_script
+    ƒ apply_manifesto_to_project
+
+- `src/core/template_loader.py`
+    ƒ load_template
+    ƒ render_template
+    ƒ replacer
+    ƒ copy_template_file
+    ƒ list_templates
+    ƒ get_template_info
 
 - `src/commands/__init__.py`
 
@@ -370,6 +551,46 @@
     ƒ create_project
     ƒ cmd_create
 
+- `src/commands/doctor.py`
+  📦 Severity
+  📦 Issue
+  📦 FileTokens
+  📦 DiagnosticReport
+    ƒ critical_count
+    ƒ warning_count
+    ƒ suggestion_count
+    ƒ high_token_files
+  📦 Doctor
+    ƒ __init__
+    ƒ _next_issue_id
+    ƒ _count_tokens
+    ƒ _get_dir_size
+    ƒ _format_size
+    ƒ _format_tokens
+    ƒ _analyze_file_movability
+    ƒ diagnose
+    ƒ create_backup
+    ƒ fix_venv_inside
+    ƒ fix_pycache
+    ƒ fix_logs
+    ƒ fix_log_files
+    ƒ fix_node_modules
+    ƒ fix_large_files
+    ƒ fix_missing_ai_include
+    ƒ fix_missing_cursorignore
+    ƒ fix_missing_bootstrap
+    ƒ fix_create_venv
+    ƒ fix_missing_vscode_settings
+    ƒ fix_issue
+    ƒ fix_all
+    ƒ print_report
+    ƒ print_token_breakdown
+    ƒ print_result
+    ƒ run_doctor
+    ƒ cmd_doctor
+    ƒ run_doctor_interactive
+  📦 Args
+
 - `src/commands/health.py`
     ƒ health_check
     ƒ cmd_health
@@ -377,6 +598,11 @@
 - `src/commands/migrate.py`
     ƒ migrate_project
     ƒ cmd_migrate
+
+- `src/commands/status.py`
+    ƒ cmd_status
+    ƒ run_status_interactive
+  📦 Args
 
 - `src/commands/update.py`
     ƒ update_project
@@ -410,4 +636,4 @@
 - `plugins/installed/.gitkeep`
 
 ---
-**Stats:** Scanned 85 files. Map size: ~2089 tokens.
+**Stats:** Scanned 112 files. Map size: ~3279 tokens.
