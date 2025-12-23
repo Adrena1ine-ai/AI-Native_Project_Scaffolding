@@ -298,6 +298,19 @@
     ƒ archive_artifacts
     ƒ _generate_archive_report
 
+- `src/utils/context_map.py`
+  📦 FunctionInfo
+  📦 ClassInfo
+  📦 ModuleInfo
+    ƒ extract_docstring
+    ƒ extract_function_info
+    ƒ extract_class_info
+    ƒ parse_python_file
+    ƒ format_function
+    ƒ format_class
+    ƒ generate_map
+    ƒ write_context_map
+
 - `src/utils/metrics.py`
   📦 ScanResult
     ƒ formatted_tokens
@@ -436,13 +449,35 @@
     ƒ migrate_project
     ƒ cmd_migrate
 
+- `src/commands/pack.py`
+    ƒ pack_context
+    ƒ cmd_pack
+
 - `src/commands/review.py`
+  📦 SecretFinding
+    ƒ calculate_entropy
+    ƒ is_placeholder
+    ƒ check_secrets
+    ƒ run_fox_scan
     ƒ get_git_diff
     ƒ get_context_map
     ƒ get_cursor_rules
     ƒ build_review_prompt
     ƒ review_changes
+    ƒ _print_prompt
     ƒ cmd_review
+
+- `src/commands/trace.py`
+  📦 ImportInfo
+  📦 TracedFile
+    ƒ extract_imports
+    ƒ is_stdlib_or_thirdparty
+    ƒ resolve_import_path
+    ƒ trace_dependencies
+    ƒ trace_file
+    ƒ generate_trace_xml
+    ƒ trace_file_dependencies
+    ƒ cmd_trace
 
 - `src/commands/update.py`
     ƒ update_project
@@ -496,4 +531,4 @@
 - `.cursor/rules/toolkit.md`
 
 ---
-**Stats:** Scanned 105 files. Map size: ~2480 tokens.
+**Stats:** Scanned 108 files. Map size: ~2653 tokens.

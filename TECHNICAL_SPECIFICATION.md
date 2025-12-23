@@ -1,4 +1,4 @@
-# 📋 Technical Specification — AI Toolkit v3.2
+# 📋 Technical Specification — AI Toolkit v3.3
 
 > This document is the **ROADMAP** — the strategic vision for the project.
 
@@ -40,13 +40,23 @@ AI Toolkit creates Python projects optimized for AI assistants by:
 - [x] `migrate` command — add AI Toolkit to existing projects
 - [x] `health` command — health check
 - [x] `update` command — update to latest version
-- [x] `review` command — generate AI code review prompt
+- [x] `review` command — 🦊 Fox security scanner
 - [x] `wizard` command — interactive TUI
+- [x] `pack` command — 📦 XML context packer
 - [x] Metrics module (`src/utils/metrics.py`)
 - [x] Cleaner module (`src/utils/cleaner.py`)
+- [x] Context Map AST (`src/utils/context_map.py`)
 - [x] Hooks module (`src/commands/hooks.py`)
 - [x] Token benchmark (`benchmark.py`)
 - [x] The Ultimate Doctor (7-step optimization flow)
+
+### Phase 2.5: The Fox Update (v3.3) [COMPLETED] ✅
+
+- [x] 🧠 AST-based context map (replaces regex)
+- [x] 🦊 Fox security scanner (detects secrets)
+- [x] 📦 XML Context Packer (for AI sharing)
+- [x] Pre-commit hook with Fox guard
+- [x] 🔍 Fox Trace (deep dependency tracker)
 
 ### Phase 3: Advanced TUI [PLANNED] 🔜
 
@@ -123,4 +133,4 @@ See `_AI_INCLUDE/WHERE_THINGS_LIVE.md` for the complete guide.
 
 ---
 
-*Last updated: Phase 2 completion*
+*Last updated: v3.3 — The Fox Update*

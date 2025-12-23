@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🛠️ AI Toolkit v3.0 — CLI
+🛠️ AI Toolkit v3.3 — CLI
 """
 
 from __future__ import annotations
@@ -20,6 +20,8 @@ from .commands import (
     cmd_update,
     cmd_review,
     cmd_wizard,
+    cmd_pack,
+    cmd_trace,
     run_wizard,
     create_project,
     cleanup_project,
@@ -27,6 +29,8 @@ from .commands import (
     health_check,
     update_project,
     review_changes,
+    pack_context,
+    trace_file_dependencies,
 )
 
 
@@ -91,8 +95,10 @@ def print_menu():
         ("4", "📦 Migrate project"),
         ("5", "🏥 Health check"),
         ("6", "⬆️  Update project"),
-        ("7", "🔍 Review changes (AI prompt)"),
-        ("8", "⚙️  Change IDE"),
+        ("7", "🦊 Fox review (security scan)"),
+        ("8", "📄 Pack context (XML export)"),
+        ("9", "🔍 Trace dependencies (AST)"),
+        ("s", "⚙️  Settings (change IDE)"),
         ("0", "❌ Exit"),
     ]
     
@@ -114,13 +120,15 @@ def interactive_mode():
         "5": cmd_health,
         "6": cmd_update,
         "7": cmd_review,
-        "8": select_ide,
+        "8": cmd_pack,
+        "9": cmd_trace,
+        "s": select_ide,
     }
     
     while True:
         print_menu()
         
-        choice = input("Choose (0-8): ").strip()
+        choice = input("Choose (0-9/s): ").strip().lower()
         
         if choice == "0":
             print(f"\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
@@ -185,6 +193,17 @@ def cli_mode():
     # wizard
     wizard_p = subparsers.add_parser("wizard", help="Interactive project creation wizard")
     
+    # pack
+    pack_p = subparsers.add_parser("pack", help="Pack project context to XML")
+    pack_p.add_argument("path", type=Path, nargs="?", default=Path.cwd(), help="Project path")
+    pack_p.add_argument("--output", "-o", default="context_dump.xml", help="Output file")
+    
+    # trace
+    trace_p = subparsers.add_parser("trace", help="Trace file dependencies (AST)")
+    trace_p.add_argument("entry", type=Path, help="Entry file to trace from")
+    trace_p.add_argument("--depth", "-d", type=int, default=2, help="Max trace depth")
+    trace_p.add_argument("--output", "-o", help="Output file (default: stdout)")
+    
     args = parser.parse_args()
     
     if not args.command:
@@ -226,6 +245,28 @@ def cli_mode():
     
     elif args.command == "wizard":
         run_wizard()
+    
+    elif args.command == "pack":
+        success, files, size = pack_context(args.path, args.output)
+        if success:
+            print(f"\n{COLORS.success(f'Packed {files} files ({size / 1024:.1f} KB)')}")
+            print(f"  Output: {args.output}\n")
+    
+    elif args.command == "trace":
+        success, count, result = trace_file_dependencies(
+            args.entry,
+            depth=args.depth,
+            output_file=args.output
+        )
+        if success:
+            print(f"\n{COLORS.success(f'Traced {count} files')}")
+            if args.output:
+                print(f"  Output: {args.output}\n")
+            else:
+                print(f"  Context size: ~{len(result) // 4} tokens\n")
+                print(result)
+        else:
+            print(COLORS.error(result))
 
 
 def main():

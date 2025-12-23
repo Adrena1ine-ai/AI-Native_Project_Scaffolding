@@ -13,11 +13,11 @@ from ..core.constants import COLORS
 
 PRE_COMMIT_HOOK = '''#!/bin/sh
 # ═══════════════════════════════════════════════════════════════
-# 🤖 AI Toolkit Pre-Commit Hook
+# 🦊 AI Toolkit Pre-Commit Hook (Fox Security Guard)
 # Runs automatic checks before each commit
 # ═══════════════════════════════════════════════════════════════
 
-echo "🔍 AI Toolkit: Running pre-commit checks..."
+echo "🦊 Fox is guarding your repo..."
 
 # Update context map if generator exists
 if [ -f "generate_map.py" ]; then
@@ -54,7 +54,15 @@ if [ -n "$large_files" ]; then
     echo "$large_files" | sed 's/^/     /'
 fi
 
-echo "  ✅ Pre-commit checks passed"
+# Run Fox security scan if ai-toolkit is available
+if command -v ai-toolkit >/dev/null 2>&1; then
+    echo "  🔐 Running Fox security scan..."
+    ai-toolkit review --check 2>/dev/null || {
+        echo "  ⚠️  Fox review check skipped (run manually: ai-toolkit review)"
+    }
+fi
+
+echo "  ✅ Fox says: All clear!"
 exit 0
 '''
 

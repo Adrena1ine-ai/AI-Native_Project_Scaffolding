@@ -98,42 +98,56 @@ toolkit create my_bot --template bot
 
 ## 🚀 Roadmap
 
-### 📍 Phase 1: Foundation (v3.1) — IN PROGRESS
+### ✅ Phase 1: Foundation (v3.1) — COMPLETE
 
 > **Goal:** Core utilities for token optimization  
 > **Timeline:** Week 1
 
 | # | Feature | Description | Status |
 |---|---------|-------------|--------|
-| 1.1 | Context Map Generator | Regex-based `CURRENT_CONTEXT_MAP.md` | 🔄 |
-| 1.2 | Secret Sanitizer | API keys → `[REDACTED]` | 🔄 |
-| 1.3 | Export Context | `toolkit export --module bot` | 🔄 |
-| 1.4 | XML Format | `--format xml` for Claude | 🔄 |
-| 1.5 | PROMPTS_LIBRARY.md | Template-specific prompts | 🔄 |
-| 1.6 | README Badge | AI-Ready badge | 🔄 |
-| 1.7 | Modular Dependencies | `[ui]`, `[tui]`, `[web]` extras | 🔄 |
-| 1.8 | Graceful Degradation | Fallback if deps missing | 🔄 |
+| 1.1 | Context Map Generator | AST-based `CURRENT_CONTEXT_MAP.md` | ✅ |
+| 1.2 | Secret Scanner | 🦊 Fox detects API keys/tokens | ✅ |
+| 1.3 | Export Context | `toolkit pack` → XML export | ✅ |
+| 1.4 | XML Format | `context_dump.xml` for Claude | ✅ |
+| 1.5 | PROMPTS_LIBRARY.md | Template-specific prompts | ✅ |
+| 1.6 | README Badge | AI-Ready badge | ✅ |
+| 1.7 | Manifesto Scripts | `bootstrap.sh`, `isolate_heavy.sh` | ✅ |
+| 1.8 | Pre-commit Hook | 🦊 Fox guard for secrets | ✅ |
 
-### 📍 Phase 2: CLI Wizard (v3.2) — PLANNED
+### ✅ Phase 2: CLI Wizard (v3.2) — COMPLETE
 
 > **Goal:** Interactive project creation  
 > **Timeline:** Week 2-3
 
 | # | Feature | Description | Status |
 |---|---------|-------------|--------|
-| 2.1 | Friendly Wizard | Step-by-step questionary prompts | ⬜ |
-| 2.2 | Natural Language Input | "telegram bot" → auto-detect | ⬜ |
-| 2.3 | Skill Levels | novice/intermediate/expert | ⬜ |
-| 2.4 | Token Estimator | `toolkit tokens` command | ⬜ |
-| 2.5 | Auto-open IDE | Open in Cursor/VS Code | ⬜ |
-| 2.6 | Progress Animation | Rich progress bars | ⬜ |
-| 2.7 | Role-based .cursorrules | Template-specific AI roles | ⬜ |
-| 2.8 | Chained Rules | User/Toolkit sections | ⬜ |
+| 2.1 | Friendly Wizard | Step-by-step Rich TUI prompts | ✅ |
+| 2.2 | Doctor Mode | Optimize existing projects | ✅ |
+| 2.3 | SDD Integration | Generate `spec.md` for new projects | ✅ |
+| 2.4 | Token Estimator | `toolkit benchmark` + wizard metrics | ✅ |
+| 2.5 | Rich Progress | Beautiful Rich panels and tables | ✅ |
+| 2.6 | Artifact Archiver | Move garbage to `_AI_ARCHIVE/` | ✅ |
+| 2.7 | Role-based .cursorrules | Auto-generated `.cursor/rules/` | ✅ |
+| 2.8 | Grand Unification | Constitution + WHERE_THINGS_LIVE | ✅ |
 
-### 📍 Phase 3: TUI Dashboard (v3.3) — PLANNED
+### ✅ Phase 2.5: The Fox Update (v3.3) — COMPLETE
+
+> **Goal:** Security, AST mapping, context sharing  
+> **Timeline:** Week 4
+
+| # | Feature | Description | Status |
+|---|---------|-------------|--------|
+| 2.5.1 | 🧠 AST Context Map | Python `ast` module parsing | ✅ |
+| 2.5.2 | 🦊 Fox Security Scanner | Detects API keys, tokens, secrets | ✅ |
+| 2.5.3 | 📦 XML Packer | `toolkit pack` → single XML file | ✅ |
+| 2.5.4 | 🔌 Fox Pre-commit | "🦊 Fox is guarding your repo..." | ✅ |
+| 2.5.5 | Entropy Detection | Filters placeholders from secrets | ✅ |
+| 2.5.6 | 🔍 Fox Trace | Deep dependency tracker (AST) | ✅ |
+
+### 📍 Phase 3: TUI Dashboard (v3.4) — PLANNED
 
 > **Goal:** Professional terminal dashboard  
-> **Timeline:** Week 4-5
+> **Timeline:** Week 5-6
 
 | # | Feature | Description | Status |
 |---|---------|-------------|--------|
