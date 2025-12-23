@@ -1179,9 +1179,10 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
         return True
     
     # Interactive mode
+    print()  # Extra newline for clarity
     while True:
         try:
-            choice = input("\n> Enter choice: ").strip().upper()
+            choice = input("> Enter choice: ").strip().upper()
         except (KeyboardInterrupt, EOFError):
             print("\n")
             break
