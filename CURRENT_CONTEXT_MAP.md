@@ -15,11 +15,19 @@
 
 - `PROJECT_STATUS.md`
 
+- `PROMPTS_LIBRARY.md`
+
 - `README.md`
 
 - `SECURITY.md`
 
+- `TECHNICAL_SPECIFICATION.md`
+
+- `TRADEOFFS.md`
+
 - `__main__.py`
+
+- `first manifesto.md`
 
 - `pyproject.toml`
 
@@ -163,6 +171,8 @@
 - `_AI_INCLUDE/PROJECT_CONVENTIONS.md`
 
 - `_AI_INCLUDE/WHERE_IS_WHAT.md`
+
+- `_AI_INCLUDE/WHERE_THINGS_LIVE.md`
 
 - `docs/CURSOR_INTEGRATION.md`
 
@@ -402,6 +412,35 @@
 
 - `src/utils/__init__.py`
 
+- `src/utils/cleaner.py`
+  📦 ArchiveResult
+    ƒ formatted_size
+    ƒ matches_pattern
+    ƒ get_file_size
+    ƒ archive_artifacts
+    ƒ _generate_archive_report
+
+- `src/utils/context_map.py`
+  📦 FunctionInfo
+  📦 ClassInfo
+  📦 ModuleInfo
+    ƒ extract_docstring
+    ƒ extract_function_info
+    ƒ extract_class_info
+    ƒ parse_python_file
+    ƒ format_function
+    ƒ format_class
+    ƒ generate_map
+    ƒ write_context_map
+
+- `src/utils/metrics.py`
+  📦 ScanResult
+    ƒ formatted_tokens
+    ƒ formatted_size
+    ƒ parse_cursorignore
+    ƒ should_ignore
+    ƒ scan_project
+
 - `src/utils/status_generator.py`
     ƒ scan_commands
     ƒ scan_utilities
@@ -597,18 +636,68 @@
     ƒ health_check
     ƒ cmd_health
 
+- `src/commands/hooks.py`
+    ƒ install_pre_commit_hook
+    ƒ uninstall_pre_commit_hook
+    ƒ check_hook_installed
+    ƒ cmd_hooks
+
 - `src/commands/migrate.py`
     ƒ migrate_project
     ƒ cmd_migrate
+
+- `src/commands/pack.py`
+    ƒ pack_context
+    ƒ cmd_pack
+
+- `src/commands/review.py`
+  📦 SecretFinding
+    ƒ calculate_entropy
+    ƒ is_placeholder
+    ƒ check_secrets
+    ƒ run_fox_scan
+    ƒ get_git_diff
+    ƒ get_context_map
+    ƒ get_cursor_rules
+    ƒ build_review_prompt
+    ƒ review_changes
+    ƒ _print_prompt
+    ƒ cmd_review
 
 - `src/commands/status.py`
     ƒ cmd_status
     ƒ run_status_interactive
   📦 Args
 
+- `src/commands/trace.py`
+  📦 ImportInfo
+  📦 TracedFile
+    ƒ extract_imports
+    ƒ is_stdlib_or_thirdparty
+    ƒ resolve_import_path
+    ƒ trace_dependencies
+    ƒ trace_file
+    ƒ generate_trace_xml
+    ƒ trace_file_dependencies
+    ƒ cmd_trace
+
 - `src/commands/update.py`
     ƒ update_project
     ƒ cmd_update
+
+- `src/commands/wizard.py`
+    ƒ validate_project_name
+    ƒ generate_spec_md
+    ƒ run_rabbit_check
+    ƒ generate_doctor_report
+    ƒ flow_create_rich
+    ƒ flow_optimize_rich
+    ƒ flow_create_plain
+    ƒ flow_optimize_plain
+    ƒ run_wizard_rich
+    ƒ run_wizard_plain
+    ƒ run_wizard
+    ƒ cmd_wizard
 
 - `plugins/__init__.py`
 
@@ -637,5 +726,7 @@
 
 - `plugins/installed/.gitkeep`
 
+- `.cursor/rules/project.md`
+
 ---
-**Stats:** Scanned 113 files. Map size: ~3280 tokens.
+**Stats:** Scanned 127 files. Map size: ~3721 tokens.

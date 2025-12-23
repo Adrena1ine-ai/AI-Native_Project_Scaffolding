@@ -1,238 +1,469 @@
-# 🛠️ AI Toolkit
+# 🚀 AI Toolkit — AI-Native Project Scaffolding
 
-> **The "iPhone" of AI-powered development tools**  
-> Create projects that AI assistants actually understand.
+<div align="center">
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![AI-Ready](https://img.shields.io/badge/AI--Ready-Toolkit-purple)](https://github.com/user/ai-toolkit)
-[![Tests](https://img.shields.io/badge/tests-82%20passed-green.svg)]()
+[![Version](https://img.shields.io/badge/version-3.4-blue.svg)](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding)
+[![Python](https://img.shields.io/badge/python-3.10+-green.svg)](https://python.org)
+[![Tests](https://img.shields.io/badge/tests-92%20passed-brightgreen.svg)](tests/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![AI-Ready](https://img.shields.io/badge/AI-Ready-purple.svg)](#-ai-assistant-support)
+
+**Create projects optimized for AI-assisted development in seconds.**
+
+*Stop wasting tokens on venv garbage. Start building.*
+
+[Quick Start](#-quick-start) •
+[Features](#-features) •
+[Commands](#-commands) •
+[Roadmap](#-roadmap) •
+[Documentation](#-documentation)
+
+</div>
 
 ---
 
-## 🎯 What is AI Toolkit?
+## 🎯 The Problem
 
-AI Toolkit creates Python projects **optimized for AI coding assistants** (Cursor, GitHub Copilot, Claude, Windsurf).
+Every AI coding assistant (Cursor, Copilot, Claude, Windsurf) has the same problem:
 
-### The Problem
+```
+Your project: 50 files of actual code
+AI context:   5,000,000 tokens of venv garbage
+Result:       Slow, expensive, hallucinating AI
+```
 
-| Issue | Impact |
-|-------|--------|
-| AI creates `venv/` inside project | 🐌 Slow IDE, 500MB garbage |
-| AI doesn't understand structure | 🤯 Poor suggestions, wasted tokens |
-| AI reads unnecessary files | 💸 Expensive API calls |
-| Manual setup every time | ⏰ Time waste, inconsistency |
+**AI Toolkit solves this.** One command creates a clean, optimized project structure that AI assistants actually understand.
 
-### The Solution
+---
+
+## ✨ Features
+
+### 🏗️ Project Creation
+
+| Feature | Description |
+|---------|-------------|
+| 6 Templates | `bot`, `webapp`, `fastapi`, `parser`, `full`, `monorepo` |
+| Multi-IDE Support | Cursor, VS Code + Copilot, Claude, Windsurf |
+| External venv | Dependencies live outside project (`../_venvs/`) |
+| Smart .cursorignore | AI never sees garbage again |
+| Bootstrap Scripts | One command setup on any machine |
+
+### 🦊 The Fox Update (v3.3) — Token Optimization
+
+| Feature | Command | What It Does |
+|---------|---------|--------------|
+| 🧠 AST Map | `generate_map.py` | Parse Python with `ast`, not regex |
+| 🦊 Secret Scanner | `review` | Detect API keys, tokens, secrets |
+| 📦 XML Packer | `pack` | Export context in XML for AI |
+| 🔍 Fox Trace | `trace` | Follow imports, extract only needed code |
+
+**Result:** 5.1M tokens → 13K tokens (99% reduction!)
+
+### 🏥 The Doctor Update (v3.4) — One-Button Fix
+
+| Feature | Command | What It Does |
+|---------|---------|--------------|
+| 🏥 Doctor | `doctor --auto` | Diagnose + fix ALL issues automatically |
+| 📊 Status | `status` | Auto-generate PROJECT_STATUS.md |
+| Auto-Update | `generate_map.py` | Updates context map AND status |
+
+---
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
-toolkit create my_bot --template bot
-# ✨ Clean project with venv OUTSIDE, AI configs ready
+# Option 1: From source (recommended for development)
+git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+cd AI-Native_Project_Scaffolding
+
+# Create external venv (following our own philosophy!)
+python -m venv ../_venvs/ai-toolkit-main
+source ../_venvs/ai-toolkit-main/bin/activate  # Linux/Mac
+# or
+..\_venvs\ai-toolkit-main\Scripts\Activate.ps1  # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Option 2: pipx (isolated, recommended for users)
+pipx install git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+
+# Option 3: pip with extras
+pip install "git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git[dev]"
+
+# Future (after PyPI release - Phase 5)
+pip install ai-toolkit           # Basic
+pip install ai-toolkit[tui]      # With TUI dashboard
+pip install ai-toolkit[web]      # With Web UI
+pip install ai-toolkit[all]      # Everything
+```
+
+### Create Your First Project
+
+```bash
+# Interactive mode
+python main.py
+
+# Or direct command
+python main.py create my_awesome_bot --template bot
+
+# Then bootstrap your new project
+cd my_awesome_bot
+./scripts/bootstrap.sh  # Linux/Mac
+# or
+.\scripts\bootstrap.ps1  # Windows
+```
+
+### Fix an Existing Project
+
+```bash
+# See what's wrong
+python main.py doctor /path/to/messy/project --report
+
+# Fix everything with one command
+python main.py doctor /path/to/messy/project --auto
 ```
 
 ---
 
-## 📊 Project Status
+## 📋 Commands
 
-### ✅ Phase 0: Core Foundation — COMPLETE
+### Core Commands (12 total)
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| CLI Architecture | Modular command system | ✅ |
-| Project Creation | 5 templates (bot, webapp, fastapi, parser, full) | ✅ |
-| Project Cleanup | 3 levels (safe, medium, full) | ✅ |
-| Migration | Add Toolkit to existing projects | ✅ |
-| Health Check | 10+ parameter verification | ✅ |
-| Update Command | Update Toolkit configs | ✅ |
-| Auto Backup | .tar.gz before operations | ✅ |
+| Command | Description | Example |
+|---------|-------------|---------|
+| `create` | Generate new AI-optimized project | `python main.py create mybot --template bot` |
+| `cleanup` | Analyze and fix project garbage | `python main.py cleanup ./project --level medium` |
+| `migrate` | Add Toolkit to existing project | `python main.py migrate ./old_project` |
+| `health` | Health check (find problems) | `python main.py health ./project` |
+| `update` | Update toolkit configs | `python main.py update ./project` |
+| `wizard` | Interactive project wizard | `python main.py wizard` |
 
-### ✅ AI Assistant Support — COMPLETE
+### 🦊 Fox Commands (Token Optimization)
 
-| IDE | Config Files | Status |
-|-----|--------------|--------|
-| 💜 Cursor | `.cursorrules`, `.cursorignore` | ✅ |
-| 💙 GitHub Copilot | `.github/copilot-instructions.md` | ✅ |
-| 🟢 Claude | `CLAUDE.md` | ✅ |
-| 🌊 Windsurf | `.windsurfrules` | ✅ |
-| 📁 Universal | `_AI_INCLUDE/` shared rules | ✅ |
-| 🔄 Context Switcher | `scripts/context.py` | ✅ |
+| Command | Description | Example |
+|---------|-------------|---------|
+| `trace` | 🔍 AST dependency tracker | `python main.py trace src/main.py --depth 2` |
+| `pack` | 📦 XML context packer | `python main.py pack src/handlers/ --output context.xml` |
+| `review` | 🦊 Security scanner (secrets) | `python main.py review ./project` |
 
-### ✅ Docker & CI/CD — COMPLETE
+### 🏥 Doctor Commands
 
-| Feature | Files | Status |
-|---------|-------|--------|
-| Docker | `Dockerfile`, `docker-compose.yml`, `.dockerignore` | ✅ |
-| CI/CD | `ci.yml`, `cd.yml`, `dependabot.yml` | ✅ |
-| Pre-commit | `.pre-commit-config.yaml` | ✅ |
-| Git | `.gitignore`, `.gitattributes`, auto-init | ✅ |
-
-### ✅ Generated Scripts — COMPLETE
-
-| Script | Description | Status |
-|--------|-------------|--------|
-| `bootstrap.sh` | Create venv OUTSIDE project (Unix) | ✅ |
-| `bootstrap.ps1` | Same for Windows | ✅ |
-| `health_check.sh` | Project health verification | ✅ |
-| `check_repo_clean.sh` | Verify clean repo (pre-commit) | ✅ |
-| `context.py` | Context Switcher for modules | ✅ |
-
-### ✅ Generated Modules — COMPLETE
-
-| Module | Contents | Status |
-|--------|----------|--------|
-| `bot/` | main.py, handlers/, keyboards/, utils/, middlewares/ | ✅ |
-| `database/` | db.py with CRUD operations | ✅ |
-| `api/` | FastAPI with /health and CORS | ✅ |
-| `webapp/` | Telegram WebApp SDK template | ✅ |
-| `parser/` | httpx + BeautifulSoup scraper | ✅ |
-
-### ✅ Testing — COMPLETE
-
-| Metric | Value | Status |
-|--------|-------|--------|
-| Test Files | 10+ | ✅ |
-| Total Tests | 82 | ✅ |
-| Passing | 82/82 (100%) | ✅ |
+| Command | Description | Example |
+|---------|-------------|---------|
+| `doctor` | Diagnose + auto-fix issues | `python main.py doctor ./project --auto` |
+| `status` | Regenerate PROJECT_STATUS.md | `python main.py status . --preview` |
+| `hooks` | Git pre-commit hook management | `python main.py hooks install` |
 
 ---
 
-## 🚀 Roadmap
+## 🤖 AI Assistant Support
 
-### 📍 Phase 1: Foundation (v3.1) — IN PROGRESS
+AI Toolkit generates configuration files for all major AI coding assistants:
 
-> **Goal:** Core utilities for token optimization  
-> **Timeline:** Week 1
+| Assistant | Config File | Purpose |
+|-----------|-------------|---------|
+| **Cursor** | `.cursorrules` | AI behavior rules |
+| **Cursor** | `.cursorignore` | Files to exclude from AI |
+| **Cursor** | `.cursor/rules/*.md` | Modular context rules |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | Copilot instructions |
+| **Claude** | `CLAUDE.md` | Claude-specific instructions |
+| **Windsurf** | `.windsurfrules` | Windsurf configuration |
+| **All** | `_AI_INCLUDE/` | Shared rules for any AI |
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 1.1 | Context Map Generator | Regex-based `CURRENT_CONTEXT_MAP.md` | 🔄 |
-| 1.2 | Secret Sanitizer | API keys → `[REDACTED]` | 🔄 |
-| 1.3 | Export Context | `toolkit export --module bot` | 🔄 |
-| 1.4 | XML Format | `--format xml` for Claude | 🔄 |
-| 1.5 | PROMPTS_LIBRARY.md | Template-specific prompts | 🔄 |
-| 1.6 | README Badge | AI-Ready badge | 🔄 |
-| 1.7 | Modular Dependencies | `[ui]`, `[tui]`, `[web]` extras | 🔄 |
-| 1.8 | Graceful Degradation | Fallback if deps missing | 🔄 |
+---
 
-### 📍 Phase 2: CLI Wizard (v3.2) — PLANNED
+## 📁 Generated Project Structure
 
-> **Goal:** Interactive project creation  
-> **Timeline:** Week 2-3
+```
+my_project/
+├── .cursor/
+│   └── rules/
+│       └── project.md          # Cursor rules
+├── .github/
+│   ├── copilot-instructions.md # Copilot rules
+│   └── workflows/
+│       ├── ci.yml              # CI pipeline
+│       └── cd.yml              # CD pipeline
+├── _AI_INCLUDE/
+│   ├── PROJECT_CONVENTIONS.md  # Coding standards
+│   └── WHERE_THINGS_LIVE.md    # Location guide
+├── scripts/
+│   ├── bootstrap.sh            # Linux/Mac setup
+│   ├── bootstrap.ps1           # Windows setup
+│   └── context.py              # Context switcher
+├── src/
+│   └── ...                     # Your code here
+├── .cursorrules                # Main Cursor config
+├── .cursorignore               # Smart ignore patterns
+├── .windsurfrules              # Windsurf config
+├── CLAUDE.md                   # Claude instructions
+├── Dockerfile                  # Container config
+├── docker-compose.yml          # Multi-container setup
+└── requirements.txt            # Dependencies
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 2.1 | Friendly Wizard | Step-by-step questionary prompts | ⬜ |
-| 2.2 | Natural Language Input | "telegram bot" → auto-detect | ⬜ |
-| 2.3 | Skill Levels | novice/intermediate/expert | ⬜ |
-| 2.4 | Token Estimator | `toolkit tokens` command | ⬜ |
-| 2.5 | Auto-open IDE | Open in Cursor/VS Code | ⬜ |
-| 2.6 | Progress Animation | Rich progress bars | ⬜ |
-| 2.7 | Role-based .cursorrules | Template-specific AI roles | ⬜ |
-| 2.8 | Chained Rules | User/Toolkit sections | ⬜ |
+# External (not in project):
+../_venvs/my_project-main/      # Virtual environment
+../_artifacts/my_project/logs/  # Archived logs
+../_data/my_project/            # Large data files
+```
 
-### 📍 Phase 3: TUI Dashboard (v3.3) — PLANNED
+---
 
-> **Goal:** Professional terminal dashboard  
-> **Timeline:** Week 4-5
+## 📊 Project Templates
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 3.1 | Main Dashboard | Full-screen Textual UI | ⬜ |
-| 3.2 | Project Selector | Recent projects list | ⬜ |
-| 3.3 | Module Selector | Visual checkbox selection | ⬜ |
-| 3.4 | Live Token Counter | Real-time token display | ⬜ |
-| 3.5 | Export Panel | Format, sanitize options | ⬜ |
-| 3.6 | Health Panel | Visual health status | ⬜ |
-| 3.7 | Keyboard Navigation | Vim-style shortcuts | ⬜ |
-| 3.8 | Activity Log | Recent actions display | ⬜ |
+| Template | Description | Includes |
+|----------|-------------|----------|
+| `bot` | Telegram bot (aiogram) | handlers, keyboards, middlewares, FSM |
+| `webapp` | Web application | HTML, CSS, JS, Telegram WebApp SDK |
+| `fastapi` | REST API | FastAPI, routers, schemas, CRUD |
+| `parser` | Web scraper | httpx, BeautifulSoup, async |
+| `full` | All modules | bot + webapp + api + parser + database |
+| `monorepo` | Multi-project | Shared libraries, multiple services |
 
-**TUI Preview:**
+---
+
+## 🦊 Fox Trace — Deep Dive Technology
+
+Fox Trace is our implementation of "Deep Dive" (similar to Windsurf's Cascade):
+
+```bash
+# You want to refactor payment.py
+# Old way: paste entire project → 5M tokens
+
+# Fox Trace way:
+python main.py trace src/handlers/payment.py --depth 2
+```
+
+**What happens:**
+1. Parse `payment.py` with AST
+2. Find all imports: `from utils import calculate_tax`
+3. Go to `src/utils.py`
+4. Extract ONLY `calculate_tax` function (not entire file!)
+5. Package into XML with proper context
+
+**Result:**
+```xml
+<context_dump>
+  <file path="src/handlers/payment.py">
+    def pay():
+        tax = calculate_tax(100)
+        ...
+  </file>
+  
+  <dependency path="src/utils.py" source="trace">
+    def calculate_tax(amount):
+        return amount * 0.2
+  </dependency>
+</context_dump>
+```
+
+**Token savings:** 5.1M → 13K (99.7% reduction)
+
+---
+
+## 🏥 Doctor — One-Button Project Fix
+
+The Doctor command diagnoses and fixes ALL project issues automatically:
+
+```bash
+python main.py doctor /path/to/project --auto
+```
+
+**What it detects:**
+- 🔴 CRITICAL: venv inside project, node_modules
+- 🟡 WARNING: `__pycache__`, logs, large data files
+- 🟢 SUGGESTION: missing configs, outdated files
+
+**What it fixes:**
+1. Creates backup (`.tar.gz`)
+2. Deletes venv/pycache/logs
+3. Moves large files to `../_data/`
+4. Creates `_AI_INCLUDE/` folder
+5. Generates `.cursorignore`
+6. Creates bootstrap scripts
+7. Sets up external venv
+8. Shows before/after comparison
+
+**Example output:**
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║  AI TOOLKIT v3.3                                   [H]elp [Q]uit ║
+║  ✅ DOCTOR COMPLETE — All issues fixed!                         ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  ╭─ Quick Actions ────────────────────────────────────────────╮ ║
-║  │  [N] New Project   [E] Export   [M] Map   [H] Health      │ ║
-║  ╰────────────────────────────────────────────────────────────╯ ║
-║  ╭─ Current: pizza_bot ───────────────────────────────────────╮ ║
-║  │  Type:    🤖 Telegram Bot                                  │ ║
-║  │  Health:  ✅ Good (9/10)     Tokens: ~45,000              │ ║
-║  │  Modules: bot/ ✓  database/ ✓  api/ ○  webapp/ ○          │ ║
-║  ╰────────────────────────────────────────────────────────────╯ ║
+║                      BEFORE           AFTER                      ║
+║  Tokens:            5.1M     →       47K    (99% reduction!)     ║
+║  Critical:             3     →         0                         ║
+║  Warnings:             2     →         0                         ║
+╠══════════════════════════════════════════════════════════════════╣
+║  📦 Backup: my_project_backup_20241223.tar.gz                    ║
+║  🌐 Venv: ../_venvs/my_project-main                              ║
+║                                                                  ║
+║  Your project is now AI-ready! 🚀                                ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
 
-### 📍 Phase 4: Automation (v3.4) — PLANNED
+---
 
-> **Goal:** Smart features for power users  
-> **Timeline:** Week 6-7
+## 🗺️ Roadmap
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 4.1 | Advanced Context Switcher | Role-aware switching | ⬜ |
-| 4.2 | Diff Export | `--diff`, `--since HEAD~3` | ⬜ |
-| 4.3 | Prompt Templates | `toolkit prompt review` | ⬜ |
-| 4.4 | Pre-commit Hook | Block commits with secrets | ⬜ |
-| 4.5 | Dependency Graph | `toolkit deps --module bot` | ⬜ |
-| 4.6 | Smart .cursorignore | Auto-hide unused modules | ⬜ |
+### ✅ Completed
 
-### 📍 Phase 5: Quality & PyPI (v3.5) — PLANNED
+| Version | Name | Features |
+|---------|------|----------|
+| v3.0 | Core | CLI, 6 templates, multi-IDE, Docker, CI/CD |
+| v3.3 | The Fox Update | AST Map, Fox Trace, XML Packer, Secret Scanner |
+| v3.4 | The Doctor Update | Doctor command, Status generator, Auto-update |
 
-> **Goal:** Production-ready release  
-> **Timeline:** Week 8-9
+### 🔄 In Progress
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 5.1 | PyPI Publication | `pip install ai-toolkit` | ⬜ |
-| 5.2 | Type Hints (mypy) | Full code typing | ⬜ |
-| 5.3 | pytest Coverage | 80%+ coverage | ⬜ |
-| 5.4 | LLM-Friendly Linter | `toolkit lint` | ⬜ |
-| 5.5 | Context Map v2 (AST) | `--detailed` option | ⬜ |
-| 5.6 | Smart Truncate | `--max-tokens` | ⬜ |
-| 5.7 | One-liner (Unix) | `curl \| bash` installer | ⬜ |
-| 5.8 | One-liner (Windows) | `irm \| iex` installer | ⬜ |
+| Version | Name | Features | Status |
+|---------|------|----------|--------|
+| v3.5 | CLI Wizard | Questionary prompts, natural language, skill levels | 🔄 Partial |
 
-### 📍 Phase 6: Web UI (v4.0) — PLANNED
+### ⬜ Planned
 
-> **Goal:** Browser interface for beginners  
-> **Timeline:** Week 10-13
+| Version | Name | Features | Timeline |
+|---------|------|----------|----------|
+| v3.5 | TUI Dashboard | Textual full-screen UI, live tokens, keyboard nav | Week 4-5 |
+| v3.6 | Automation | Diff export, pre-commit integration, deps graph | Week 6-7 |
+| v3.7 | Quality & PyPI | 80% test coverage, mypy, `pip install ai-toolkit` | Week 8-9 |
+| v4.0 | Web UI | Browser dashboard, drag & drop, visual wizards | Week 10-13 |
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 6.1 | Web Dashboard | FastAPI + Jinja2 | ⬜ |
-| 6.2 | Visual Wizard | Step-by-step web form | ⬜ |
-| 6.3 | Drag & Drop | Upload existing project | ⬜ |
-| 6.4 | Download ZIP | Get created project | ⬜ |
-| 6.5 | Online Demo | Try without install | ⬜ |
-| 6.6 | API Endpoints | REST API for all features | ⬜ |
+### 💡 Future Ideas
 
-### 📍 Phase 7: Extensions (v4.1+) — FUTURE
+| Version | Name | Features |
+|---------|------|----------|
+| v4.1+ | Extensions | Plugin system, custom templates |
+| v4.1+ | IDE Plugin | VS Code/Cursor extension |
+| v4.1+ | GUI Desktop | Tkinter/PyQt application |
+| v4.1+ | Telegram Bot | @AIToolkitBot for quick actions |
+| v4.1+ | Auto-context | AI-driven focus detection |
+| v4.1+ | Cost Dashboard | Track AI spending per project |
+| v4.2 | Localization | Full RU/EN support, i18n framework |
+| v4.2 | RU Documentation | README, guides, PROMPTS_LIBRARY in Russian |
 
-> **Goal:** Advanced ecosystem  
-> **Timeline:** Ongoing
+### 📈 Feature Progress
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 7.1 | GUI (Desktop) | Tkinter/PyQt app | 💡 |
-| 7.2 | Plugins System | Custom templates | 💡 |
-| 7.3 | IDE Extension | VS Code/Cursor plugin | 💡 |
-| 7.4 | toolkit share | Shareable project links | 💡 |
-| 7.5 | Telegram Bot | @AIToolkitBot | 💡 |
-| 7.6 | Auto-context | AI-driven focus detection | 💡 |
-| 7.7 | Cost Dashboard | Track AI spending | 💡 |
+```
+v3.0  ████████████████████████████████████████ 54 features (Core)
+v3.3  ████████████████████████████████████████████ 62 features (+Fox Update)
+v3.4  ██████████████████████████████████████████████ 68 features (+Doctor)
+      ─────────────────────────────────────────────────────────────────
+v3.5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 76 (+TUI)
+v4.0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 98 (+Web)
+v4.2  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 110 (Full)
+      ─────────────────────────────────────────────────────────────────
+      0%              25%              50%              75%         100%
+      
+Current: 68/110 features (62%)
+```
 
-### 📍 Phase 8: Localization (v4.2) — POST-RELEASE
+---
 
-> **Goal:** Russian language support  
-> **Timeline:** After v4.0 stable
+## 📚 Documentation
 
-| # | Feature | Description | Status |
-|---|---------|-------------|--------|
-| 8.1 | i18n Framework | gettext/babel setup | 💡 |
-| 8.2 | RU Translation | All UI strings | 💡 |
-| 8.3 | RU Documentation | README, guides | 💡 |
-| 8.4 | RU PROMPTS_LIBRARY | Russian prompts | 💡 |
-| 8.5 | Language Selector | Auto-detect or manual | 💡 |
+| Document | Purpose |
+|----------|---------|
+| [README.md](README.md) | This file — overview and quick start |
+| [CLAUDE.md](CLAUDE.md) | Instructions for Claude AI |
+| [PROMPTS_LIBRARY.md](PROMPTS_LIBRARY.md) | Ready-to-use prompts for AI |
+| [TRADEOFFS.md](TRADEOFFS.md) | Architectural decisions explained |
+| [TECHNICAL_SPECIFICATION.md](TECHNICAL_SPECIFICATION.md) | Full roadmap and specs |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [first manifesto.md](first%20manifesto.md) | Philosophy and core rules |
+
+### Auto-Generated Docs
+
+| Document | Purpose | Command |
+|----------|---------|---------|
+| [CURRENT_CONTEXT_MAP.md](CURRENT_CONTEXT_MAP.md) | Code structure map | `python generate_map.py` |
+| [PROJECT_STATUS.md](PROJECT_STATUS.md) | Implementation status | `python main.py status` |
+
+---
+
+## 🏗️ Architecture
+
+```
+AI-Native_Project_Scaffolding/
+├── src/
+│   ├── commands/           # CLI commands (12 total)
+│   │   ├── create.py       # Project creation
+│   │   ├── cleanup.py      # Project cleanup
+│   │   ├── doctor.py       # 🏥 Diagnose & fix
+│   │   ├── trace.py        # 🔍 AST dependency tracker
+│   │   ├── pack.py         # 📦 XML context packer
+│   │   ├── review.py       # 🦊 Secret scanner
+│   │   └── ...
+│   ├── generators/         # File generators (6 total)
+│   │   ├── ai_configs.py   # AI assistant configs
+│   │   ├── scripts.py      # Bootstrap scripts
+│   │   ├── docker.py       # Docker files
+│   │   └── ...
+│   ├── utils/              # Utilities (4 total)
+│   │   ├── context_map.py  # 🧠 AST code mapping
+│   │   ├── metrics.py      # Token scanning
+│   │   ├── status_generator.py # Auto-status
+│   │   └── ...
+│   └── core/               # Core modules
+│       ├── constants.py    # Templates, patterns
+│       └── config.py       # Configuration
+├── templates/              # Project templates
+├── tests/                  # 92 tests
+├── docs/                   # Documentation
+└── scripts/                # Utility scripts
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+python -m pytest tests/ -v
+
+# Run specific test file
+python -m pytest tests/test_doctor.py -v
+
+# Run with coverage
+python -m pytest tests/ --cov=src --cov-report=html
+```
+
+**Current status:** 92 tests passing ✅
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+```bash
+# Setup development environment
+git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
+cd AI-Native_Project_Scaffolding
+python -m venv ../_venvs/ai-toolkit-dev
+source ../_venvs/ai-toolkit-dev/bin/activate
+pip install -e ".[dev]"
+
+# Run tests before submitting
+pytest tests/ -v
+mypy src/
+ruff check src/
+```
+
+---
+
+## 📜 Philosophy
+
+> **"The project must remain clean for the AI assistant"**
+
+Three fundamental rules:
+1. **Never create venv inside project** — 500MB of garbage kills AI performance
+2. **Never read large files entirely** — logs, CSVs destroy context window
+3. **Always check before creating** — read `_AI_INCLUDE/` first
+
+See [first manifesto.md](first%20manifesto.md) for the complete philosophy.
 
 ---
 
@@ -243,18 +474,32 @@ OVERALL PROGRESS
 ════════════════════════════════════════════════════════════════════
 
 Phase 0: Core Foundation        ████████████████████████████ 100% ✅
-Phase 1: Foundation (v3.1)      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% 🔄
-Phase 2: CLI Wizard (v3.2)      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
-Phase 3: TUI Dashboard (v3.3)   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
-Phase 4: Automation (v3.4)      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
-Phase 5: Quality & PyPI (v3.5)  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
+Phase 1: Foundation (v3.1)      ████████████████████████████ 100% ✅
+Phase 2: CLI Wizard (v3.2)      ████████████████████████████ 100% ✅
+Phase 2.5: Fox Update (v3.3)    ████████████████████████████ 100% ✅
+Phase 2.6: Doctor Update (v3.4) ████████████████████████████ 100% ✅
+Phase 3: TUI Dashboard (v3.5)   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
+Phase 4: Automation (v3.6)      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
+Phase 5: Quality & PyPI (v3.7)  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
 Phase 6: Web UI (v4.0)          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
 Phase 7: Extensions (v4.1+)     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% 💡
 Phase 8: Localization (v4.2)    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% 💡
 
 ════════════════════════════════════════════════════════════════════
-TOTAL: 54/110 features (49%) | Next: Phase 1 (v3.1)
+TOTAL: 68/110 features (62%) | Next: Phase 3 (TUI Dashboard)
 ```
+
+### 📊 Statistics
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Features Implemented | 68 | 110 |
+| Commands | 12 | 15+ |
+| Tests Passing | 92 | 150+ |
+| Templates | 6 | 10+ |
+| Supported IDEs | 5 | 5 |
+| Interfaces | CLI | CLI + TUI + Web |
+| Languages | EN | EN + RU |
 
 ### Legend
 
@@ -265,116 +510,35 @@ TOTAL: 54/110 features (49%) | Next: Phase 1 (v3.1)
 | ⬜ | Planned |
 | 💡 | Future Idea |
 
-### 📊 Statistics
+---
 
-| Metric | Current | Target |
-|--------|---------|--------|
-| Features Implemented | 54 | 110 |
-| Lines of Code | 3,541 | ~8,000 |
-| Tests Passing | 82/82 | 150+ |
-| Templates | 6 | 10+ |
-| Supported IDEs | 5 | 5 |
-| Interfaces | CLI | CLI + TUI + Web |
-| Languages | EN | EN + RU |
+## 🔒 Security
+
+See [SECURITY.md](SECURITY.md) for:
+- Supported versions
+- How to report vulnerabilities
+- Security best practices
 
 ---
 
-## 🚀 Quick Start
+## 💬 Support
 
-
-### Installation
-
-```bash
-# 1. Самый простой способ (рекомендуется)
-pipx install git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
-
-# 2. Или классически через pip
-pip install git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
-
-# 3. С красивыми плюшками (Web Dashboard + TUI)
-pipx install "git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git[web,tui]"
-
-# 4. Из исходников (для разработки)
-git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
-cd AI-Native_Project_Scaffolding
-pip install -e ".[web,tui,dev]"
-
-# Future (after PyPI release)
-pip install ai-toolkit[ui]        # With wizard
-pip install ai-toolkit[ui,tui]    # With TUI dashboard
-pipx install ai-toolkit[ui]       # Isolated (recommended)
-`
-
-### Usage
-
-```bash
-# Interactive mode
-python main.py
-
-# Create project
-python main.py create my_bot --template bot
-
-# Export for AI (coming in v3.1)
-python main.py export --module bot --format xml
-
-# Health check
-python main.py health ./my_project
-
-# TUI Dashboard (coming in v3.3)
-python main.py tui
-```
+- 🐛 [Open an Issue](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/issues)
+- 💬 [Discussions](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/discussions)
+- 📧 Telegram: [@MichaelSalmin](https://t.me/MichaelSalmin)
 
 ---
 
-## 📁 Project Structure
-
-```
-ai_toolkit/
-├── src/
-│   ├── cli.py              # Main CLI
-│   ├── commands/           # CLI commands
-│   │   ├── create.py       # ✅ Project creation
-│   │   ├── cleanup.py      # ✅ Project cleanup
-│   │   ├── migrate.py      # ✅ Migration
-│   │   ├── health.py       # ✅ Health checks
-│   │   ├── update.py       # ✅ Updates
-│   │   ├── export.py       # 🔄 Context export (Phase 1)
-│   │   ├── map.py          # 🔄 Context map (Phase 1)
-│   │   └── prompt.py       # ⬜ Prompts (Phase 4)
-│   ├── generators/         # ✅ File generators
-│   ├── core/               # ✅ Core utilities
-│   ├── ui/                 # ⬜ CLI Wizard (Phase 2)
-│   ├── tui/                # ⬜ TUI Dashboard (Phase 3)
-│   ├── utils/              # 🔄 Utilities (Phase 1)
-│   └── i18n/               # 💡 Localization (Phase 8)
-├── web/                    # ⬜ Web UI (Phase 6)
-├── tests/                  # ✅ 82 tests
-├── templates/              # ✅ 6 templates
-├── plugins/                # ✅ Plugin system
-└── docs/                   # Documentation
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing`
-3. Make changes and add tests
-4. Run tests: `python -m pytest tests/ -v`
-5. Commit: `git commit -m 'Add amazing feature'`
-6. Push: `git push origin feature/amazing`
-7. Open Pull Request
-
----
-
-## 👥 Credits
+## 👥 Team
 
 **Mickhael** — Project Creator & Lead Developer
+- Original vision
+- Architecture decisions
+- Business requirements
 
 **Claude (Anthropic)** — AI Development Partner
 - Technical specification
-- Architecture recommendations
+- Code implementation
 - Documentation
 
 > *"This project was developed with significant assistance from my good colleague Claude (Anthropic)."*
@@ -384,20 +548,16 @@ ai_toolkit/
 
 ## 📄 License
 
-MIT © Michael Salmin
-
-See [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-## 💬 Support
+<div align="center">
 
-- 🐛 [Open an Issue](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/issues)
-- 💬 [Discussions](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding/discussions)
+**Made with 🤝 by Mickhael & Claude**
 
----
+*December 2024*
 
-<p align="center">
-  <strong>Made with ❤️ for AI-first development</strong>
-</p>
+[⬆ Back to Top](#-ai-toolkit--ai-native-project-scaffolding)
 
+</div>
