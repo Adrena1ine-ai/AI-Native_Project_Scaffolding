@@ -25,6 +25,20 @@
 
 - `__main__.py`
 
+- `benchmark.py`
+  📦 ScanResult
+    ƒ estimated_cost
+    ƒ estimate_tokens
+    ƒ parse_cursorignore
+    ƒ should_ignore
+    ƒ scan_directory
+    ƒ format_number
+    ƒ format_tokens
+    ƒ print_results_rich
+    ƒ print_results_plain
+    ƒ run_benchmark
+    ƒ main
+
 - `main.py`
 
 - `pyproject.toml`
@@ -419,5 +433,11 @@
 
 - `plugins/installed/.gitkeep`
 
+- `.cursor/rules/project.md`
+
+- `.cursor/rules/review_guidelines.md`
+
+- `.cursor/rules/toolkit.md`
+
 ---
-**Stats:** Scanned 87 files. Map size: ~2133 tokens.
+**Stats:** Scanned 91 files. Map size: ~2224 tokens.

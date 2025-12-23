@@ -1,4 +1,89 @@
-# AUTOMATION
-ALWAYS run `python3 generate_map.py` after creating or deleting files.
-Then read `CURRENT_CONTEXT_MAP.md` to update your mental model of the project.
+# ═══════════════════════════════════════════════════════════════
+# 🤖 AI TOOLKIT — CURSOR RULES v3.1
+# ═══════════════════════════════════════════════════════════════
 
+## 🧠 FIRST ACTIONS (Always)
+
+1. **Read `CURRENT_CONTEXT_MAP.md`** — Understand project structure
+2. **Check existing code** before creating new files
+3. **Follow established patterns** in `src/`
+
+---
+
+## 🔄 AUTOMATION (Mandatory)
+
+**After creating or deleting files, ALWAYS run:**
+```bash
+python3 generate_map.py
+```
+Then re-read `CURRENT_CONTEXT_MAP.md` to update your mental model.
+
+---
+
+## 🚫 ABSOLUTE PROHIBITIONS
+
+### Never Create:
+- `venv/`, `.venv/`, `env/` inside project — environments go in `../_venvs/`
+- Duplicate files that already exist
+- Russian text (comments, strings, docstrings) — English only!
+
+### Never Read Entirely:
+- `templates/**` — These are output templates (hidden in .cursorignore)
+- `tests/**` — Hidden by default, reference explicitly when needed
+- `*.tar`, `*.log`, `*.csv` — Binary/heavy data files
+
+---
+
+## ✅ CORRECT PATTERNS
+
+### Adding New Code:
+```python
+# Always use type hints
+def my_function(path: Path, name: str) -> bool:
+    """Docstring explaining purpose."""
+    ...
+```
+
+### Creating Files:
+```python
+from ..core.file_utils import create_file
+create_file(project_dir / "path/to/file.py", content)
+```
+
+### User Feedback:
+```python
+from ..core.constants import COLORS
+print(COLORS.success("Done!"))
+print(COLORS.error("Failed!"))
+print(COLORS.warning("Warning!"))
+```
+
+---
+
+## 📁 HIDDEN FROM AI (see .cursorignore)
+
+These directories are optimized out to save tokens:
+- `templates/**` — Output templates (~15K tokens saved)
+- `tests/**` — Test files (reference explicitly if needed)
+- `AI-Native Project Scaffolding/**` — Legacy folder
+- `*.tar` — Backup archives
+
+---
+
+## 📚 DETAILED RULES
+
+For detailed guidelines, see:
+- `.cursor/rules/project.md` — Project context & architecture
+- `.cursor/rules/toolkit.md` — CLI architecture & patterns
+- `.cursor/rules/review_guidelines.md` — Code review standards
+
+---
+
+## 🎯 QUICK REFERENCE
+
+| Action | Command |
+|--------|---------|
+| Run CLI | `python main.py` |
+| Run tests | `pytest tests/ -v` |
+| Update map | `python3 generate_map.py` |
+| Benchmark | `python3 benchmark.py` |
