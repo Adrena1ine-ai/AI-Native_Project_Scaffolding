@@ -8,8 +8,6 @@ import os
 import stat
 import shutil
 from pathlib import Path
-from typing import Optional
-from string import Template
 
 from .constants import COLORS
 

@@ -18,11 +18,13 @@ from .commands import (
     cmd_migrate,
     cmd_health,
     cmd_update,
+    cmd_review,
     create_project,
     cleanup_project,
     migrate_project,
     health_check,
     update_project,
+    review_changes,
 )
 
 
@@ -86,7 +88,8 @@ def print_menu():
         ("3", "📦 Migrate project"),
         ("4", "🏥 Health check"),
         ("5", "⬆️  Update project"),
-        ("6", "⚙️  Change IDE"),
+        ("6", "🔍 Review changes (AI prompt)"),
+        ("7", "⚙️  Change IDE"),
         ("0", "❌ Exit"),
     ]
     
@@ -106,13 +109,14 @@ def interactive_mode():
         "3": cmd_migrate,
         "4": cmd_health,
         "5": cmd_update,
-        "6": select_ide,
+        "6": cmd_review,
+        "7": select_ide,
     }
     
     while True:
         print_menu()
         
-        choice = input("Choose (0-6): ").strip()
+        choice = input("Choose (0-7): ").strip()
         
         if choice == "0":
             print(f"\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
@@ -171,6 +175,9 @@ def cli_mode():
     update_p = subparsers.add_parser("update", help="Update project")
     update_p.add_argument("path", type=Path, help="Project path")
     
+    # review
+    review_p = subparsers.add_parser("review", help="Generate AI review prompt for changes")
+    
     args = parser.parse_args()
     
     if not args.command:
@@ -206,6 +213,9 @@ def cli_mode():
     
     elif args.command == "update":
         update_project(args.path)
+    
+    elif args.command == "review":
+        review_changes()
 
 
 def main():

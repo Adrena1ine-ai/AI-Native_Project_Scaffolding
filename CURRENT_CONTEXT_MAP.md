@@ -380,6 +380,14 @@
     ƒ migrate_project
     ƒ cmd_migrate
 
+- `src/commands/review.py`
+    ƒ get_git_diff
+    ƒ get_context_map
+    ƒ get_cursor_rules
+    ƒ build_review_prompt
+    ƒ review_changes
+    ƒ cmd_review
+
 - `src/commands/update.py`
     ƒ update_project
     ƒ cmd_update
@@ -412,4 +420,4 @@
 - `plugins/installed/.gitkeep`
 
 ---
-**Stats:** Scanned 86 files. Map size: ~2094 tokens.
+**Stats:** Scanned 87 files. Map size: ~2133 tokens.

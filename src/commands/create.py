@@ -348,8 +348,6 @@ Next steps:
 
 def cmd_create() -> None:
     """Interactive create project command"""
-    from ..core.config import get_default_ide
-    
     print(COLORS.colorize("\n🆕 CREATE NEW PROJECT\n", COLORS.GREEN))
     
     # Show IDE

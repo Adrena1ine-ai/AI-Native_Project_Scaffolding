@@ -1,8 +1,7 @@
+#!/usr/bin/env python3
 # 🚀 Universal Project Generator
-
 # One script — complete structure in a minute!
 
-#!/usr/bin/env python3
 """
 🚀 Project Generator: Telegram Bot + Mini App + Scripts
 Creates complete structure with proper configuration for Cursor
