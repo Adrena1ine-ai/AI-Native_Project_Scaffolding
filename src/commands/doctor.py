@@ -924,6 +924,7 @@ def print_report(report: DiagnosticReport, show_menu: bool = True) -> None:
             remaining = len(high_token_files) - 5
             print(f"║  ... and {remaining} more files >1K tokens                                ║")
     
+    # Always print the closing box line
     if show_menu:
         print("╠══════════════════════════════════════════════════════════════════╣")
         
@@ -934,6 +935,7 @@ def print_report(report: DiagnosticReport, show_menu: bool = True) -> None:
         else:
             print("║  [R] Generate report    [T] Token breakdown    [Q] Quit          ║")
     
+    # Always print closing line (even if menu is hidden)
     print("╚══════════════════════════════════════════════════════════════════╝")
 
 
@@ -1142,7 +1144,15 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
     
     # Run diagnosis
     report = doctor.diagnose()
-    print_report(report, show_menu=not report_only)
+    
+    # Always show menu unless in report-only mode
+    show_menu_flag = not report_only
+    print_report(report, show_menu=show_menu_flag)
+    
+    # Force flush to ensure menu is visible
+    import sys
+    sys.stdout.flush()
+    sys.stderr.flush()
     
     if report_only:
         # In report-only mode, just exit after showing report
