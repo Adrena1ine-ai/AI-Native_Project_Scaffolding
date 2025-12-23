@@ -8,6 +8,8 @@ import os
 import stat
 import shutil
 from pathlib import Path
+from typing import Optional
+from string import Template
 
 from .constants import COLORS
 
@@ -28,9 +30,6 @@ def create_file(
         quiet: Don't print message
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    # Add newline at end if not present
-    if content and not content.endswith("\n"):
-        content = content + "\n"
     path.write_text(content, encoding="utf-8")
     
     if executable:
@@ -59,7 +58,7 @@ def copy_template(
     Args:
         src: Source template file
         dst: Target path
-        context: Variables dictionary for substitution
+        context: Dictionary of variables for substitution
         executable: Make executable
     """
     if not src.exists():
@@ -67,7 +66,7 @@ def copy_template(
     
     content = src.read_text(encoding="utf-8")
     
-    # Variable substitution {{variable}}
+    # Substitute variables {{variable}}
     for key, value in context.items():
         content = content.replace(f"{{{{{key}}}}}", str(value))
         content = content.replace(f"{{{key}}}", str(value))

@@ -1,5 +1,5 @@
 """
-Update command - update project to new Toolkit version
+Update command — update project to new Toolkit version
 """
 
 from __future__ import annotations
@@ -23,10 +23,10 @@ def update_project(project_path: Path) -> bool:
         return True
     
     print(f"""
-{COLORS.colorize('=' * 50, COLORS.CYAN)}
-{COLORS.colorize(f'Updating: {project_name}', COLORS.CYAN)}
-{COLORS.colorize('=' * 50, COLORS.CYAN)}
-   {old_version} -> {VERSION}
+{COLORS.colorize('═' * 50, COLORS.CYAN)}
+{COLORS.colorize(f'⬆️  Updating: {project_name}', COLORS.CYAN)}
+{COLORS.colorize('═' * 50, COLORS.CYAN)}
+   {old_version} → {VERSION}
 """)
     
     # Update scripts
@@ -36,7 +36,7 @@ def update_project(project_path: Path) -> bool:
         generate_context_switcher,
     )
     
-    print(f"\n{COLORS.colorize('Updating scripts...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('📜 Updating scripts...', COLORS.CYAN)}")
     generate_bootstrap_sh(project_path, project_name)
     generate_health_check(project_path, project_name)
     generate_context_switcher(project_path)
@@ -44,7 +44,7 @@ def update_project(project_path: Path) -> bool:
     # Update CI if exists
     ci_file = project_path / ".github" / "workflows" / "ci.yml"
     if ci_file.exists():
-        print(f"\n{COLORS.colorize('Updating CI...', COLORS.CYAN)}")
+        print(f"\n{COLORS.colorize('🚀 Updating CI...', COLORS.CYAN)}")
         from ..generators.ci_cd import generate_ci_workflow
         generate_ci_workflow(project_path, project_name)
     
@@ -56,12 +56,12 @@ def update_project(project_path: Path) -> bool:
     
     # Update version
     version_file.write_text(VERSION)
-    print(f"  {COLORS.success(f'.toolkit-version -> {VERSION}')}")
+    print(f"  {COLORS.success(f'.toolkit-version → {VERSION}')}")
     
     print(f"""
-{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.colorize('═' * 50, COLORS.GREEN)}
 {COLORS.success('Update complete!')}
-{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.colorize('═' * 50, COLORS.GREEN)}
 """)
     
     return True
@@ -69,7 +69,7 @@ def update_project(project_path: Path) -> bool:
 
 def cmd_update() -> None:
     """Interactive update command"""
-    print(COLORS.colorize("\nUPDATE PROJECT\n", COLORS.GREEN))
+    print(COLORS.colorize("\n⬆️  PROJECT UPDATE\n", COLORS.GREEN))
     
     path_str = input("Project path: ").strip()
     if not path_str:
@@ -83,7 +83,7 @@ def cmd_update() -> None:
     
     version_file = path / ".toolkit-version"
     if not version_file.exists():
-        print(COLORS.warning("Not a Toolkit project (no .toolkit-version)"))
+        print(COLORS.warning("This is not a Toolkit project (no .toolkit-version)"))
         confirm = input("Continue with migration? (y/N): ").strip().lower()
         if confirm != 'y':
             return

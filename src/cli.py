@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AI-Native Project Scaffolding v3.0 - CLI
+🛠️ AI Toolkit v3.0 — CLI
 """
 
 from __future__ import annotations
@@ -10,13 +10,7 @@ import argparse
 from pathlib import Path
 
 from .core.constants import COLORS, VERSION, IDE_CONFIGS
-from .core.config import (
-    set_default_ide, 
-    get_default_ide, 
-    get_default_ai_targets,
-    is_first_run,
-)
-from .core.i18n import t
+from .core.config import set_default_ide, get_default_ide, get_default_ai_targets
 
 from .commands import (
     cmd_create,
@@ -35,22 +29,22 @@ from .commands import (
 def print_header():
     """Print header"""
     print(f"""
-{COLORS.colorize('=' * 60, COLORS.BLUE)}
-{COLORS.colorize(f'  AI-NATIVE PROJECT SCAFFOLDING v{VERSION}', COLORS.BLUE)}
-{COLORS.colorize('=' * 60, COLORS.BLUE)}
+{COLORS.colorize('═' * 60, COLORS.BLUE)}
+{COLORS.colorize(f'🛠️  AI TOOLKIT v{VERSION}', COLORS.BLUE)}
+{COLORS.colorize('═' * 60, COLORS.BLUE)}
 """)
 
 
 def select_ide() -> str:
     """IDE selection"""
-    print(f"{COLORS.colorize(t('select_ide'), COLORS.MAGENTA)}\n")
+    print(f"{COLORS.colorize('🖥️  Which IDE will you use?', COLORS.MAGENTA)}\n")
     
     options = [
-        ("cursor", t("ide_cursor")),
-        ("vscode_copilot", t("ide_copilot")),
-        ("vscode_claude", t("ide_claude")),
-        ("windsurf", t("ide_windsurf")),
-        ("all", t("ide_all")),
+        ("cursor", "💜 Cursor (AI-first IDE)"),
+        ("vscode_copilot", "💙 VS Code + GitHub Copilot"),
+        ("vscode_claude", "🟢 VS Code + Claude"),
+        ("windsurf", "🌊 Windsurf"),
+        ("all", "🔄 All (universal)"),
     ]
     
     for i, (key, name) in enumerate(options, 1):
@@ -58,8 +52,7 @@ def select_ide() -> str:
     print()
     
     while True:
-        prompt = t("choose_1_to_n", n=len(options), default="5")
-        choice = input(prompt).strip()
+        choice = input(f"Choose (1-{len(options)}) [{COLORS.colorize('5', COLORS.GREEN)}]: ").strip()
         if not choice:
             choice = "5"
         
@@ -69,12 +62,14 @@ def select_ide() -> str:
                 key, name = options[idx]
                 config = IDE_CONFIGS[key]
                 set_default_ide(key, config["ai_targets"])
-                print(f"\n  {COLORS.success(f'{t(\"ide_selected\")} {config[\"icon\"]} {config[\"name\"]}')}\n")
+                icon = config["icon"]
+                name = config["name"]
+                print(f"\n  {COLORS.success(f'Selected: {icon} {name}')}\n")
                 return key
         except (ValueError, IndexError):
             pass
         
-        print(f"  {COLORS.error(t('invalid_choice'))}")
+        print(f"  {COLORS.error('Invalid choice')}")
 
 
 def print_menu():
@@ -82,17 +77,17 @@ def print_menu():
     ide = get_default_ide()
     ide_config = IDE_CONFIGS.get(ide, {})
     
-    print(f"{t('current_ide')} {ide_config.get('icon', '')} {ide_config.get('name', ide)}")
-    print(f"{t('what_to_do')}\n")
+    print(f"IDE: {ide_config.get('icon', '')} {ide_config.get('name', ide)}\n")
+    print("What would you like to do?\n")
     
     items = [
-        ("1", t("menu_create")),
-        ("2", t("menu_cleanup")),
-        ("3", t("menu_migrate")),
-        ("4", t("menu_health")),
-        ("5", t("menu_update")),
-        ("6", t("menu_change_ide")),
-        ("0", t("menu_exit")),
+        ("1", "🆕 Create new project"),
+        ("2", "🧹 Cleanup existing project"),
+        ("3", "📦 Migrate project"),
+        ("4", "🏥 Health check"),
+        ("5", "⬆️  Update project"),
+        ("6", "⚙️  Change IDE"),
+        ("0", "❌ Exit"),
     ]
     
     for key, name in items:
@@ -103,7 +98,6 @@ def print_menu():
 def interactive_mode():
     """Interactive mode"""
     print_header()
-    
     select_ide()
     
     commands = {
@@ -118,71 +112,64 @@ def interactive_mode():
     while True:
         print_menu()
         
-        choice = input(t("choose_0_to_n", n=6)).strip()
+        choice = input("Choose (0-6): ").strip()
         
         if choice == "0":
-            print(f"\n{COLORS.colorize(t('goodbye'), COLORS.CYAN)}\n")
+            print(f"\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
             break
         
         if choice in commands:
             commands[choice]()
             print()
-            cont = input(t("continue")).strip().lower()
+            cont = input("Continue? (Y/n): ").strip().lower()
             if cont == 'n':
-                print(f"\n{COLORS.colorize(t('goodbye'), COLORS.CYAN)}\n")
+                print(f"\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
                 break
             print()
         else:
-            print(f"  {COLORS.error(t('invalid_choice'))}")
+            print(f"  {COLORS.error('Invalid choice')}")
 
 
 def cli_mode():
     """CLI mode with arguments"""
     parser = argparse.ArgumentParser(
         prog="ai-toolkit",
-        description=t("cli_description"),
+        description="🛠️ AI Toolkit — create AI-friendly projects",
     )
-    parser.add_argument("-v", "--version", action="version", version=f"AI-Native Project Scaffolding v{VERSION}")
+    parser.add_argument("-v", "--version", action="version", version=f"AI Toolkit v{VERSION}")
     
     subparsers = parser.add_subparsers(dest="command", help="Commands")
     
     # create
-    create_p = subparsers.add_parser("create", help=t("cli_create_help"))
-    create_p.add_argument("name", help=t("cli_arg_name"))
-    create_p.add_argument("--path", "-p", type=Path, default=Path.cwd(), help=t("cli_arg_path"))
+    create_p = subparsers.add_parser("create", help="Create project")
+    create_p.add_argument("name", help="Project name")
+    create_p.add_argument("--path", "-p", type=Path, default=Path.cwd(), help="Path")
     create_p.add_argument("--template", "-t", default="bot", 
-                         choices=["bot", "webapp", "fastapi", "parser", "full", "monorepo"],
-                         help=t("cli_arg_template"))
+                         choices=["bot", "webapp", "fastapi", "parser", "full", "monorepo"])
     create_p.add_argument("--ai", nargs="+", default=["cursor", "copilot", "claude"],
                          choices=["cursor", "copilot", "claude", "windsurf"])
-    create_p.add_argument("--no-docker", action="store_true", help=t("cli_arg_no_docker"))
-    create_p.add_argument("--no-ci", action="store_true", help=t("cli_arg_no_ci"))
-    create_p.add_argument("--no-git", action="store_true", help=t("cli_arg_no_git"))
-    
-    # dashboard (Web UI)
-    dash_p = subparsers.add_parser("dashboard", aliases=["web", "ui"], help=t("cli_dashboard_help"))
-    dash_p.add_argument("--host", default="127.0.0.1", help=t("cli_arg_host"))
-    dash_p.add_argument("--port", "-P", type=int, default=8080, help=t("cli_arg_port"))
-    dash_p.add_argument("--no-browser", action="store_true", help=t("cli_arg_no_browser"))
+    create_p.add_argument("--no-docker", action="store_true", help="Without Docker")
+    create_p.add_argument("--no-ci", action="store_true", help="Without CI/CD")
+    create_p.add_argument("--no-git", action="store_true", help="Without Git")
     
     # cleanup
-    cleanup_p = subparsers.add_parser("cleanup", help=t("cli_cleanup_help"))
-    cleanup_p.add_argument("path", type=Path, help=t("cli_arg_path"))
+    cleanup_p = subparsers.add_parser("cleanup", help="Cleanup project")
+    cleanup_p.add_argument("path", type=Path, help="Project path")
     cleanup_p.add_argument("--level", "-l", default="safe",
-                          choices=["safe", "medium", "full"], help=t("cli_arg_level"))
+                          choices=["safe", "medium", "full"])
     
     # migrate
-    migrate_p = subparsers.add_parser("migrate", help=t("cli_migrate_help"))
-    migrate_p.add_argument("path", type=Path, help=t("cli_arg_path"))
+    migrate_p = subparsers.add_parser("migrate", help="Migrate project")
+    migrate_p.add_argument("path", type=Path, help="Project path")
     migrate_p.add_argument("--ai", nargs="+", default=["cursor", "copilot", "claude"])
     
     # health
-    health_p = subparsers.add_parser("health", help=t("cli_health_help"))
-    health_p.add_argument("path", type=Path, help=t("cli_arg_path"))
+    health_p = subparsers.add_parser("health", help="Health check")
+    health_p.add_argument("path", type=Path, help="Project path")
     
     # update
-    update_p = subparsers.add_parser("update", help=t("cli_update_help"))
-    update_p.add_argument("path", type=Path, help=t("cli_arg_path"))
+    update_p = subparsers.add_parser("update", help="Update project")
+    update_p.add_argument("path", type=Path, help="Project path")
     
     args = parser.parse_args()
     
@@ -204,7 +191,7 @@ def cli_mode():
     
     elif args.command == "cleanup":
         from .commands.cleanup import analyze_project
-        print(f"\n{COLORS.colorize(t('analyzing'), COLORS.CYAN)}\n")
+        print(f"\n{COLORS.colorize('🔍 Analyzing...', COLORS.CYAN)}\n")
         issues = analyze_project(args.path)
         for issue in issues:
             print(f"   {issue}")
@@ -219,18 +206,6 @@ def cli_mode():
     
     elif args.command == "update":
         update_project(args.path)
-    
-    elif args.command in ("dashboard", "web", "ui"):
-        try:
-            from web.app import run_server
-            run_server(
-                host=args.host,
-                port=args.port,
-                open_browser=not args.no_browser
-            )
-        except ImportError:
-            print(f"{COLORS.error(t('dashboard_deps_missing'))}")
-            print(f"{t('dashboard_install')} {COLORS.colorize('pip install fastapi uvicorn jinja2', COLORS.CYAN)}")
 
 
 def main():
@@ -241,7 +216,7 @@ def main():
         else:
             interactive_mode()
     except KeyboardInterrupt:
-        print(f"\n\n{COLORS.colorize(t('goodbye'), COLORS.CYAN)}\n")
+        print(f"\n\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
         sys.exit(0)
 
 

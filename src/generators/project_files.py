@@ -1,5 +1,5 @@
 """
-Project file generator (config, requirements, README)
+Generator for main project files (config, requirements, README)
 """
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ def generate_requirements(project_dir: Path, project_name: str, template: str) -
             "",
         ])
     
-    content = f"# Requirements - {project_name}\n\n" + "\n".join(deps)
+    content = f"# Requirements — {project_name}\n\n" + "\n".join(deps)
     create_file(project_dir / "requirements.txt", content)
 
 
@@ -96,7 +96,7 @@ def generate_env_example(project_dir: Path, project_name: str, template: str) ->
     """Generate .env.example"""
     
     lines = [
-        f"# Environment - {project_name}",
+        f"# Environment — {project_name}",
         "# Copy to .env and fill in values",
         "",
         "# App",
@@ -159,7 +159,7 @@ def generate_config_py(project_dir: Path, project_name: str, template: str) -> N
     fields_str = "\n".join(fields)
     
     content = f'''"""
-Configuration - {project_name}
+Configuration — {project_name}
 """
 
 from pathlib import Path
@@ -190,7 +190,7 @@ def generate_readme(project_dir: Path, project_name: str, template: str) -> None
     tmpl = TEMPLATES.get(template, {})
     description = tmpl.get("description", "Project")
     
-    # Quick start based on template
+    # Quick start depending on template
     run_cmd = {
         "bot": "python bot/main.py",
         "webapp": "python -m http.server 8000 --directory webapp",
@@ -199,16 +199,16 @@ def generate_readme(project_dir: Path, project_name: str, template: str) -> None
         "full": "python bot/main.py",
     }.get(template, "python main.py")
     
-    content = f"""# {project_name}
+    content = f"""# 🚀 {project_name}
 
 {description}
 
-## Requirements
+## 📋 Requirements
 
 - Python 3.10+
 - See `requirements.txt`
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 # 1. Bootstrap (creates venv OUTSIDE project)
@@ -225,7 +225,7 @@ cp .env.example .env
 {run_cmd}
 ```
 
-## Docker
+## 🐳 Docker
 
 ```bash
 # Build & Run
@@ -238,32 +238,32 @@ docker-compose logs -f
 docker-compose down
 ```
 
-## Structure
+## 📁 Structure
 
 ```
 {project_name}/
-  _AI_INCLUDE/        # Rules for AI
-  bot/                # Telegram bot
-  webapp/             # Mini App
-  api/                # API server
-  database/           # Database
-  scripts/            # Helper scripts
-  logs/               # Logs (gitignored)
-  data/               # Data (gitignored)
-  .github/            # GitHub Actions
-  Dockerfile
-  docker-compose.yml
+├── _AI_INCLUDE/        # Rules for AI
+├── bot/                # Telegram bot
+├── webapp/             # Mini App
+├── api/                # API server
+├── database/           # Database
+├── scripts/            # Helper scripts
+├── logs/               # Logs (gitignored)
+├── data/               # Data (gitignored)
+├── .github/            # GitHub Actions
+├── Dockerfile
+└── docker-compose.yml
 ```
 
-## Health Check
+## 🏥 Health Check
 
 ```bash
 ./scripts/health_check.sh
 ```
 
-## Context Switcher
+## 🎮 Context Switcher
 
-If AI struggles with large project:
+If AI gets confused on large project:
 
 ```bash
 python scripts/context.py bot     # Focus on bot
@@ -271,14 +271,14 @@ python scripts/context.py webapp  # Focus on webapp
 python scripts/context.py all     # Show all
 ```
 
-## Testing
+## 🧪 Testing
 
 ```bash
 pytest
 pytest --cov=.
 ```
 
-## License
+## 📝 License
 
 MIT
 
@@ -339,7 +339,7 @@ def generate_project_files(
         project_name: Project name
         template: Project template
     """
-    print(f"\n{COLORS.colorize('Project files...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('📦 Project files...', COLORS.CYAN)}")
     
     generate_requirements(project_dir, project_name, template)
     generate_requirements_dev(project_dir)

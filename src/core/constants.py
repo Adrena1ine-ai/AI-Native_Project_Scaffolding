@@ -24,50 +24,50 @@ class COLORS:
     
     @classmethod
     def success(cls, text: str) -> str:
-        return cls.colorize(f"[OK] {text}", cls.GREEN)
+        return cls.colorize(f"✅ {text}", cls.GREEN)
     
     @classmethod
     def error(cls, text: str) -> str:
-        return cls.colorize(f"[ERROR] {text}", cls.RED)
+        return cls.colorize(f"❌ {text}", cls.RED)
     
     @classmethod
     def warning(cls, text: str) -> str:
-        return cls.colorize(f"[WARN] {text}", cls.YELLOW)
+        return cls.colorize(f"⚠️  {text}", cls.YELLOW)
     
     @classmethod
     def info(cls, text: str) -> str:
-        return cls.colorize(f"[INFO] {text}", cls.CYAN)
+        return cls.colorize(f"ℹ️  {text}", cls.CYAN)
 
 
 # IDE configurations
 IDE_CONFIGS = {
     "cursor": {
         "name": "Cursor",
-        "icon": "C",
+        "icon": "💜",
         "files": [".cursorrules", ".cursorignore"],
         "ai_targets": ["cursor"],
     },
     "vscode_copilot": {
         "name": "VS Code + Copilot",
-        "icon": "GH",
+        "icon": "💙",
         "files": [".github/copilot-instructions.md"],
         "ai_targets": ["copilot"],
     },
     "vscode_claude": {
         "name": "VS Code + Claude",
-        "icon": "CL",
+        "icon": "🟢",
         "files": ["CLAUDE.md"],
         "ai_targets": ["claude"],
     },
     "windsurf": {
         "name": "Windsurf",
-        "icon": "WS",
+        "icon": "🌊",
         "files": [".windsurfrules"],
         "ai_targets": ["windsurf"],
     },
     "all": {
         "name": "Universal",
-        "icon": "ALL",
+        "icon": "🔄",
         "files": ["all"],
         "ai_targets": ["cursor", "copilot", "claude", "windsurf"],
     },
@@ -79,37 +79,37 @@ TEMPLATES = {
         "name": "Telegram Bot",
         "description": "Telegram bot using aiogram 3.x",
         "modules": ["bot", "handlers", "keyboards", "database"],
-        "icon": "BOT",
+        "icon": "🤖",
     },
     "webapp": {
         "name": "Mini App",
         "description": "Telegram Mini App (HTML/JS/CSS)",
         "modules": ["webapp", "api"],
-        "icon": "WEB",
+        "icon": "🌐",
     },
     "fastapi": {
         "name": "FastAPI",
-        "description": "REST API using FastAPI",
+        "description": "REST API with FastAPI",
         "modules": ["api", "database", "models"],
-        "icon": "API",
+        "icon": "⚡",
     },
     "parser": {
         "name": "Web Parser",
         "description": "Web scraper/parser",
         "modules": ["parser", "database"],
-        "icon": "PAR",
+        "icon": "🕷️",
     },
     "full": {
         "name": "Full Stack",
         "description": "Bot + WebApp + API + Parser",
         "modules": ["bot", "webapp", "api", "parser", "database"],
-        "icon": "FULL",
+        "icon": "🚀",
     },
     "monorepo": {
         "name": "Monorepo",
         "description": "Multiple projects in one repository",
         "modules": ["apps", "packages", "shared"],
-        "icon": "MONO",
+        "icon": "📦",
     },
 }
 

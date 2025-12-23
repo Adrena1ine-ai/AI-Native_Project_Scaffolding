@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import yaml
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Any
 
 from .constants import IDE_CONFIGS, TEMPLATES, CLEANUP_LEVELS
@@ -61,7 +61,7 @@ class Config:
             return cls()
     
     def save(self, path: Optional[Path] = None) -> None:
-        """Save config to file"""
+        """Save config"""
         if path is None:
             path = Path(__file__).parent.parent.parent / "toolkit.yaml"
         
@@ -103,7 +103,6 @@ class Config:
 _config: Optional[Config] = None
 _current_ide: str = "all"
 _current_ai_targets: list[str] = ["cursor", "copilot", "claude", "windsurf"]
-_current_language: str = "en"
 
 
 def get_config() -> Config:
@@ -129,21 +128,3 @@ def get_default_ide() -> str:
 def get_default_ai_targets() -> list[str]:
     """Get AI targets for current IDE"""
     return _current_ai_targets.copy()
-
-
-# === Language settings ===
-
-def get_language() -> str:
-    """Get current language code (always 'en' now)."""
-    return "en"
-
-
-def set_language(lang: str) -> None:
-    """Set current language (no-op, English only now)."""
-    pass
-
-
-def is_first_run() -> bool:
-    """Check if this is the first run (no user config exists)."""
-    user_config_path = Path.home() / ".ai_toolkit" / "config.yaml"
-    return not user_config_path.exists()

@@ -1,5 +1,5 @@
 """
-Health command - check project health
+Health command — project health check
 """
 
 from __future__ import annotations
@@ -19,16 +19,16 @@ def health_check(project_path: Path) -> bool:
     project_name = project_path.name
     
     print(f"""
-{COLORS.colorize('=' * 50, COLORS.CYAN)}
-{COLORS.colorize(f'Health Check: {project_name}', COLORS.CYAN)}
-{COLORS.colorize('=' * 50, COLORS.CYAN)}
+{COLORS.colorize('═' * 50, COLORS.CYAN)}
+{COLORS.colorize(f'🏥 Health Check: {project_name}', COLORS.CYAN)}
+{COLORS.colorize('═' * 50, COLORS.CYAN)}
 """)
     
     errors = 0
     warnings = 0
     
     # 1. Venv
-    print(f"{COLORS.colorize('Virtual Environment', COLORS.BOLD)}")
+    print(f"{COLORS.colorize('📍 Virtual Environment', COLORS.BOLD)}")
     venv_path = project_path.parent / "_venvs" / f"{project_name}-venv"
     
     if venv_path.exists():
@@ -43,7 +43,7 @@ def health_check(project_path: Path) -> bool:
             errors += 1
     
     # 2. Configuration
-    print(f"\n{COLORS.colorize('Configuration', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('📍 Configuration', COLORS.BOLD)}")
     
     if (project_path / ".env").exists():
         print(f"   {COLORS.success('.env')}")
@@ -58,7 +58,7 @@ def health_check(project_path: Path) -> bool:
         warnings += 1
     
     # 3. AI configs
-    print(f"\n{COLORS.colorize('AI Configuration', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('📍 AI Configuration', COLORS.BOLD)}")
     
     if (project_path / "_AI_INCLUDE").exists():
         print(f"   {COLORS.success('_AI_INCLUDE/')}")
@@ -78,7 +78,7 @@ def health_check(project_path: Path) -> bool:
             print(f"   {COLORS.success(name)}")
     
     # 4. Scripts
-    print(f"\n{COLORS.colorize('Scripts', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('📍 Scripts', COLORS.BOLD)}")
     
     scripts = ["bootstrap.sh", "health_check.sh", "context.py"]
     for script in scripts:
@@ -89,7 +89,7 @@ def health_check(project_path: Path) -> bool:
             warnings += 1
     
     # 5. Docker
-    print(f"\n{COLORS.colorize('Docker', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('📍 Docker', COLORS.BOLD)}")
     
     if (project_path / "Dockerfile").exists():
         print(f"   {COLORS.success('Dockerfile')}")
@@ -100,7 +100,7 @@ def health_check(project_path: Path) -> bool:
         print(f"   {COLORS.success('docker-compose.yml')}")
     
     # 6. CI/CD
-    print(f"\n{COLORS.colorize('CI/CD', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('📍 CI/CD', COLORS.BOLD)}")
     
     if (project_path / ".github" / "workflows" / "ci.yml").exists():
         print(f"   {COLORS.success('GitHub Actions')}")
@@ -108,7 +108,7 @@ def health_check(project_path: Path) -> bool:
         print(f"   {COLORS.info('CI not configured')}")
     
     # 7. Git
-    print(f"\n{COLORS.colorize('Git', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('📍 Git', COLORS.BOLD)}")
     
     if (project_path / ".git").exists():
         print(f"   {COLORS.success('Git repository')}")
@@ -117,7 +117,7 @@ def health_check(project_path: Path) -> bool:
         warnings += 1
     
     # 8. Toolkit version
-    print(f"\n{COLORS.colorize('Toolkit', COLORS.BOLD)}")
+    print(f"\n{COLORS.colorize('📍 Toolkit', COLORS.BOLD)}")
     
     version_file = project_path / ".toolkit-version"
     if version_file.exists():
@@ -125,7 +125,7 @@ def health_check(project_path: Path) -> bool:
         if version == VERSION:
             print(f"   {COLORS.success(f'Version: {version}')}")
         else:
-            print(f"   {COLORS.warning(f'Version {version} -> available {VERSION}')}")
+            print(f"   {COLORS.warning(f'Version {version} → available {VERSION}')}")
             warnings += 1
     else:
         print(f"   {COLORS.warning('Version not specified')}")
@@ -133,22 +133,22 @@ def health_check(project_path: Path) -> bool:
     
     # Summary
     print(f"""
-{COLORS.colorize('=' * 50, COLORS.CYAN)}""")
+{COLORS.colorize('═' * 50, COLORS.CYAN)}""")
     
     if errors == 0 and warnings == 0:
         print(f"{COLORS.success('All checks passed!')}")
         return True
     elif errors == 0:
-        print(f"{COLORS.warning(f'{warnings} warnings')}")
+        print(f"{COLORS.warning(f'{warnings} warning(s)')}")
         return True
     else:
-        print(f"{COLORS.error(f'{errors} errors, {warnings} warnings')}")
+        print(f"{COLORS.error(f'{errors} error(s), {warnings} warning(s)')}")
         return False
 
 
 def cmd_health() -> None:
     """Interactive health check command"""
-    print(COLORS.colorize("\nHEALTH CHECK\n", COLORS.GREEN))
+    print(COLORS.colorize("\n🏥 HEALTH CHECK\n", COLORS.GREEN))
     
     path_str = input("Project path: ").strip()
     if not path_str:

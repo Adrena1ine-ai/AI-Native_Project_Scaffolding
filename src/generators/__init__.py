@@ -1,5 +1,5 @@
 """
-Generators - create project files
+Generators — create project files
 """
 
 from .ai_configs import generate_ai_configs

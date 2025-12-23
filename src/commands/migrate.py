@@ -1,5 +1,5 @@
 """
-Migrate command - add Toolkit to existing project
+Migrate command — add Toolkit to existing project
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ def migrate_project(
     
     Args:
         project_path: Project path
-        ai_targets: AI list
+        ai_targets: List of AI targets
         include_ci: Add CI/CD
         quiet: Quiet mode
     """
@@ -40,12 +40,12 @@ def migrate_project(
     
     if not quiet:
         print(f"""
-{COLORS.colorize('=' * 50, COLORS.CYAN)}
-{COLORS.colorize(f'Migrating: {project_name}', COLORS.CYAN)}
-{COLORS.colorize('=' * 50, COLORS.CYAN)}
+{COLORS.colorize('═' * 50, COLORS.CYAN)}
+{COLORS.colorize(f'📦 Migrating: {project_name}', COLORS.CYAN)}
+{COLORS.colorize('═' * 50, COLORS.CYAN)}
 """)
     
-    # AI configs (if not exist)
+    # AI configs (if don't exist)
     if not (project_path / "_AI_INCLUDE").exists():
         generate_ai_configs(project_path, project_name, ai_targets, date)
     else:
@@ -69,17 +69,17 @@ def migrate_project(
     
     if not quiet:
         print(f"""
-{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.colorize('═' * 50, COLORS.GREEN)}
 {COLORS.success('Migration complete!')}
-{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.colorize('═' * 50, COLORS.GREEN)}
 """)
     
     return True
 
 
 def cmd_migrate() -> None:
-    """Interactive migrate command"""
-    print(COLORS.colorize("\nMIGRATE PROJECT\n", COLORS.GREEN))
+    """Interactive migration command"""
+    print(COLORS.colorize("\n📦 PROJECT MIGRATION\n", COLORS.GREEN))
     
     path_str = input("Project path: ").strip()
     if not path_str:

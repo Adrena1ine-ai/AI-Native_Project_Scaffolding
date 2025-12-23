@@ -285,16 +285,16 @@ TOTAL: 54/110 features (49%) | Next: Phase 1 (v3.1)
 ### Installation
 
 ```bash
-# 1. Самый простой способ (рекомендуется)
+# 1. Simplest way (recommended)
 pipx install git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
 
-# 2. Или классически через pip
+# 2. Or classically via pip
 pip install git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
 
-# 3. С красивыми плюшками (Web Dashboard + TUI)
+# 3. With extras (Web Dashboard + TUI)
 pipx install "git+https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git[web,tui]"
 
-# 4. Из исходников (для разработки)
+# 4. From source (for development)
 git clone https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding.git
 cd AI-Native_Project_Scaffolding
 pip install -e ".[web,tui,dev]"

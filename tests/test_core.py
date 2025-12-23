@@ -115,7 +115,7 @@ class TestFileUtils:
         create_file(path, "content")
         
         assert path.exists()
-        assert path.read_text() == "content\n"
+        assert path.read_text() == "content"
 
     def test_create_file_creates_dirs(self, temp_dir):
         """Create file creates directories"""

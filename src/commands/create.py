@@ -1,5 +1,5 @@
 """
-Create command - create new project
+Create command — create new project
 """
 
 from __future__ import annotations
@@ -23,13 +23,13 @@ from ..generators import (
 
 def select_template() -> str:
     """Interactive template selection"""
-    print("\nSelect template:\n")
+    print("\n📦 Select template:\n")
     
     templates = list(TEMPLATES.items())
     for i, (name, tmpl) in enumerate(templates, 1):
-        icon = tmpl.get("icon", "")
+        icon = tmpl.get("icon", "📁")
         desc = tmpl.get("description", "")
-        print(f"  {i}. [{icon}] {tmpl['name']} - {desc}")
+        print(f"  {i}. {icon} {tmpl['name']} — {desc}")
     
     while True:
         choice = input(f"\nChoice (1-{len(templates)}): ").strip()
@@ -50,7 +50,7 @@ def generate_bot_module(project_dir: Path, project_name: str) -> None:
     
     create_file(project_dir / "bot/__init__.py", '"""Bot package"""')
     
-    main_content = f'''"""Telegram Bot - {project_name}"""
+    main_content = f'''"""🤖 {project_name} — Telegram Bot"""
 
 import asyncio
 import logging
@@ -74,7 +74,7 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
-    logger.info("Starting bot...")
+    logger.info("🚀 Starting bot...")
     
     bot = Bot(
         token=settings.bot_token,
@@ -84,7 +84,7 @@ async def main():
     setup_handlers(dp)
     
     try:
-        logger.info("Bot started!")
+        logger.info("✅ Bot started!")
         await dp.start_polling(bot)
     finally:
         await bot.session.close()
@@ -113,11 +113,11 @@ router = Router()
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer(f"Hello, <b>{message.from_user.first_name}</b>!")
+    await message.answer(f"👋 Hello, <b>{message.from_user.first_name}</b>!")
 
 @router.message(Command("help"))
 async def cmd_help(message: Message):
-    await message.answer("/start - Start\\n/help - Help")
+    await message.answer("📚 /start — Start\\n/help — Help")
 '''
     create_file(project_dir / "bot/handlers/start.py", start_content)
     
@@ -162,7 +162,7 @@ def generate_api_module(project_dir: Path, project_name: str, template: str) -> 
     create_file(project_dir / "api/__init__.py", '"""API"""')
     
     if template == "fastapi":
-        content = f'''"""FastAPI - {project_name}"""
+        content = f'''"""⚡ {project_name} API"""
 from fastapi import FastAPI
 from config import settings
 
@@ -177,7 +177,7 @@ async def health():
     return {{"status": "ok"}}
 '''
     else:
-        content = '"""API - TODO"""'
+        content = '"""API — TODO"""'
     
     create_file(project_dir / "api/main.py", content)
 
@@ -195,7 +195,7 @@ def generate_webapp_module(project_dir: Path, project_name: str) -> None:
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>{project_name}</h1>
+    <h1>🚀 {project_name}</h1>
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
@@ -232,7 +232,7 @@ def generate_module_files(project_dir: Path, project_name: str, template: str) -
     tmpl = TEMPLATES.get(template, {})
     modules = tmpl.get("modules", [])
     
-    print(f"\n{COLORS.colorize('Modules...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('📂 Modules...', COLORS.CYAN)}")
     
     if "bot" in modules or "handlers" in modules:
         generate_bot_module(project_dir, project_name)
@@ -263,7 +263,7 @@ def create_project(
         name: Project name
         path: Base path
         template: Template
-        ai_targets: AI list
+        ai_targets: List of AI targets
         include_docker: Add Docker
         include_ci: Add CI/CD
         include_git: Initialize Git
@@ -282,15 +282,15 @@ def create_project(
     tmpl = TEMPLATES.get(template, {})
     
     print(f"""
-{COLORS.colorize('=' * 60, COLORS.CYAN)}
-{COLORS.colorize(f'Creating project: {name}', COLORS.CYAN)}
-{COLORS.colorize('=' * 60, COLORS.CYAN)}
-Path: {project_dir}
-Template: [{tmpl.get('icon', '')}] {tmpl.get('name', template)}
-AI: {', '.join(ai_targets)}
-Docker: {'Yes' if include_docker else 'No'}
-CI/CD: {'Yes' if include_ci else 'No'}
-Git: {'Yes' if include_git else 'No'}
+{COLORS.colorize('═' * 60, COLORS.CYAN)}
+{COLORS.colorize(f'🆕 Creating project: {name}', COLORS.CYAN)}
+{COLORS.colorize('═' * 60, COLORS.CYAN)}
+📁 Path: {project_dir}
+📦 Template: {tmpl.get('icon', '')} {tmpl.get('name', template)}
+🤖 AI: {', '.join(ai_targets)}
+🐳 Docker: {'Yes' if include_docker else 'No'}
+🚀 CI/CD: {'Yes' if include_ci else 'No'}
+🔗 Git: {'Yes' if include_git else 'No'}
 """)
     
     # Create directory
@@ -330,9 +330,9 @@ Git: {'Yes' if include_git else 'No'}
             print(f"  {COLORS.success('_AI_INCLUDE/FULL_MANIFESTO.md')}")
     
     print(f"""
-{COLORS.colorize('=' * 60, COLORS.GREEN)}
-{COLORS.colorize('Project created!', COLORS.GREEN)}
-{COLORS.colorize('=' * 60, COLORS.GREEN)}
+{COLORS.colorize('═' * 60, COLORS.GREEN)}
+{COLORS.colorize('✅ Project created!', COLORS.GREEN)}
+{COLORS.colorize('═' * 60, COLORS.GREEN)}
 
 Next steps:
 
@@ -347,19 +347,19 @@ Next steps:
 
 
 def cmd_create() -> None:
-    """Interactive create command"""
+    """Interactive create project command"""
     from ..core.config import get_default_ide
     
-    print(COLORS.colorize("\nCREATE NEW PROJECT\n", COLORS.GREEN))
+    print(COLORS.colorize("\n🆕 CREATE NEW PROJECT\n", COLORS.GREEN))
     
     # Show IDE
     ide = get_default_ide()
     ide_names = {
-        "cursor": "[C] Cursor",
-        "vscode_copilot": "[GH] VS Code + Copilot",
-        "vscode_claude": "[CL] VS Code + Claude",
-        "windsurf": "[WS] Windsurf",
-        "all": "[ALL] Universal",
+        "cursor": "💜 Cursor",
+        "vscode_copilot": "💙 VS Code + Copilot",
+        "vscode_claude": "🟢 VS Code + Claude",
+        "windsurf": "🌊 Windsurf",
+        "all": "🔄 Universal",
     }
     print(f"  IDE: {ide_names.get(ide, ide)}\n")
     
@@ -381,12 +381,12 @@ def cmd_create() -> None:
     template = select_template()
     
     # Options
-    print("\nOptions:\n")
+    print("\n📋 Options:\n")
     include_docker = input("  Add Docker? (Y/n): ").strip().lower() != 'n'
     include_ci = input("  Add CI/CD? (Y/n): ").strip().lower() != 'n'
     include_git = input("  Initialize Git? (Y/n): ").strip().lower() != 'n'
     
-    # Confirm
+    # Confirmation
     confirm = input("\nCreate project? (Y/n): ").strip().lower()
     if confirm == 'n':
         print(COLORS.warning("Cancelled"))

@@ -1,5 +1,5 @@
 """
-Docker file generator
+Generator for Docker files
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ def generate_dockerfile(project_dir: Path, project_name: str, template: str) -> 
     
     cmd = cmd_map.get(template, 'CMD ["python", "main.py"]')
     
-    # Extra packages for different templates
+    # Additional packages for different templates
     extra_packages = ""
     if template in ["parser", "full"]:
         extra_packages = """
@@ -32,7 +32,7 @@ def generate_dockerfile(project_dir: Path, project_name: str, template: str) -> 
 # RUN pip install playwright && playwright install chromium --with-deps
 """
     
-    content = f"""# Dockerfile - {project_name}
+    content = f"""# Dockerfile — {project_name}
 # Build: docker build -t {project_name} .
 # Run: docker run -d --env-file .env {project_name}
 
@@ -80,7 +80,7 @@ USER appuser
 def generate_docker_compose(project_dir: Path, project_name: str, template: str) -> None:
     """Generate docker-compose.yml"""
     
-    # Extra services
+    # Additional services
     extra_services = ""
     
     if template in ["bot", "full", "fastapi"]:
@@ -118,7 +118,7 @@ def generate_docker_compose(project_dir: Path, project_name: str, template: str)
       - "8000:8000"
 """
 
-    content = f"""# Docker Compose - {project_name}
+    content = f"""# Docker Compose — {project_name}
 # Start: docker-compose up -d
 # Logs: docker-compose logs -f
 # Stop: docker-compose down
@@ -147,7 +147,7 @@ services:
 
 def generate_dockerignore(project_dir: Path, project_name: str) -> None:
     """Generate .dockerignore"""
-    content = f"""# Docker Ignore - {project_name}
+    content = f"""# Docker Ignore — {project_name}
 
 # Git
 .git
@@ -214,7 +214,7 @@ def generate_docker_files(project_dir: Path, project_name: str, template: str) -
         project_name: Project name
         template: Project template
     """
-    print(f"\n{COLORS.colorize('Docker...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('🐳 Docker...', COLORS.CYAN)}")
     
     generate_dockerfile(project_dir, project_name, template)
     generate_docker_compose(project_dir, project_name, template)

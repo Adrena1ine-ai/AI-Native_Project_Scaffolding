@@ -2,7 +2,7 @@
 
 ## 🚨 FIRST ACTION
 
-Read `_AI_INCLUDE/` — it contains the rules for this project.
+Read `_AI_INCLUDE/` — that's where the project rules are.
 
 ```
 _AI_INCLUDE/
@@ -14,7 +14,7 @@ _AI_INCLUDE/
 
 ## 📌 This is the AI Toolkit project
 
-A tool for creating AI-friendly projects. It generates:
+A tool for creating AI-friendly projects. Generates:
 - Project structure
 - AI configs (.cursorrules, copilot-instructions.md, CLAUDE.md)
 - Scripts (bootstrap.sh, health_check.sh)
@@ -28,7 +28,7 @@ A tool for creating AI-friendly projects. It generates:
 src/
 ├── core/           # Base components
 │   ├── constants.py    ← ALL constants here!
-│   └── config.py       ← Configuration management
+│   └── config.py       ← Config management
 ├── generators/     # File generators
 │   ├── ai_configs.py   ← .cursorrules, copilot, CLAUDE.md
 │   ├── scripts.py      ← bootstrap.sh, health_check.sh
@@ -42,10 +42,10 @@ src/
 
 ---
 
-## ⚠️ RESTRICTIONS
+## ⚠️ FORBIDDEN
 
 1. **DO NOT create venv/** inside this project
-2. **DO NOT modify constants.py** without understanding dependencies
+2. **DO NOT change constants.py** without understanding dependencies
 3. **DO NOT add dependencies** without necessity
 
 ---
@@ -78,7 +78,7 @@ python __main__.py
 python __main__.py create test_bot --template bot --ai copilot
 
 # Check
-./scripts/health_check.sh (if available)
+./scripts/health_check.sh (if exists)
 ```
 
 ---

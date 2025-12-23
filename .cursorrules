@@ -1,0 +1,4 @@
+# AUTOMATION
+ALWAYS run `python3 generate_map.py` after creating or deleting files.
+Then read `CURRENT_CONTEXT_MAP.md` to update your mental model of the project.
+

@@ -1,5 +1,5 @@
 """
-Cleanup command - clean dirty projects
+Cleanup command — clean up dirty projects
 """
 
 from __future__ import annotations
@@ -25,9 +25,9 @@ class Issue:
     fix_action: str
     
     def __str__(self) -> str:
-        icons = {"error": "[ERROR]", "warning": "[WARN]", "info": "[INFO]"}
+        icons = {"error": "❌", "warning": "⚠️", "info": "ℹ️"}
         size = f" ({self.size_mb:.1f} MB)" if self.size_mb > 0 else ""
-        return f"{icons.get(self.severity, '*')} {self.message}{size}"
+        return f"{icons.get(self.severity, '•')} {self.message}{size}"
 
 
 def analyze_project(project_path: Path) -> list[Issue]:
@@ -126,11 +126,11 @@ def analyze_project(project_path: Path) -> list[Issue]:
 
 def select_cleanup_level() -> str:
     """Select cleanup level"""
-    print("\nSelect cleanup level:\n")
+    print("\n🧹 Select cleanup level:\n")
     
     levels = list(CLEANUP_LEVELS.items())
     for i, (name, level) in enumerate(levels, 1):
-        print(f"  {i}. {level['name']} - {level['description']}")
+        print(f"  {i}. {level['name']} — {level['description']}")
     
     while True:
         choice = input(f"\nChoice (1-{len(levels)}): ").strip()
@@ -149,7 +149,7 @@ def create_backup(project_path: Path) -> Path:
     backup_name = f"{project_path.name}_backup_{timestamp}.tar.gz"
     backup_path = project_path.parent / backup_name
     
-    print(f"\n{COLORS.colorize(f'Creating backup: {backup_name}', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize(f'📦 Creating backup: {backup_name}', COLORS.CYAN)}")
     
     with tarfile.open(backup_path, "w:gz") as tar:
         tar.add(project_path, arcname=project_path.name)
@@ -161,7 +161,7 @@ def create_backup(project_path: Path) -> Path:
 
 
 def cleanup_project(project_path: Path, level: str) -> bool:
-    """Run cleanup"""
+    """Execute cleanup"""
     level_config = CLEANUP_LEVELS.get(level)
     if not level_config:
         print(COLORS.error(f"Unknown level: {level}"))
@@ -169,12 +169,12 @@ def cleanup_project(project_path: Path, level: str) -> bool:
     
     actions = level_config["actions"]
     
-    print(f"\n{COLORS.colorize(f'Cleanup: {project_path.name}', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize(f'🧹 Cleanup: {project_path.name}', COLORS.CYAN)}")
     print(f"   Level: {level_config['name']}")
     
-    # Safe - analysis only
+    # Safe — analysis only
     if level == "safe":
-        print(f"\n{COLORS.warning('Safe mode - no changes')}")
+        print(f"\n{COLORS.warning('Safe mode — no changes')}")
         return True
     
     # Backup
@@ -194,10 +194,10 @@ def cleanup_project(project_path: Path, level: str) -> bool:
                 new_path = venvs_dir / f"{project_path.name}-venv"
                 
                 if new_path.exists():
-                    print(f"  {COLORS.warning(f'{new_path} exists, deleting old venv')}")
+                    print(f"  {COLORS.warning(f'{new_path} exists, removing old venv')}")
                     shutil.rmtree(venv_path)
                 else:
-                    print(f"  {COLORS.colorize(f'Moving {venv_name}/ -> {new_path}', COLORS.CYAN)}")
+                    print(f"  {COLORS.colorize(f'Moving {venv_name}/ → {new_path}', COLORS.CYAN)}")
                     shutil.move(str(venv_path), str(new_path))
                 
                 freed_mb += size
@@ -221,13 +221,13 @@ def cleanup_project(project_path: Path, level: str) -> bool:
     # Create configs
     if "create_configs" in actions:
         from .migrate import migrate_project
-        print(f"\n{COLORS.colorize('Creating configs...', COLORS.CYAN)}")
+        print(f"\n{COLORS.colorize('📄 Creating configs...', COLORS.CYAN)}")
         migrate_project(project_path, ["cursor", "copilot", "claude"], quiet=True)
     
     print(f"""
-{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.colorize('═' * 50, COLORS.GREEN)}
 {COLORS.success('Cleanup complete!')}
-{COLORS.colorize('=' * 50, COLORS.GREEN)}
+{COLORS.colorize('═' * 50, COLORS.GREEN)}
    Freed: ~{freed_mb:.1f} MB
 """)
     
@@ -236,7 +236,7 @@ def cleanup_project(project_path: Path, level: str) -> bool:
 
 def cmd_cleanup() -> None:
     """Interactive cleanup command"""
-    print(COLORS.colorize("\nCLEANUP PROJECT\n", COLORS.GREEN))
+    print(COLORS.colorize("\n🧹 PROJECT CLEANUP\n", COLORS.GREEN))
     
     path_str = input("Project path: ").strip()
     if not path_str:
@@ -248,8 +248,8 @@ def cmd_cleanup() -> None:
         print(COLORS.error(f"Path does not exist: {path}"))
         return
     
-    # Analyze
-    print(f"\n{COLORS.colorize('Analyzing...', COLORS.CYAN)}\n")
+    # Analysis
+    print(f"\n{COLORS.colorize('🔍 Analyzing...', COLORS.CYAN)}\n")
     issues = analyze_project(path)
     
     if not issues:
@@ -265,11 +265,11 @@ def cmd_cleanup() -> None:
     level = select_cleanup_level()
     
     if level == "safe":
-        print(f"\n{COLORS.warning('Safe mode - recommendations only')}")
+        print(f"\n{COLORS.warning('Safe mode — recommendations only')}")
         return
     
-    # Confirm
-    confirm = input(f"\nRun cleanup '{level}'? (y/N): ").strip().lower()
+    # Confirmation
+    confirm = input(f"\nExecute cleanup '{level}'? (y/N): ").strip().lower()
     if confirm != 'y':
         print(COLORS.warning("Cancelled"))
         return

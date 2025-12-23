@@ -11,6 +11,8 @@
 
 - `CLAUDE.md`
 
+- `CLEANUP_REPORT.md`
+
 - `CONTRIBUTING.md`
 
 - `LICENSE`
@@ -410,4 +412,4 @@
 - `plugins/installed/.gitkeep`
 
 ---
-**Stats:** Scanned 85 files. Map size: ~2089 tokens.
+**Stats:** Scanned 86 files. Map size: ~2094 tokens.

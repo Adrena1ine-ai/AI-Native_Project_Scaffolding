@@ -1,5 +1,5 @@
 """
-CI/CD file generator (GitHub Actions)
+Generator for CI/CD files (GitHub Actions)
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from ..core.constants import COLORS
 
 def generate_ci_workflow(project_dir: Path, project_name: str) -> None:
     """Generate .github/workflows/ci.yml"""
-    content = f"""# CI - {project_name}
+    content = f"""# CI — {project_name}
 # Runs on push and pull request
 
 name: CI
@@ -28,7 +28,7 @@ env:
 
 jobs:
   lint:
-    name: Lint
+    name: 🔍 Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
         run: ruff check .
 
   test:
-    name: Test
+    name: 🧪 Test
     runs-on: ubuntu-latest
     needs: lint
     steps:
@@ -72,7 +72,7 @@ jobs:
           fail_ci_if_error: false
 
   check-repo:
-    name: Check repo clean
+    name: 🛡️ Check repo clean
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,13 +80,13 @@ jobs:
       - name: Check no venv in repo
         run: |
           if [ -d "venv" ] || [ -d ".venv" ]; then
-            echo "ERROR: venv found in repository!"
+            echo "❌ ERROR: venv found in repository!"
             exit 1
           fi
-          echo "Repo is clean"
+          echo "✅ Repo is clean"
 
   build:
-    name: Build Docker
+    name: 🐳 Build Docker
     runs-on: ubuntu-latest
     needs: [lint, test]
     if: github.event_name == 'push'
@@ -115,8 +115,8 @@ jobs:
 
 def generate_cd_workflow(project_dir: Path, project_name: str) -> None:
     """Generate .github/workflows/cd.yml (deploy)"""
-    content = f"""# CD - {project_name}
-# Auto deploy on push to main
+    content = f"""# CD — {project_name}
+# Automatic deploy on push to main
 
 name: CD
 
@@ -130,8 +130,10 @@ env:
 
 jobs:
   deploy:
-    name: Deploy
+    name: 🚀 Deploy
     runs-on: ubuntu-latest
+    # Only if CI passed
+    # needs: ci  # uncomment if needed
     
     steps:
       - uses: actions/checkout@v4
@@ -171,7 +173,7 @@ jobs:
 
 def generate_dependabot(project_dir: Path) -> None:
     """Generate .github/dependabot.yml"""
-    content = """# Dependabot - automatic dependency updates
+    content = """# Dependabot — automatic dependency updates
 
 version: 2
 
@@ -214,7 +216,7 @@ updates:
 
 def generate_pre_commit_config(project_dir: Path, project_name: str) -> None:
     """Generate .pre-commit-config.yaml"""
-    content = f"""# Pre-commit hooks - {project_name}
+    content = f"""# Pre-commit hooks — {project_name}
 # Install: pip install pre-commit && pre-commit install
 
 repos:
@@ -269,7 +271,7 @@ def generate_ci_files(project_dir: Path, project_name: str) -> None:
         project_dir: Project path
         project_name: Project name
     """
-    print(f"\n{COLORS.colorize('CI/CD...', COLORS.CYAN)}")
+    print(f"\n{COLORS.colorize('🚀 CI/CD...', COLORS.CYAN)}")
     
     generate_ci_workflow(project_dir, project_name)
     generate_cd_workflow(project_dir, project_name)

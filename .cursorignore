@@ -1,0 +1,43 @@
+# 🛑 CURSOR IGNORE SYSTEM
+# AI will not see these files in search and will not index them.
+
+# 1. System junk and environments (Consume millions of tokens)
+.git/
+.idea/
+.vscode/
+venv/
+.venv/
+env/
+**/__pycache__/
+**/site-packages/
+
+# 2. Heavy data (AI will choke if it tries to read)
+logs/
+*.log
+**/*.csv
+**/*.jsonl
+**/*.sql
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/*.tsv
+
+# 3. Frontend builds (If any)
+node_modules/
+dist/
+build/
+.next/
+package-lock.json
+yarn.lock
+
+# 4. Python lock files (Useless noise for context)
+poetry.lock
+Pipfile.lock
+
+# 5. Map generator itself (AI doesn't need to read generator code)
+generate_map.py
+
+# ⚠️ IMPORTANT:
+# Do not add CURRENT_CONTEXT_MAP.md here!
+# AI must see it to navigate.
+

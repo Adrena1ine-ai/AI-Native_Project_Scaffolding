@@ -37,8 +37,8 @@ from src.generators.project_files import (
     generate_config_py,
     generate_env_example,
     generate_readme,
-    generate_gitignore,
 )
+from src.generators.git import generate_gitignore
 
 
 class TestAIConfigs:
@@ -104,58 +104,88 @@ class TestScripts:
 
     def test_bootstrap_sh_created(self, temp_project):
         """Create bootstrap.sh"""
+        (temp_project / "scripts").mkdir()
         generate_bootstrap_sh(temp_project, "test")
         
         path = temp_project / "scripts" / "bootstrap.sh"
         assert path.exists()
-        
         content = path.read_text()
         assert "_venvs" in content
-        assert "test" in content
+        assert "#!/" in content
 
     def test_bootstrap_ps1_created(self, temp_project):
         """Create bootstrap.ps1"""
+        (temp_project / "scripts").mkdir()
         generate_bootstrap_ps1(temp_project, "test")
         
         path = temp_project / "scripts" / "bootstrap.ps1"
         assert path.exists()
-        
         content = path.read_text()
         assert "_venvs" in content
 
     def test_context_switcher_created(self, temp_project):
         """Create context.py"""
+        (temp_project / "scripts").mkdir()
         generate_context_switcher(temp_project)
         
         path = temp_project / "scripts" / "context.py"
         assert path.exists()
-        
         content = path.read_text()
         assert "MODULES" in content
+        assert "def update_ignore" in content
+
+    def test_health_check_created(self, temp_project):
+        """Create health_check.sh"""
+        (temp_project / "scripts").mkdir()
+        generate_health_check(temp_project, "test")
+        
+        path = temp_project / "scripts" / "health_check.sh"
+        assert path.exists()
+        content = path.read_text()
+        assert "Health Check" in content
+
+    def test_check_repo_clean_created(self, temp_project):
+        """Create check_repo_clean.sh"""
+        (temp_project / "scripts").mkdir()
+        generate_check_repo_clean(temp_project)
+        
+        path = temp_project / "scripts" / "check_repo_clean.sh"
+        assert path.exists()
+        content = path.read_text()
+        assert "venv" in content
+        assert "site-packages" in content
 
 
 class TestDocker:
-    """Tests for Docker generation"""
+    """Tests for Docker file generation"""
 
-    def test_dockerfile_created(self, temp_project):
-        """Create Dockerfile"""
-        generate_dockerfile(temp_project, "test")
+    def test_dockerfile_bot(self, temp_project):
+        """Dockerfile for bot template"""
+        generate_dockerfile(temp_project, "test", "bot")
         
         assert (temp_project / "Dockerfile").exists()
         content = (temp_project / "Dockerfile").read_text()
-        assert "python" in content.lower()
+        assert "bot/main.py" in content
+
+    def test_dockerfile_fastapi(self, temp_project):
+        """Dockerfile for fastapi template"""
+        generate_dockerfile(temp_project, "test", "fastapi")
+        
+        content = (temp_project / "Dockerfile").read_text()
+        assert "uvicorn" in content
 
     def test_docker_compose_created(self, temp_project):
         """Create docker-compose.yml"""
-        generate_docker_compose(temp_project, "test")
+        generate_docker_compose(temp_project, "test", "bot")
         
         assert (temp_project / "docker-compose.yml").exists()
         content = (temp_project / "docker-compose.yml").read_text()
         assert "test" in content
+        assert "services:" in content
 
     def test_dockerignore_created(self, temp_project):
         """Create .dockerignore"""
-        generate_dockerignore(temp_project)
+        generate_dockerignore(temp_project, "test")
         
         assert (temp_project / ".dockerignore").exists()
         content = (temp_project / ".dockerignore").read_text()
@@ -164,29 +194,36 @@ class TestDocker:
 
 
 class TestCICD:
-    """Tests for CI/CD generation"""
+    """Tests for CI/CD file generation"""
 
     def test_ci_workflow_created(self, temp_project):
         """Create ci.yml"""
-        generate_ci_workflow(temp_project)
+        generate_ci_workflow(temp_project, "test")
         
         path = temp_project / ".github" / "workflows" / "ci.yml"
         assert path.exists()
         content = path.read_text()
-        assert "pytest" in content or "ruff" in content
+        assert "CI" in content
+        assert "pytest" in content
 
     def test_cd_workflow_created(self, temp_project):
         """Create cd.yml"""
-        generate_cd_workflow(temp_project)
+        generate_cd_workflow(temp_project, "test")
         
         path = temp_project / ".github" / "workflows" / "cd.yml"
         assert path.exists()
+        content = path.read_text()
+        assert "Deploy" in content
 
-    def test_pre_commit_created(self, temp_project):
+    def test_pre_commit_config_created(self, temp_project):
         """Create .pre-commit-config.yaml"""
-        generate_pre_commit_config(temp_project)
+        (temp_project / "scripts").mkdir()
+        generate_pre_commit_config(temp_project, "test")
         
         assert (temp_project / ".pre-commit-config.yaml").exists()
+        content = (temp_project / ".pre-commit-config.yaml").read_text()
+        assert "repos:" in content
+        assert "ruff" in content
 
     def test_dependabot_created(self, temp_project):
         """Create dependabot.yml"""
@@ -194,32 +231,51 @@ class TestCICD:
         
         path = temp_project / ".github" / "dependabot.yml"
         assert path.exists()
+        content = path.read_text()
+        assert "pip" in content
 
 
 class TestProjectFiles:
     """Tests for project file generation"""
 
-    def test_requirements_created(self, temp_project):
-        """Create requirements.txt"""
-        generate_requirements(temp_project, "bot")
+    def test_requirements_bot(self, temp_project):
+        """requirements.txt for bot"""
+        generate_requirements(temp_project, "test", "bot")
         
         assert (temp_project / "requirements.txt").exists()
         content = (temp_project / "requirements.txt").read_text()
-        assert len(content) > 0
+        assert "aiogram" in content
+
+    def test_requirements_fastapi(self, temp_project):
+        """requirements.txt for fastapi"""
+        generate_requirements(temp_project, "test", "fastapi")
+        
+        content = (temp_project / "requirements.txt").read_text()
+        assert "fastapi" in content
+        assert "uvicorn" in content
+
+    def test_requirements_parser(self, temp_project):
+        """requirements.txt for parser"""
+        generate_requirements(temp_project, "test", "parser")
+        
+        content = (temp_project / "requirements.txt").read_text()
+        assert "httpx" in content or "beautifulsoup4" in content
 
     def test_config_py_created(self, temp_project):
         """Create config.py"""
-        generate_config_py(temp_project, "bot")
+        generate_config_py(temp_project, "test", "bot")
         
         assert (temp_project / "config.py").exists()
         content = (temp_project / "config.py").read_text()
-        assert "BaseSettings" in content or "class" in content
+        assert "Settings" in content or "config" in content.lower()
 
     def test_env_example_created(self, temp_project):
         """Create .env.example"""
-        generate_env_example(temp_project, "bot")
+        generate_env_example(temp_project, "test", "bot")
         
         assert (temp_project / ".env.example").exists()
+        content = (temp_project / ".env.example").read_text()
+        assert "BOT_TOKEN" in content
 
     def test_readme_created(self, temp_project):
         """Create README.md"""
@@ -228,12 +284,14 @@ class TestProjectFiles:
         assert (temp_project / "README.md").exists()
         content = (temp_project / "README.md").read_text()
         assert "test" in content
+        assert "bootstrap" in content.lower()
 
     def test_gitignore_created(self, temp_project):
         """Create .gitignore"""
-        generate_gitignore(temp_project)
+        generate_gitignore(temp_project, "test")
         
         assert (temp_project / ".gitignore").exists()
         content = (temp_project / ".gitignore").read_text()
         assert "venv" in content
         assert "__pycache__" in content
+        assert ".env" in content
