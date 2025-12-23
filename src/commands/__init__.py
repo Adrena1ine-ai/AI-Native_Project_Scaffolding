@@ -8,6 +8,7 @@ from .migrate import cmd_migrate, migrate_project
 from .health import cmd_health, health_check
 from .update import cmd_update, update_project
 from .review import cmd_review, review_changes
+from .wizard import cmd_wizard, run_wizard
 
 __all__ = [
     "cmd_create",
@@ -23,4 +24,6 @@ __all__ = [
     "update_project",
     "cmd_review",
     "review_changes",
+    "cmd_wizard",
+    "run_wizard",
 ]

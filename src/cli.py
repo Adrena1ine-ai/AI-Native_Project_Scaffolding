@@ -19,6 +19,8 @@ from .commands import (
     cmd_health,
     cmd_update,
     cmd_review,
+    cmd_wizard,
+    run_wizard,
     create_project,
     cleanup_project,
     migrate_project,
@@ -83,13 +85,14 @@ def print_menu():
     print("What would you like to do?\n")
     
     items = [
-        ("1", "🆕 Create new project"),
-        ("2", "🧹 Cleanup existing project"),
-        ("3", "📦 Migrate project"),
-        ("4", "🏥 Health check"),
-        ("5", "⬆️  Update project"),
-        ("6", "🔍 Review changes (AI prompt)"),
-        ("7", "⚙️  Change IDE"),
+        ("1", "🧙 Wizard (guided project creation)"),
+        ("2", "🆕 Quick create (advanced)"),
+        ("3", "🧹 Cleanup existing project"),
+        ("4", "📦 Migrate project"),
+        ("5", "🏥 Health check"),
+        ("6", "⬆️  Update project"),
+        ("7", "🔍 Review changes (AI prompt)"),
+        ("8", "⚙️  Change IDE"),
         ("0", "❌ Exit"),
     ]
     
@@ -104,19 +107,20 @@ def interactive_mode():
     select_ide()
     
     commands = {
-        "1": cmd_create,
-        "2": cmd_cleanup,
-        "3": cmd_migrate,
-        "4": cmd_health,
-        "5": cmd_update,
-        "6": cmd_review,
-        "7": select_ide,
+        "1": cmd_wizard,
+        "2": cmd_create,
+        "3": cmd_cleanup,
+        "4": cmd_migrate,
+        "5": cmd_health,
+        "6": cmd_update,
+        "7": cmd_review,
+        "8": select_ide,
     }
     
     while True:
         print_menu()
         
-        choice = input("Choose (0-7): ").strip()
+        choice = input("Choose (0-8): ").strip()
         
         if choice == "0":
             print(f"\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
@@ -178,6 +182,9 @@ def cli_mode():
     # review
     review_p = subparsers.add_parser("review", help="Generate AI review prompt for changes")
     
+    # wizard
+    wizard_p = subparsers.add_parser("wizard", help="Interactive project creation wizard")
+    
     args = parser.parse_args()
     
     if not args.command:
@@ -216,6 +223,9 @@ def cli_mode():
     
     elif args.command == "review":
         review_changes()
+    
+    elif args.command == "wizard":
+        run_wizard()
 
 
 def main():
@@ -224,6 +234,9 @@ def main():
         if len(sys.argv) > 1:
             cli_mode()
         else:
+            # No arguments - show quick start hint then interactive mode
+            print(f"\n{COLORS.colorize('💡 Tip:', COLORS.YELLOW)} "
+                  f"Run {COLORS.colorize('ai-toolkit wizard', COLORS.CYAN)} for guided setup\n")
             interactive_mode()
     except KeyboardInterrupt:
         print(f"\n\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")

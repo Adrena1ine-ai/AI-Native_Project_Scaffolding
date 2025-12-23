@@ -1,5 +1,6 @@
 # AI Toolkit — Core Dependencies
 PyYAML>=6.0
+rich>=13.0.0
 
 # Web Dashboard (optional)
 fastapi>=0.104.0

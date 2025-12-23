@@ -92,3 +92,82 @@ python __main__.py create test_bot --template bot --ai copilot
 | AI file generation | `src/generators/ai_configs.py` |
 | Main creation logic | `src/commands/create.py` |
 | CLI menu | `src/cli.py` |
+
+---
+
+## 🚀 Onboarding (New Developers)
+
+**3 steps to get productive:**
+
+### Step 1: Understand the Structure
+```bash
+# Read the auto-generated project map
+cat CURRENT_CONTEXT_MAP.md
+
+# Key directories:
+# src/commands/  → CLI commands (create, cleanup, migrate, etc.)
+# src/core/      → Shared utilities (constants, config, file_utils)
+# src/generators/→ File generators (AI configs, Docker, scripts)
+```
+
+### Step 2: Run the Toolkit
+```bash
+# Interactive mode
+python main.py
+
+# Direct command
+python main.py create test_project --template bot
+
+# Run tests
+pytest tests/ -v
+```
+
+### Step 3: Make Your First Change
+```bash
+# 1. Edit code in src/
+# 2. Run tests to verify
+pytest tests/ -v
+
+# 3. Update the context map
+python3 generate_map.py
+
+# 4. Check token impact
+python3 benchmark.py
+```
+
+---
+
+## 🧠 Thinking Keywords
+
+Use these keywords in your prompts to control Claude's reasoning depth:
+
+| Keyword | Behavior | Use When |
+|---------|----------|----------|
+| **"Think"** | Standard analysis, quick response | Simple questions, small changes |
+| **"Think step by step"** | Methodical breakdown | Multi-step tasks, debugging |
+| **"Think hard"** | Deep analysis, consider edge cases | Complex architecture, security review |
+| **"Think very hard"** | Maximum depth, explore alternatives | Critical decisions, tricky bugs |
+
+### Examples
+
+```
+Think: What does create_project() return?
+→ Quick answer: Returns bool (True on success)
+
+Think hard: Is there a security issue in file_utils.py?
+→ Deep analysis of path traversal, permissions, etc.
+
+Think step by step: How do I add a new CLI command?
+→ Numbered steps with file paths and code examples
+```
+
+---
+
+## 📚 Additional Resources
+
+| Document | Purpose |
+|----------|---------|
+| `PROMPTS_LIBRARY.md` | Ready-to-use prompts for common tasks |
+| `TRADEOFFS.md` | Architectural decisions and rationale |
+| `.cursor/rules/` | Detailed rules for different contexts |
+| `CURRENT_CONTEXT_MAP.md` | Auto-generated project structure |

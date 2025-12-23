@@ -19,9 +19,13 @@
 
 - `MANIFEST.in`
 
+- `PROMPTS_LIBRARY.md`
+
 - `README.md`
 
 - `SECURITY.md`
+
+- `TRADEOFFS.md`
 
 - `__main__.py`
 
@@ -406,6 +410,24 @@
     ƒ update_project
     ƒ cmd_update
 
+- `src/commands/wizard.py`
+  📦 ScanResult
+    ƒ formatted_tokens
+    ƒ parse_ignore_patterns
+    ƒ should_ignore
+    ƒ scan_directory
+    ƒ validate_project_name
+    ƒ generate_spec_md
+    ƒ generate_optimization_log
+    ƒ flow_create_rich
+    ƒ flow_optimize_rich
+    ƒ run_wizard_rich
+    ƒ run_wizard_plain
+    ƒ flow_create_plain
+    ƒ flow_optimize_plain
+    ƒ run_wizard
+    ƒ cmd_wizard
+
 - `plugins/__init__.py`
 
 - `plugins/manager.py`
@@ -440,4 +462,4 @@
 - `.cursor/rules/toolkit.md`
 
 ---
-**Stats:** Scanned 91 files. Map size: ~2224 tokens.
+**Stats:** Scanned 94 files. Map size: ~2334 tokens.
