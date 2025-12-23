@@ -557,6 +557,7 @@
   📦 Severity
   📦 Issue
   📦 FileTokens
+  📦 ChangeRecord
   📦 DiagnosticReport
     ƒ critical_count
     ƒ warning_count
@@ -569,7 +570,6 @@
     ƒ _get_dir_size
     ƒ _format_size
     ƒ _format_tokens
-    ƒ _analyze_file_movability
     ƒ diagnose
     ƒ create_backup
     ƒ fix_venv_inside
@@ -582,11 +582,11 @@
     ƒ fix_missing_cursorignore
     ƒ fix_missing_bootstrap
     ƒ fix_create_venv
-    ƒ fix_missing_vscode_settings
     ƒ fix_issue
     ƒ fix_all
     ƒ print_report
     ƒ print_token_breakdown
+    ƒ print_detailed_changes
     ƒ print_result
     ƒ run_doctor
     ƒ cmd_doctor
@@ -638,4 +638,4 @@
 - `plugins/installed/.gitkeep`
 
 ---
-**Stats:** Scanned 113 files. Map size: ~3285 tokens.
+**Stats:** Scanned 113 files. Map size: ~3280 tokens.
