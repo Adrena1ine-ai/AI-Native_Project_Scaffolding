@@ -12,6 +12,8 @@ from .wizard import cmd_wizard, run_wizard
 from .hooks import cmd_hooks, install_pre_commit_hook, check_hook_installed
 from .pack import cmd_pack, pack_context
 from .trace import cmd_trace, trace_file_dependencies
+from .doctor import cmd_doctor, run_doctor, run_doctor_interactive
+from .status import cmd_status, run_status_interactive
 
 __all__ = [
     "cmd_create",
@@ -38,4 +40,9 @@ __all__ = [
     "pack_context",
     "cmd_trace",
     "trace_file_dependencies",
+    "cmd_doctor",
+    "run_doctor",
+    "run_doctor_interactive",
+    "cmd_status",
+    "run_status_interactive",
 ]

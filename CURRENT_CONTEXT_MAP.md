@@ -204,6 +204,32 @@
     ƒ test_scripts_created
     ƒ test_requirements_created
 
+- `tests/test_doctor.py`
+    ƒ temp_project
+    ƒ project_with_venv
+    ƒ project_with_pycache
+  📦 TestDoctorDiagnosis
+    ƒ test_empty_project_has_suggestions
+    ƒ test_detects_venv_inside
+    ƒ test_detects_pycache
+    ƒ test_detects_missing_cursorignore
+    ƒ test_detects_missing_ai_include
+    ƒ test_detects_log_files
+    ƒ test_healthy_project_no_critical
+  📦 TestDoctorFixes
+    ƒ test_fix_pycache
+    ƒ test_fix_missing_cursorignore
+    ƒ test_fix_missing_ai_include
+    ƒ test_fix_missing_bootstrap
+    ƒ test_fix_log_files
+    ƒ test_fix_venv_inside
+  📦 TestDoctorBackup
+    ƒ test_creates_backup
+    ƒ test_backup_excludes_venv
+  📦 TestDoctorReport
+    ƒ test_report_properties
+    ƒ test_token_estimation
+
 - `tests/test_generators.py`
   📦 TestAIConfigs
     ƒ test_common_rules_contains_project_name
@@ -255,6 +281,39 @@
     ƒ test_migrate_adds_version
     ƒ test_migrate_skips_existing
     ƒ test_migrate_adds_ci_if_requested
+
+- `tests/test_status.py`
+    ƒ temp_project
+    ƒ cmd_test
+    ƒ cmd_another
+  📦 TestScanCommands
+    ƒ test_scan_commands_finds_cmd_functions
+    ƒ test_scan_commands_extracts_docstrings
+    ƒ test_scan_commands_empty_dir
+    ƒ test_scan_commands_ignores_private_files
+    ƒ cmd_hidden
+  📦 TestScanUtilities
+    ƒ test_scan_utilities_finds_modules
+    ƒ test_scan_utilities_extracts_docstrings
+  📦 TestScanGenerators
+    ƒ test_scan_generators_finds_modules
+  📦 TestGetVersion
+    ƒ test_get_version_from_constants
+    ƒ test_get_version_fallback
+  📦 TestCheckFileExists
+    ƒ test_check_existing_file
+    ƒ test_check_missing_file
+    ƒ test_check_nested_file
+  📦 TestGenerateStatusMd
+    ƒ test_generate_status_md_contains_header
+    ƒ test_generate_status_md_lists_commands
+    ƒ test_generate_status_md_lists_utilities
+    ƒ test_generate_status_md_shows_version
+    ƒ test_generate_status_md_skip_tests
+  📦 TestUpdateStatus
+    ƒ test_update_status_creates_file
+    ƒ test_update_status_writes_content
+    ƒ test_update_status_overwrites_existing
 
 - `tests/test_update.py`
   📦 TestUpdateProject
@@ -318,6 +377,16 @@
     ƒ parse_cursorignore
     ƒ should_ignore
     ƒ scan_project
+
+- `src/utils/status_generator.py`
+    ƒ scan_commands
+    ƒ scan_utilities
+    ƒ scan_generators
+    ƒ run_tests
+    ƒ check_file_exists
+    ƒ get_version
+    ƒ generate_status_md
+    ƒ update_status
 
 - `src/generators/__init__.py`
 
@@ -435,6 +504,41 @@
     ƒ create_project
     ƒ cmd_create
 
+- `src/commands/doctor.py`
+  📦 Severity
+  📦 Issue
+  📦 DiagnosticReport
+    ƒ critical_count
+    ƒ warning_count
+    ƒ suggestion_count
+  📦 Doctor
+    ƒ __init__
+    ƒ _next_issue_id
+    ƒ _count_tokens
+    ƒ _get_dir_size
+    ƒ _format_size
+    ƒ _format_tokens
+    ƒ diagnose
+    ƒ create_backup
+    ƒ fix_venv_inside
+    ƒ fix_pycache
+    ƒ fix_logs
+    ƒ fix_log_files
+    ƒ fix_node_modules
+    ƒ fix_large_files
+    ƒ fix_missing_ai_include
+    ƒ fix_missing_cursorignore
+    ƒ fix_missing_bootstrap
+    ƒ fix_create_venv
+    ƒ fix_issue
+    ƒ fix_all
+    ƒ print_report
+    ƒ print_result
+    ƒ run_doctor
+    ƒ cmd_doctor
+    ƒ run_doctor_interactive
+  📦 Args
+
 - `src/commands/health.py`
     ƒ health_check
     ƒ cmd_health
@@ -466,6 +570,11 @@
     ƒ review_changes
     ƒ _print_prompt
     ƒ cmd_review
+
+- `src/commands/status.py`
+    ƒ cmd_status
+    ƒ run_status_interactive
+  📦 Args
 
 - `src/commands/trace.py`
   📦 ImportInfo
@@ -531,4 +640,4 @@
 - `.cursor/rules/toolkit.md`
 
 ---
-**Stats:** Scanned 108 files. Map size: ~2653 tokens.
+**Stats:** Scanned 113 files. Map size: ~3334 tokens.

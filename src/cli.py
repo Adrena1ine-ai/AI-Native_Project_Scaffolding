@@ -22,7 +22,12 @@ from .commands import (
     cmd_wizard,
     cmd_pack,
     cmd_trace,
+    cmd_doctor,
+    cmd_status,
     run_wizard,
+    run_doctor,
+    run_doctor_interactive,
+    run_status_interactive,
     create_project,
     cleanup_project,
     migrate_project,
@@ -98,6 +103,8 @@ def print_menu():
         ("7", "🦊 Fox review (security scan)"),
         ("8", "📄 Pack context (XML export)"),
         ("9", "🔍 Trace dependencies (AST)"),
+        ("d", "🩺 Doctor (diagnose & auto-fix)"),
+        ("t", "📊 Status (regenerate PROJECT_STATUS.md)"),
         ("s", "⚙️  Settings (change IDE)"),
         ("0", "❌ Exit"),
     ]
@@ -122,13 +129,15 @@ def interactive_mode():
         "7": cmd_review,
         "8": cmd_pack,
         "9": cmd_trace,
+        "d": run_doctor_interactive,
+        "t": run_status_interactive,
         "s": select_ide,
     }
     
     while True:
         print_menu()
         
-        choice = input("Choose (0-9/s): ").strip().lower()
+        choice = input("Choose (0-9/d/t/s): ").strip().lower()
         
         if choice == "0":
             print(f"\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
@@ -204,6 +213,18 @@ def cli_mode():
     trace_p.add_argument("--depth", "-d", type=int, default=2, help="Max trace depth")
     trace_p.add_argument("--output", "-o", help="Output file (default: stdout)")
     
+    # doctor
+    doctor_p = subparsers.add_parser("doctor", help="Diagnose and fix project issues")
+    doctor_p.add_argument("path", nargs="?", type=Path, default=Path.cwd(), help="Project path")
+    doctor_p.add_argument("--auto", "-a", action="store_true", help="Auto-fix all issues without asking")
+    doctor_p.add_argument("--report", "-r", action="store_true", help="Report only, don't offer fixes")
+    
+    # status
+    status_p = subparsers.add_parser("status", help="Regenerate PROJECT_STATUS.md")
+    status_p.add_argument("path", nargs="?", type=Path, default=Path.cwd(), help="Project path")
+    status_p.add_argument("--preview", "-p", action="store_true", help="Show generated content")
+    status_p.add_argument("--skip-tests", action="store_true", help="Skip running pytest (faster)")
+    
     args = parser.parse_args()
     
     if not args.command:
@@ -267,6 +288,12 @@ def cli_mode():
                 print(result)
         else:
             print(COLORS.error(result))
+    
+    elif args.command == "doctor":
+        cmd_doctor(args)
+    
+    elif args.command == "status":
+        cmd_status(args)
 
 
 def main():

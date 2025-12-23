@@ -1,78 +1,81 @@
-# 📊 Project Status — AI Toolkit v3.3
+# 📊 Project Status — AI Toolkit v3.3.0
 
-> Quick reference for what's implemented and what's next.
-
----
-
-## ✅ Completed Features
-
-### Core Infrastructure
-- [x] CLI entry point (`main.py`)
-- [x] Configuration system
-- [x] Constants and templates
-- [x] File utilities
-- [x] Color output
-
-### Commands
-- [x] `create` — Generate new projects
-- [x] `cleanup` — Analyze and fix projects
-- [x] `migrate` — Add AI Toolkit to existing projects
-- [x] `health` — Health check
-- [x] `update` — Update project version
-- [x] `review` — 🦊 Fox security scanner (replaces Rabbit)
-- [x] `wizard` — Interactive TUI wizard
-- [x] `hooks` — Git hook management
-- [x] `pack` — 📦 XML context packer
-- [x] `trace` — 🔍 Deep dependency tracker
-
-### Utilities
-- [x] Metrics (`src/utils/metrics.py`) — Token scanning
-- [x] Cleaner (`src/utils/cleaner.py`) — Artifact archiving
-- [x] Context Map (`src/utils/context_map.py`) — 🧠 AST-based mapping
-- [x] Hooks (`src/commands/hooks.py`) — Pre-commit hooks (Fox guard)
-
-### Generators
-- [x] AI configs (`.cursorrules`, `CLAUDE.md`, copilot, windsurf)
-- [x] Scripts (`bootstrap.sh`, `health_check.sh`)
-- [x] Docker (`Dockerfile`, `docker-compose.yml`)
-- [x] CI/CD (GitHub Actions)
-- [x] Git (`.gitignore`, `.gitattributes`)
-
-### Documentation
-- [x] `PROMPTS_LIBRARY.md` — Curated prompts
-- [x] `TRADEOFFS.md` — Architectural decisions
-- [x] `CLAUDE.md` — Claude instructions
-- [x] `_AI_INCLUDE/WHERE_THINGS_LIVE.md` — Location guide
-- [x] `.cursor/rules/` — Modular rules
-
-### Manifesto Scripts
-- [x] `scripts/bootstrap.sh` — External venv creation
-- [x] `scripts/bootstrap.ps1` — Windows version
-- [x] `scripts/isolate_heavy.sh` — Move artifacts out
-- [x] `scripts/restore_heavy.sh` — Restore if needed
-
-### v3.3 Features (The Fox Update)
-- [x] 🧠 AST Map — Python code analysis using `ast` module
-- [x] 🦊 Secret Scanner (Fox) — Detects API keys, tokens, secrets
-- [x] 📦 XML Packer — Export project context for AI sharing
-- [x] 🔍 Fox Trace — Deep dependency tracker (AST-based)
+> ⚡ Auto-generated from codebase. Do not edit manually.
+> 🕐 Last updated: 2025-12-23 19:11:45
 
 ---
 
-## 🔜 Next: Phase 3 (TUI)
+## ✅ Implemented Commands
 
-- [ ] Full-screen TUI mode
-- [ ] Real-time token monitoring
-- [ ] Project dashboard
-- [ ] Plugin management UI
+| Command | Description |
+|---------|-------------|
+| `cleanup` | Interactive cleanup command |
+| `create` | Interactive create project command |
+| `doctor` | CLI entry point for doctor command. |
+| `health` | Interactive health check command |
+| `hooks` | Interactive hook management command |
+| `migrate` | Interactive migration command |
+| `pack` | Interactive pack command |
+| `review` | Interactive review command (Fox) |
+| `status` | Regenerate PROJECT_STATUS.md from current codebase state. |
+| `trace` | Interactive trace command |
+| `update` | Interactive update command |
+| `wizard` | Interactive wizard command wrapper |
+
+---
+
+## 🛠️ Utilities
+
+- [x] `src/utils/status_generator.py` — Auto-generate PROJECT_STATUS.md from actual codebase state.
+- [x] `src/utils/metrics.py` — 📊 Metrics — Project scanning and token estimation
+- [x] `src/utils/cleaner.py` — 🧹 Cleaner — Archive artifacts and garbage files
+- [x] `src/utils/context_map.py` — 🧠 Context Map Generator — AST-based project mapping
+
+---
+
+## 🏭 Generators
+
+- [x] `src/generators/project_files.py` — Generator for main project files (config, requirements, README)
+- [x] `src/generators/git.py` — Generator for Git files and repository initialization
+- [x] `src/generators/ai_configs.py` — Generator for AI configs (.cursorrules, copilot-instructions.md, CLAUDE.md)
+- [x] `src/generators/ci_cd.py` — Generator for CI/CD files (GitHub Actions)
+- [x] `src/generators/docker.py` — Generator for Docker files
+- [x] `src/generators/scripts.py` — Generator for scripts (bootstrap, health_check, context.py)
+
+---
+
+## 📁 Documentation Status
+
+| Document | Status |
+|----------|--------|
+| `README.md` | ✅ Project overview |
+| `PROMPTS_LIBRARY.md` | ✅ Curated prompts for AI |
+| `TRADEOFFS.md` | ✅ Architectural decisions |
+| `CLAUDE.md` | ✅ Claude AI instructions |
+| `CONTRIBUTING.md` | ✅ Contribution guide |
+| `_AI_INCLUDE/WHERE_THINGS_LIVE.md` | ✅ Location guide |
+| `_AI_INCLUDE/PROJECT_CONVENTIONS.md` | ✅ Project conventions |
+| `.cursor/rules/project.md` | ✅ Cursor project rules |
+| `.cursor/rules/toolkit.md` | ✅ Cursor toolkit rules |
+| `docs/QUICK_START.md` | ✅ Quick start guide |
+| `docs/FAQ.md` | ✅ Frequently asked questions |
 
 ---
 
 ## 📈 Test Coverage
 
 ```
-Tests: 82/82 passed (100%)
+Tests: Skipped (use --run-tests to include)
 ```
+
+---
+
+## 📊 Quick Stats
+
+- **Commands:** 12
+- **Utilities:** 4
+- **Generators:** 6
+- **Version:** 3.3.0
 
 ---
 
@@ -87,5 +90,4 @@ Tests: 82/82 passed (100%)
 
 ---
 
-*Last updated: v3.3 — The Fox Update*
-
+*Auto-generated by AI Toolkit v3.3.0 — Status Generator*

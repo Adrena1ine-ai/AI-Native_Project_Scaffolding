@@ -113,4 +113,13 @@ def generate_map():
 
 if __name__ == "__main__":
     generate_map()
+    
+    # Also update PROJECT_STATUS.md
+    try:
+        from pathlib import Path
+        from src.utils.status_generator import update_status
+        update_status(Path.cwd(), skip_tests=True)
+        print("📊 PROJECT_STATUS.md updated")
+    except ImportError:
+        pass  # status_generator not yet created
 
