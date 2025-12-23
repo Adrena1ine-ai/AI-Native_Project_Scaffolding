@@ -18,14 +18,8 @@ from .commands import (
     cmd_migrate,
     cmd_health,
     cmd_update,
-    cmd_review,
-    cmd_wizard,
-    cmd_pack,
-    cmd_trace,
     cmd_doctor,
     cmd_status,
-    run_wizard,
-    run_doctor,
     run_doctor_interactive,
     run_status_interactive,
     create_project,
@@ -33,9 +27,6 @@ from .commands import (
     migrate_project,
     health_check,
     update_project,
-    review_changes,
-    pack_context,
-    trace_file_dependencies,
 )
 
 
@@ -94,15 +85,11 @@ def print_menu():
     print("What would you like to do?\n")
     
     items = [
-        ("1", "🧙 Wizard (guided project creation)"),
-        ("2", "🆕 Quick create (advanced)"),
-        ("3", "🧹 Cleanup existing project"),
-        ("4", "📦 Migrate project"),
-        ("5", "🏥 Health check"),
-        ("6", "⬆️  Update project"),
-        ("7", "🦊 Fox review (security scan)"),
-        ("8", "📄 Pack context (XML export)"),
-        ("9", "🔍 Trace dependencies (AST)"),
+        ("1", "🆕 Create new project"),
+        ("2", "🧹 Cleanup existing project"),
+        ("3", "📦 Migrate project"),
+        ("4", "🏥 Health check"),
+        ("5", "⬆️  Update project"),
         ("d", "🩺 Doctor (diagnose & auto-fix)"),
         ("t", "📊 Status (regenerate PROJECT_STATUS.md)"),
         ("s", "⚙️  Settings (change IDE)"),
@@ -120,15 +107,11 @@ def interactive_mode():
     select_ide()
     
     commands = {
-        "1": cmd_wizard,
-        "2": cmd_create,
-        "3": cmd_cleanup,
-        "4": cmd_migrate,
-        "5": cmd_health,
-        "6": cmd_update,
-        "7": cmd_review,
-        "8": cmd_pack,
-        "9": cmd_trace,
+        "1": cmd_create,
+        "2": cmd_cleanup,
+        "3": cmd_migrate,
+        "4": cmd_health,
+        "5": cmd_update,
         "d": run_doctor_interactive,
         "t": run_status_interactive,
         "s": select_ide,
@@ -137,7 +120,7 @@ def interactive_mode():
     while True:
         print_menu()
         
-        choice = input("Choose (0-9/d/t/s): ").strip().lower()
+        choice = input("Choose (0-5/d/t/s): ").strip().lower()
         
         if choice == "0":
             print(f"\n{COLORS.colorize('👋 Goodbye!', COLORS.CYAN)}\n")
@@ -196,23 +179,6 @@ def cli_mode():
     update_p = subparsers.add_parser("update", help="Update project")
     update_p.add_argument("path", type=Path, help="Project path")
     
-    # review
-    review_p = subparsers.add_parser("review", help="Generate AI review prompt for changes")
-    
-    # wizard
-    wizard_p = subparsers.add_parser("wizard", help="Interactive project creation wizard")
-    
-    # pack
-    pack_p = subparsers.add_parser("pack", help="Pack project context to XML")
-    pack_p.add_argument("path", type=Path, nargs="?", default=Path.cwd(), help="Project path")
-    pack_p.add_argument("--output", "-o", default="context_dump.xml", help="Output file")
-    
-    # trace
-    trace_p = subparsers.add_parser("trace", help="Trace file dependencies (AST)")
-    trace_p.add_argument("entry", type=Path, help="Entry file to trace from")
-    trace_p.add_argument("--depth", "-d", type=int, default=2, help="Max trace depth")
-    trace_p.add_argument("--output", "-o", help="Output file (default: stdout)")
-    
     # doctor
     doctor_p = subparsers.add_parser("doctor", help="Diagnose and fix project issues")
     doctor_p.add_argument("path", nargs="?", type=Path, default=Path.cwd(), help="Project path")
@@ -260,34 +226,6 @@ def cli_mode():
     
     elif args.command == "update":
         update_project(args.path)
-    
-    elif args.command == "review":
-        review_changes()
-    
-    elif args.command == "wizard":
-        run_wizard()
-    
-    elif args.command == "pack":
-        success, files, size = pack_context(args.path, args.output)
-        if success:
-            print(f"\n{COLORS.success(f'Packed {files} files ({size / 1024:.1f} KB)')}")
-            print(f"  Output: {args.output}\n")
-    
-    elif args.command == "trace":
-        success, count, result = trace_file_dependencies(
-            args.entry,
-            depth=args.depth,
-            output_file=args.output
-        )
-        if success:
-            print(f"\n{COLORS.success(f'Traced {count} files')}")
-            if args.output:
-                print(f"  Output: {args.output}\n")
-            else:
-                print(f"  Context size: ~{len(result) // 4} tokens\n")
-                print(result)
-        else:
-            print(COLORS.error(result))
     
     elif args.command == "doctor":
         cmd_doctor(args)
