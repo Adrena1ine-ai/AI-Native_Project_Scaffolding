@@ -1,14 +1,35 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# ═══════════════════════════════════════════════════════════════
+# .gitignore — AI Toolkit (Manifesto-Aligned)
+# ═══════════════════════════════════════════════════════════════
 
-# Virtual environments
+# Envs (NEVER inside repo)
 venv/
 .venv/
-env/
-.env/
-ENV/
+venv_gate/
+**/.venv*/
+**/site-packages/
+
+# Caches
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Logs
+logs/
+*.log
+
+# Local data
+*.csv
+*.jsonl
+*.db
+*.sqlite
+*.sqlite3
+
+# Playwright driver
+**/playwright/driver/
 
 # Distribution / packaging
 build/
@@ -16,221 +37,39 @@ dist/
 *.egg-info/
 *.egg
 .eggs/
+*.whl
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-.cursor/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-logs/
-
-# Local data
-data/
-*.db
-*.sqlite3
-
-# Environment
+# Environment files
 .env
 .env.local
 .env.*.local
+!.env.example
 
-# Testing
-.pytest_cache/
+# Testing coverage
 .coverage
 htmlcov/
 .tox/
 .nox/
 
-# mypy
-.mypy_cache/
-
 # Temporary
 tmp/
 temp/
 *.tmp
+*.bak
 
+# AI Toolkit Archive
+_AI_ARCHIVE/
 
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
-ENV/
-
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-*.egg
-.eggs/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-.cursor/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Local data
-data/
-*.db
-*.sqlite3
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# mypy
-.mypy_cache/
-
-# Temporary
-tmp/
-temp/
-*.tmp
-
-
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
-ENV/
-
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-*.egg
-.eggs/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-.cursor/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Local data
-data/
-*.db
-*.sqlite3
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# mypy
-.mypy_cache/
-
-# Temporary
-tmp/
-temp/
-*.tmp
-
-
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
-ENV/
-
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-*.egg
-.eggs/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-.cursor/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Local data
-data/
-*.db
-*.sqlite3
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# mypy
-.mypy_cache/
-
-# Temporary
-tmp/
-temp/
-*.tmp
-
+# Backups
+*.tar
+*.tar.gz

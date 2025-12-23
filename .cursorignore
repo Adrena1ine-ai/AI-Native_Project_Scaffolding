@@ -1,23 +1,60 @@
 # ═══════════════════════════════════════════════════════════════
-# 🛑 CURSOR IGNORE — AI TOOLKIT v3.1
+# 🛑 CURSOR IGNORE — AI TOOLKIT v3.2 (Manifesto-Aligned)
 # ═══════════════════════════════════════════════════════════════
 # Files listed here are HIDDEN from Cursor AI context.
-# This saves tokens and prevents AI confusion.
+# Derived from: first manifesto.md (the source of truth)
 
 # ─────────────────────────────────────────────────────────────────
-# 1. TEMPLATES (CRITICAL - ~15K tokens saved)
+# 1. VIRTUAL ENVIRONMENTS / DEPS (Critical - saves ~500K tokens)
 # ─────────────────────────────────────────────────────────────────
-# These are OUTPUT templates, not active code.
-# AI should generate TO these patterns, not read FROM them.
+venv/
+.venv/
+venv_gate/
+**/.venv*/
+**/site-packages/
+
+# ─────────────────────────────────────────────────────────────────
+# 2. PYTHON CACHES
+# ─────────────────────────────────────────────────────────────────
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ─────────────────────────────────────────────────────────────────
+# 3. LOGS
+# ─────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ─────────────────────────────────────────────────────────────────
+# 4. PLAYWRIGHT DRIVER BINARIES
+# ─────────────────────────────────────────────────────────────────
+**/playwright/driver/
+
+# ─────────────────────────────────────────────────────────────────
+# 5. DATA / ARTIFACTS (not needed for code edits)
+# ─────────────────────────────────────────────────────────────────
+**/*.csv
+**/*.jsonl
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# ─────────────────────────────────────────────────────────────────
+# 6. TEMPLATES (Output templates, not active code)
+# ─────────────────────────────────────────────────────────────────
 templates/**
 
 # ─────────────────────────────────────────────────────────────────
-# 2. TESTS (Hidden by default, reference explicitly when needed)
+# 7. TESTS (Hidden by default, reference explicitly when needed)
 # ─────────────────────────────────────────────────────────────────
 tests/**
 
 # ─────────────────────────────────────────────────────────────────
-# 3. LEGACY / BACKUP FILES
+# 8. LEGACY / BACKUP FILES
 # ─────────────────────────────────────────────────────────────────
 *.tar
 *.tar.gz
@@ -25,7 +62,7 @@ tests/**
 AI-Native Project Scaffolding/**
 
 # ─────────────────────────────────────────────────────────────────
-# 4. BUILD ARTIFACTS
+# 9. BUILD ARTIFACTS
 # ─────────────────────────────────────────────────────────────────
 ai_toolkit.egg-info/**
 *.egg-info/**
@@ -35,22 +72,7 @@ build/**
 *.whl
 
 # ─────────────────────────────────────────────────────────────────
-# 5. PYTHON RUNTIME
-# ─────────────────────────────────────────────────────────────────
-__pycache__/**
-**/__pycache__/**
-*.pyc
-*.pyo
-*.pyd
-venv/**
-.venv/**
-env/**
-.pytest_cache/**
-.mypy_cache/**
-.ruff_cache/**
-
-# ─────────────────────────────────────────────────────────────────
-# 6. SYSTEM / IDE
+# 10. SYSTEM / IDE
 # ─────────────────────────────────────────────────────────────────
 .git/**
 .idea/**
@@ -61,19 +83,7 @@ env/**
 .DS_Store
 
 # ─────────────────────────────────────────────────────────────────
-# 7. DATA & LOGS (Heavy, low-value)
-# ─────────────────────────────────────────────────────────────────
-logs/**
-*.log
-data/**
-*.csv
-*.jsonl
-*.sqlite
-*.sqlite3
-*.db
-
-# ─────────────────────────────────────────────────────────────────
-# 8. LOCK FILES (Noise)
+# 11. LOCK FILES (Noise)
 # ─────────────────────────────────────────────────────────────────
 poetry.lock
 Pipfile.lock
@@ -81,7 +91,26 @@ package-lock.json
 yarn.lock
 
 # ─────────────────────────────────────────────────────────────────
-# 9. TOOLING SCRIPTS (AI doesn't need to modify these)
+# 12. NODE MODULES
+# ─────────────────────────────────────────────────────────────────
+node_modules/**
+
+# ─────────────────────────────────────────────────────────────────
+# 13. SECRETS (Never index!)
+# ─────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ─────────────────────────────────────────────────────────────────
+# 14. AI TOOLKIT ARCHIVE (Cleaned garbage)
+# ─────────────────────────────────────────────────────────────────
+_AI_ARCHIVE/**
+
+# ─────────────────────────────────────────────────────────────────
+# 15. TOOLING SCRIPTS (AI doesn't need to modify these)
 # ─────────────────────────────────────────────────────────────────
 generate_map.py
 benchmark.py
@@ -90,6 +119,7 @@ benchmark.py
 # ⚠️  DO NOT IGNORE:
 # - CURRENT_CONTEXT_MAP.md (AI navigation)
 # - src/** (Core logic)
+# - _AI_INCLUDE/** (AI rules - MUST BE VISIBLE)
 # - docs/** (Documentation)
 # - .cursorrules (AI instructions)
 # ═══════════════════════════════════════════════════════════════

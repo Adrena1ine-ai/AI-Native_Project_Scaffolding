@@ -19,11 +19,15 @@
 
 - `MANIFEST.in`
 
+- `PROJECT_STATUS.md`
+
 - `PROMPTS_LIBRARY.md`
 
 - `README.md`
 
 - `SECURITY.md`
+
+- `TECHNICAL_SPECIFICATION.md`
 
 - `TRADEOFFS.md`
 
@@ -42,6 +46,8 @@
     ƒ print_results_plain
     ƒ run_benchmark
     ƒ main
+
+- `first manifesto.md`
 
 - `main.py`
 
@@ -109,6 +115,8 @@
 - `_AI_INCLUDE/PROJECT_CONVENTIONS.md`
 
 - `_AI_INCLUDE/WHERE_IS_WHAT.md`
+
+- `_AI_INCLUDE/WHERE_THINGS_LIVE.md`
 
 - `docs/FAQ.md`
 
@@ -254,9 +262,17 @@
     ƒ test_update_same_version_skips
     ƒ test_update_refreshes_scripts
 
+- `scripts/bootstrap.ps1`
+
+- `scripts/bootstrap.sh`
+
 - `scripts/build.sh`
 
+- `scripts/isolate_heavy.sh`
+
 - `scripts/publish.sh`
+
+- `scripts/restore_heavy.sh`
 
 - `scripts/start_dashboard.ps1`
 
@@ -273,6 +289,22 @@
     ƒ main
 
 - `src/utils/__init__.py`
+
+- `src/utils/cleaner.py`
+  📦 ArchiveResult
+    ƒ formatted_size
+    ƒ matches_pattern
+    ƒ get_file_size
+    ƒ archive_artifacts
+    ƒ _generate_archive_report
+
+- `src/utils/metrics.py`
+  📦 ScanResult
+    ƒ formatted_tokens
+    ƒ formatted_size
+    ƒ parse_cursorignore
+    ƒ should_ignore
+    ƒ scan_project
 
 - `src/generators/__init__.py`
 
@@ -394,6 +426,12 @@
     ƒ health_check
     ƒ cmd_health
 
+- `src/commands/hooks.py`
+    ƒ install_pre_commit_hook
+    ƒ uninstall_pre_commit_hook
+    ƒ check_hook_installed
+    ƒ cmd_hooks
+
 - `src/commands/migrate.py`
     ƒ migrate_project
     ƒ cmd_migrate
@@ -411,20 +449,16 @@
     ƒ cmd_update
 
 - `src/commands/wizard.py`
-  📦 ScanResult
-    ƒ formatted_tokens
-    ƒ parse_ignore_patterns
-    ƒ should_ignore
-    ƒ scan_directory
     ƒ validate_project_name
     ƒ generate_spec_md
-    ƒ generate_optimization_log
+    ƒ run_rabbit_check
+    ƒ generate_doctor_report
     ƒ flow_create_rich
     ƒ flow_optimize_rich
-    ƒ run_wizard_rich
-    ƒ run_wizard_plain
     ƒ flow_create_plain
     ƒ flow_optimize_plain
+    ƒ run_wizard_rich
+    ƒ run_wizard_plain
     ƒ run_wizard
     ƒ cmd_wizard
 
@@ -462,4 +496,4 @@
 - `.cursor/rules/toolkit.md`
 
 ---
-**Stats:** Scanned 94 files. Map size: ~2334 tokens.
+**Stats:** Scanned 105 files. Map size: ~2480 tokens.

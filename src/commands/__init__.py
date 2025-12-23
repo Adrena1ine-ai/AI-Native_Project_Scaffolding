@@ -9,6 +9,7 @@ from .health import cmd_health, health_check
 from .update import cmd_update, update_project
 from .review import cmd_review, review_changes
 from .wizard import cmd_wizard, run_wizard
+from .hooks import cmd_hooks, install_pre_commit_hook, check_hook_installed
 
 __all__ = [
     "cmd_create",
@@ -26,4 +27,7 @@ __all__ = [
     "review_changes",
     "cmd_wizard",
     "run_wizard",
+    "cmd_hooks",
+    "install_pre_commit_hook",
+    "check_hook_installed",
 ]
