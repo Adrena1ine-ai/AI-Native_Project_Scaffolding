@@ -432,92 +432,58 @@ class Doctor:
     # === FIX FUNCTIONS ===
     
     def fix_venv_inside(self, issue: Issue) -> bool:
-        """Move venv inside project to archive and create external one."""
+        """Move venv from inside project to external location (preserve libraries)."""
         if issue.path and issue.path.exists():
-            # Create archive directory
-            self.archive_dir.mkdir(parents=True, exist_ok=True)
-            venv_subdir = self.archive_dir / "venvs"
-            venv_subdir.mkdir(exist_ok=True)
-            
             # Calculate size before moving
             size = self._get_dir_size(issue.path)
             
-            # Check if requirements.txt exists (to reinstall packages later)
-            requirements = self.project_path / "requirements.txt"
-            has_requirements = requirements.exists()
-            
-            # Move venv to archive
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            archive_dest = venv_subdir / f"{issue.path.name}_{timestamp}"
-            
-            shutil.move(str(issue.path), str(archive_dest))
-            
-            # Record change
-            self.changes.append(ChangeRecord(
-                action="moved",
-                item_type="venv",
-                source=issue.path,
-                destination=archive_dest,
-                size_bytes=size,
-                description=f"Moved {issue.path.name}/ to archive (will recreate externally)"
-            ))
-            
-            print(COLORS.success(f"Moved {issue.path.name}/ to archive ({self._format_size(size)})"))
-            
-            # Create new external venv
-            print(COLORS.info("   Creating new external venv..."))
+            # Check if external venv already exists
             self.venvs_dir.mkdir(parents=True, exist_ok=True)
             external_venv = self.venvs_dir / f"{self.project_name}-main"
             
-            # Remove old external venv if exists
             if external_venv.exists():
-                shutil.rmtree(external_venv)
-            
-            try:
-                # Create new venv using the same Python that's running this script
-                import sys
-                python_exe = sys.executable
+                # External venv already exists - move old one to archive
+                print(COLORS.info(f"   External venv already exists at {external_venv}"))
+                print(COLORS.info(f"   Moving old venv to archive..."))
                 
-                # Try python3 first, fallback to python
-                python_cmd = "python3" if shutil.which("python3") else "python"
-                if not shutil.which(python_cmd):
-                    python_cmd = python_exe  # Use current interpreter as last resort
+                self.archive_dir.mkdir(parents=True, exist_ok=True)
+                venv_subdir = self.archive_dir / "venvs"
+                venv_subdir.mkdir(exist_ok=True)
                 
-                subprocess.run(
-                    [python_cmd, "-m", "venv", str(external_venv)],
-                    check=True,
-                    capture_output=True
-                )
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                archive_dest = venv_subdir / f"{issue.path.name}_{timestamp}"
                 
-                # Install packages if requirements.txt exists
-                if has_requirements:
-                    print(COLORS.info("   Installing packages from requirements.txt..."))
-                    if os.name == "nt":  # Windows
-                        pip_exe = external_venv / "Scripts" / "pip.exe"
-                    else:  # Linux/Mac
-                        pip_exe = external_venv / "bin" / "pip"
-                    
-                    subprocess.run(
-                        [str(pip_exe), "install", "-r", str(requirements)],
-                        check=False,  # Don't fail if some packages can't install
-                        capture_output=True
-                    )
-                    print(COLORS.success(f"   Created external venv at {external_venv}"))
-                else:
-                    print(COLORS.warning("   No requirements.txt found - venv created but empty"))
-                    print(COLORS.success(f"   Created external venv at {external_venv}"))
+                shutil.move(str(issue.path), str(archive_dest))
                 
-                # Record creation
+                # Record change
                 self.changes.append(ChangeRecord(
-                    action="created",
+                    action="moved",
                     item_type="venv",
-                    source=external_venv,
-                    description=f"Created external venv at {external_venv}"
+                    source=issue.path,
+                    destination=archive_dest,
+                    size_bytes=size,
+                    description=f"Moved {issue.path.name}/ to archive (external venv already exists)"
                 ))
                 
-            except Exception as e:
-                print(COLORS.warning(f"   Could not create external venv automatically: {e}"))
-                print(COLORS.info("   Run: scripts/bootstrap.sh (or bootstrap.ps1 on Windows) to create venv"))
+                print(COLORS.success(f"Moved {issue.path.name}/ to archive ({self._format_size(size)})"))
+            else:
+                # No external venv - move old one to correct location (preserve libraries!)
+                print(COLORS.info(f"   Moving venv to external location (preserving libraries)..."))
+                
+                shutil.move(str(issue.path), str(external_venv))
+                
+                # Record change
+                self.changes.append(ChangeRecord(
+                    action="moved",
+                    item_type="venv",
+                    source=issue.path,
+                    destination=external_venv,
+                    size_bytes=size,
+                    description=f"Moved {issue.path.name}/ to external location (libraries preserved)"
+                ))
+                
+                print(COLORS.success(f"Moved {issue.path.name}/ to {external_venv} ({self._format_size(size)})"))
+                print(COLORS.success("   ✅ All libraries preserved - no reinstallation needed!"))
             
             return True
         return False
