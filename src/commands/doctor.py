@@ -202,7 +202,10 @@ class Doctor:
         # Sort by tokens (descending)
         file_tokens_list.sort(key=lambda x: x.tokens, reverse=True)
         
-        # Check for venv inside project
+        # Check for venv inside project (fast - only root level)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... venvs", end="", flush=True)
+        
         for venv_name in ["venv", ".venv", "venv_gate", ".venv_parser", "env", ".env"]:
             venv_path = self.project_path / venv_name
             if venv_path.exists() and venv_path.is_dir():
@@ -225,50 +228,88 @@ class Doctor:
                         fix_function="fix_venv_inside"
                     ))
         
-        # Check for __pycache__
-        pycache_dirs = list(self.project_path.rglob("__pycache__"))
+        # Check for __pycache__ (this can be slow on large projects)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... __pycache__", end="", flush=True)
+        
+        pycache_dirs = []
+        try:
+            # Use a generator and limit to avoid hanging on huge projects
+            for pycache in self.project_path.rglob("__pycache__"):
+                if pycache.is_dir():
+                    pycache_dirs.append(pycache)
+                    # Limit to first 100 to avoid hanging on huge projects
+                    if len(pycache_dirs) >= 100:
+                        break
+        except Exception:
+            pass  # Skip if there's an error
+        
         if pycache_dirs:
             tokens = sum(self._count_tokens(p) for p in pycache_dirs)
             issues.append(Issue(
                 id=self._next_issue_id(),
                 severity=Severity.WARNING,
-                title=f"__pycache__/ in {len(pycache_dirs)} locations",
+                title=f"__pycache__/ in {len(pycache_dirs)} locations" + (" (showing first 100)" if len(pycache_dirs) >= 100 else ""),
                 description=f"Python cache files consuming {self._format_tokens(tokens)} tokens",
                 tokens_impact=tokens,
                 fix_function="fix_pycache"
             ))
         
-        # Check for logs directory
+        # Check for logs directory (fast - single directory check)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... logs", end="", flush=True)
+        
         logs_path = self.project_path / "logs"
         if logs_path.exists() and logs_path.is_dir():
-            log_files = list(logs_path.rglob("*"))
-            if log_files:
-                size = self._get_dir_size(logs_path)
-                tokens = self._count_tokens(logs_path)
-                issues.append(Issue(
-                    id=self._next_issue_id(),
-                    severity=Severity.WARNING,
-                    title=f"logs/ folder ({len(log_files)} files)",
-                    description=f"Log files consuming {self._format_tokens(tokens)} tokens ({self._format_size(size)})",
-                    path=logs_path,
-                    tokens_impact=tokens,
-                    fix_function="fix_logs"
-                ))
+            try:
+                log_files = list(logs_path.rglob("*"))
+                if log_files:
+                    size = self._get_dir_size(logs_path)
+                    tokens = self._count_tokens(logs_path)
+                    issues.append(Issue(
+                        id=self._next_issue_id(),
+                        severity=Severity.WARNING,
+                        title=f"logs/ folder ({len(log_files)} files)",
+                        description=f"Log files consuming {self._format_tokens(tokens)} tokens ({self._format_size(size)})",
+                        path=logs_path,
+                        tokens_impact=tokens,
+                        fix_function="fix_logs"
+                    ))
+            except Exception:
+                pass  # Skip if there's an error
         
-        # Check for .log files
-        log_files = [f for f in self.project_path.rglob("*.log") if "venv" not in str(f)]
+        # Check for .log files (can be slow - limit search)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... .log files", end="", flush=True)
+        
+        log_files = []
+        try:
+            count = 0
+            for f in self.project_path.rglob("*.log"):
+                if "venv" not in str(f) and f.is_file():
+                    log_files.append(f)
+                    count += 1
+                    # Limit to first 50 to avoid hanging
+                    if count >= 50:
+                        break
+        except Exception:
+            pass
+        
         if log_files:
             tokens = sum(self._count_tokens(f) for f in log_files)
             issues.append(Issue(
                 id=self._next_issue_id(),
                 severity=Severity.WARNING,
-                title=f"{len(log_files)} .log files in project",
+                title=f"{len(log_files)} .log files in project" + (" (showing first 50)" if len(log_files) >= 50 else ""),
                 description=f"Scattered log files consuming {self._format_tokens(tokens)} tokens",
                 tokens_impact=tokens,
                 fix_function="fix_log_files"
             ))
         
-        # Check for node_modules
+        # Check for node_modules (fast - single directory check)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... node_modules", end="", flush=True)
+        
         node_modules = self.project_path / "node_modules"
         if node_modules.exists():
             size = self._get_dir_size(node_modules)
@@ -282,23 +323,40 @@ class Doctor:
                 fix_function="fix_node_modules"
             ))
         
-        # Check for large data files
+        # Check for large data files (can be slow - limit search)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... large files", end="", flush=True)
+        
         large_files = []
-        for ext in ["*.csv", "*.db", "*.sqlite", "*.sqlite3", "*.jsonl"]:
-            for f in self.project_path.rglob(ext):
-                if f.is_file() and f.stat().st_size > 1_000_000:  # > 1MB
-                    large_files.append(f)
+        try:
+            count = 0
+            for ext in ["*.csv", "*.db", "*.sqlite", "*.sqlite3", "*.jsonl"]:
+                for f in self.project_path.rglob(ext):
+                    if f.is_file() and f.stat().st_size > 1_000_000:  # > 1MB
+                        large_files.append(f)
+                        count += 1
+                        # Limit to first 20 to avoid hanging
+                        if count >= 20:
+                            break
+                if count >= 20:
+                    break
+        except Exception:
+            pass
         
         if large_files:
             total_size = sum(f.stat().st_size for f in large_files)
             issues.append(Issue(
                 id=self._next_issue_id(),
                 severity=Severity.WARNING,
-                title=f"{len(large_files)} large data files (>1MB)",
+                title=f"{len(large_files)} large data files (>1MB)" + (" (showing first 20)" if len(large_files) >= 20 else ""),
                 description=f"Data files ({self._format_size(total_size)}) should be moved to ../_data/",
                 tokens_impact=0,
                 fix_function="fix_large_files"
             ))
+        
+        # Check for missing _AI_INCLUDE (fast - single check)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... configs", end="", flush=True)
         
         # Check for missing _AI_INCLUDE
         ai_include = self.project_path / "_AI_INCLUDE"
