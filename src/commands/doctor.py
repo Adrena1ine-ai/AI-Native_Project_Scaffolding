@@ -1179,12 +1179,33 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
         return True
     
     # Interactive mode
+    import sys
+    
+    # Check if stdin is available (interactive terminal)
+    if not sys.stdin.isatty():
+        print(COLORS.warning("\n⚠️  Not running in interactive terminal. Use --auto or --report mode instead."))
+        return True
+    
     print()  # Extra newline for clarity
+    sys.stdout.flush()  # Ensure all output is flushed before waiting for input
+    
     while True:
         try:
+            # Explicitly flush before input to ensure prompt is visible
+            sys.stdout.flush()
+            sys.stderr.flush()
             choice = input("> Enter choice: ").strip().upper()
-        except (KeyboardInterrupt, EOFError):
+        except (KeyboardInterrupt, EOFError) as e:
+            # If EOFError happens immediately, it means stdin isn't available
+            # This can happen in non-interactive environments
+            if isinstance(e, EOFError):
+                print(COLORS.warning("\n⚠️  Cannot read input (stdin not available). Use --auto or --report mode instead."))
             print("\n")
+            break
+        except Exception as e:
+            # Catch any other unexpected errors
+            print(COLORS.error(f"\n❌ Error reading input: {e}"))
+            print(COLORS.info("Try using --auto or --report mode instead."))
             break
         
         if choice == "Q":
