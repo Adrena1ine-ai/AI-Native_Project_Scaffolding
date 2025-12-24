@@ -1323,7 +1323,18 @@ def get_path(filename, check_exists=False):
 
 
 def _update_project_docs(project_path: Path) -> None:
-    """Update both PROJECT_STATUS.md and CURRENT_CONTEXT_MAP.md after changes."""
+    """
+    Update both PROJECT_STATUS.md and CURRENT_CONTEXT_MAP.md after changes.
+    
+    IMPORTANT: Only updates docs if this is the AI Toolkit project itself,
+    not when running doctor on other projects!
+    """
+    # Check if this is the AI Toolkit project (has status_generator.py)
+    status_gen = project_path / "src" / "utils" / "status_generator.py"
+    if not status_gen.exists():
+        # This is not AI Toolkit, skip doc updates
+        return
+    
     try:
         # Update PROJECT_STATUS.md
         update_status(project_path, skip_tests=True)
