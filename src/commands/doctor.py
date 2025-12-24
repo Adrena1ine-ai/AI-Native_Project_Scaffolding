@@ -18,6 +18,57 @@ from typing import List, Optional
 from ..core.constants import COLORS, VERSION
 from ..utils.status_generator import update_status
 
+# Import architect module for architectural restructuring
+try:
+    from .architect import restructure_project, create_config_paths
+    HAS_ARCHITECT = True
+except ImportError:
+    HAS_ARCHITECT = False
+    restructure_project = None
+    create_config_paths = None
+
+# Import context map generator for automatic updates
+try:
+    from ..utils.context_map import write_context_map
+    HAS_CONTEXT_MAP = True
+except ImportError:
+    HAS_CONTEXT_MAP = False
+    write_context_map = None
+
+# Protected files that Doctor should NEVER touch
+PROTECTED_FILES = {
+    "first manifesto.md",
+    "PROJECT_STATUS.md",
+    "TECHNICAL_SPECIFICATION.md",
+    "README.md",
+    "CURRENT_CONTEXT_MAP.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "LICENSE.md",
+    ".gitignore",
+    ".cursorignore",
+    "pyproject.toml",
+    "setup.py",
+    "requirements.txt",
+    "main.py",
+}
+
+
+def is_protected_file(file_path: Path) -> bool:
+    """Check if a file is protected and should never be modified by Doctor."""
+    file_name = file_path.name
+    # Check exact filename
+    if file_name in PROTECTED_FILES:
+        return True
+    # Check if it's in _AI_INCLUDE (protected directory)
+    if "_AI_INCLUDE" in str(file_path):
+        return True
+    # Check if it's in .cursor/rules (protected directory)
+    if ".cursor" in str(file_path) and "rules" in str(file_path):
+        return True
+    return False
+
 
 class Severity(Enum):
     """Issue severity levels."""
@@ -202,31 +253,71 @@ class Doctor:
         # Sort by tokens (descending)
         file_tokens_list.sort(key=lambda x: x.tokens, reverse=True)
         
-        # Check for venv inside project (fast - only root level)
+        # Check for venv inside project (recursive search - all levels)
         if show_progress:
             print(f"\r   [3/5] 🔍 Checking for issues... venvs", end="", flush=True)
         
-        for venv_name in ["venv", ".venv", "venv_gate", ".venv_parser", "env", ".env"]:
-            venv_path = self.project_path / venv_name
-            if venv_path.exists() and venv_path.is_dir():
-                # Verify it's actually a venv (has bin/Scripts or pyvenv.cfg)
-                is_venv = (
-                    (venv_path / "bin").exists() or 
-                    (venv_path / "Scripts").exists() or
-                    (venv_path / "pyvenv.cfg").exists()
-                )
-                if is_venv:
-                    tokens = self._count_tokens(venv_path)
-                    size = self._get_dir_size(venv_path)
-                    issues.append(Issue(
-                        id=self._next_issue_id(),
-                        severity=Severity.CRITICAL,
-                        title=f"{venv_name}/ inside project",
-                        description=f"Virtual environment consuming {self._format_tokens(tokens)} tokens ({self._format_size(size)})",
-                        path=venv_path,
-                        tokens_impact=tokens,
-                        fix_function="fix_venv_inside"
-                    ))
+        # Patterns to search for venv directories (recursively)
+        # Exact names and patterns
+        exact_names = ["venv", ".venv", "env", ".env"]
+        pattern_prefixes = ["venv_", ".venv_"]
+        found_venvs = set()  # Track found venvs to avoid duplicates
+        
+        # Search recursively for venv directories
+        # First, search for exact names
+        for name in exact_names:
+            for venv_path in self.project_path.rglob(name):
+                if venv_path.is_dir() and venv_path not in found_venvs:
+                    # Verify it's actually a venv (has bin/Scripts or pyvenv.cfg)
+                    is_venv = (
+                        (venv_path / "bin").exists() or 
+                        (venv_path / "Scripts").exists() or
+                        (venv_path / "pyvenv.cfg").exists()
+                    )
+                    if is_venv:
+                        found_venvs.add(venv_path)
+                        tokens = self._count_tokens(venv_path)
+                        size = self._get_dir_size(venv_path)
+                        rel_path = venv_path.relative_to(self.project_path)
+                        issues.append(Issue(
+                            id=self._next_issue_id(),
+                            severity=Severity.CRITICAL,
+                            title=f"{rel_path}/ inside project",
+                            description=f"Virtual environment consuming {self._format_tokens(tokens)} tokens ({self._format_size(size)})",
+                            path=venv_path,
+                            tokens_impact=tokens,
+                            fix_function="fix_venv_inside"
+                        ))
+        
+        # Then, search for pattern prefixes (venv_*, .venv_*)
+        for prefix in pattern_prefixes:
+            # Walk through all directories and check if name starts with prefix
+            for root, dirs, _ in os.walk(self.project_path):
+                root_path = Path(root)
+                for dir_name in dirs:
+                    if dir_name.startswith(prefix):
+                        venv_path = root_path / dir_name
+                        if venv_path not in found_venvs:
+                            # Verify it's actually a venv
+                            is_venv = (
+                                (venv_path / "bin").exists() or 
+                                (venv_path / "Scripts").exists() or
+                                (venv_path / "pyvenv.cfg").exists()
+                            )
+                            if is_venv:
+                                found_venvs.add(venv_path)
+                                tokens = self._count_tokens(venv_path)
+                                size = self._get_dir_size(venv_path)
+                                rel_path = venv_path.relative_to(self.project_path)
+                                issues.append(Issue(
+                                    id=self._next_issue_id(),
+                                    severity=Severity.CRITICAL,
+                                    title=f"{rel_path}/ inside project",
+                                    description=f"Virtual environment consuming {self._format_tokens(tokens)} tokens ({self._format_size(size)})",
+                                    path=venv_path,
+                                    tokens_impact=tokens,
+                                    fix_function="fix_venv_inside"
+                                ))
         
         # Check for __pycache__
         if show_progress:
@@ -320,10 +411,16 @@ class Doctor:
         
         large_files = []
         try:
-            for ext in ["*.csv", "*.db", "*.sqlite", "*.sqlite3", "*.jsonl"]:
+            # Check data file extensions
+            for ext in ["*.csv", "*.db", "*.sqlite", "*.sqlite3", "*.jsonl", "*.json"]:
                 for f in self.project_path.rglob(ext):
                     if f.is_file() and f.stat().st_size > 1_000_000:  # > 1MB
-                        large_files.append(f)
+                        # Skip if it's in venv or node_modules
+                        if "venv" not in str(f) and "node_modules" not in str(f):
+                            # Skip protected files (e.g., package.json, pyproject.toml, etc.)
+                            if is_protected_file(f):
+                                continue
+                            large_files.append(f)
         except Exception:
             pass
         
@@ -337,6 +434,83 @@ class Doctor:
                 tokens_impact=0,
                 fix_function="fix_large_files"
             ))
+        
+        # Check for artifact files (FULL_PROJECT_CODE.txt, *_DUMP.txt, etc.)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... artifacts", end="", flush=True)
+        
+        artifact_files = []
+        artifact_patterns = [
+            "*FULL_PROJECT*.txt",
+            "*_DUMP.txt",
+            "*_CODE.txt",
+            "*_BACKUP*.txt",
+            "*_EXPORT*.txt",
+            "*_ARCHIVE*.txt"
+        ]
+        
+        try:
+            for pattern in artifact_patterns:
+                for f in self.project_path.rglob(pattern):
+                    if f.is_file() and "venv" not in str(f):
+                        # Skip protected files
+                        if is_protected_file(f):
+                            continue
+                        artifact_files.append(f)
+        except Exception:
+            pass
+        
+        if artifact_files:
+            total_size = sum(f.stat().st_size for f in artifact_files)
+            total_tokens = sum(self._count_tokens(f) for f in artifact_files)
+            issues.append(Issue(
+                id=self._next_issue_id(),
+                severity=Severity.CRITICAL,
+                title=f"{len(artifact_files)} artifact files found",
+                description=f"Artifact files ({self._format_size(total_size)}, {self._format_tokens(total_tokens)} tokens) should be moved to archive",
+                tokens_impact=total_tokens,
+                fix_function="fix_artifacts"
+            ))
+        
+        # Check for large log/documentation files (.md files that are likely logs)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... large docs", end="", flush=True)
+        
+        large_doc_files = []
+        try:
+            for f in self.project_path.rglob("*.md"):
+                if f.is_file() and "venv" not in str(f):
+                    # Skip protected files
+                    if is_protected_file(f):
+                        continue
+                    size = f.stat().st_size
+                    # Check if it's a log file (large size + log-like name)
+                    is_log = (
+                        size > 100_000 or  # > 100KB
+                        any(keyword in f.name.upper() for keyword in ["LOG", "HISTORY", "CHANGELOG", "PROJECT_LOG"])
+                    )
+                    if is_log and size > 50_000:  # > 50KB
+                        large_doc_files.append(f)
+        except Exception:
+            pass
+        
+        if large_doc_files:
+            total_size = sum(f.stat().st_size for f in large_doc_files)
+            total_tokens = sum(self._count_tokens(f) for f in large_doc_files)
+            issues.append(Issue(
+                id=self._next_issue_id(),
+                severity=Severity.WARNING,
+                title=f"{len(large_doc_files)} large documentation/log files",
+                description=f"Large .md files ({self._format_size(total_size)}, {self._format_tokens(total_tokens)} tokens) - consider archiving",
+                tokens_impact=total_tokens,
+                fix_function="fix_large_docs"
+            ))
+        
+        # Check for high-token files that should be moved (smart recommendations)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... recommendations", end="", flush=True)
+        
+        # This will be populated after token counting, so we'll check it later
         
         # Check for missing _AI_INCLUDE (fast - single check)
         if show_progress:
@@ -416,16 +590,56 @@ class Doctor:
         )
     
     def create_backup(self) -> Path:
-        """Create backup archive of the project."""
+        """Create backup archive of the project (includes all files except venv, node_modules, __pycache__, .git)."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_name = f"{self.project_name}_backup_{timestamp}.tar.gz"
         backup_path = self.project_path.parent / backup_name
         
-        # Use tarfile to create archive, excluding venv
+        # Patterns to exclude from backup
+        exclude_patterns = [
+            "venv", ".venv", "venv_*", ".venv_*", "env", ".env",
+            "node_modules", "__pycache__", ".git", ".pytest_cache",
+            ".mypy_cache", ".ruff_cache", "*.pyc", "*.pyo"
+        ]
+        
+        def should_exclude(path: Path) -> bool:
+            """Check if path should be excluded from backup."""
+            # Check if path matches any exclude pattern
+            path_str = str(path.relative_to(self.project_path))
+            path_parts = path_str.split(os.sep)
+            
+            # Check each part of the path
+            for part in path_parts:
+                # Exact matches
+                if part in ["venv", ".venv", "env", ".env", "node_modules", "__pycache__", ".git", ".pytest_cache", ".mypy_cache", ".ruff_cache"]:
+                    return True
+                # Pattern matches (venv_*, .venv_*)
+                if part.startswith("venv_") or part.startswith(".venv_"):
+                    return True
+                # File extensions
+                if part.endswith((".pyc", ".pyo")):
+                    return True
+            return False
+        
+        # Use tarfile to create archive, recursively including all files
         with tarfile.open(backup_path, "w:gz") as tar:
-            for item in self.project_path.iterdir():
-                if item.name not in ["venv", ".venv", "venv_gate", "node_modules", "__pycache__", ".git"]:
-                    tar.add(item, arcname=item.name)
+            # Walk through all files and directories recursively
+            for root, dirs, files in os.walk(self.project_path):
+                root_path = Path(root)
+                
+                # Filter out excluded directories from os.walk
+                dirs[:] = [d for d in dirs if not should_exclude(root_path / d)]
+                
+                # Add files
+                for file in files:
+                    file_path = root_path / file
+                    if not should_exclude(file_path):
+                        try:
+                            arcname = file_path.relative_to(self.project_path)
+                            tar.add(file_path, arcname=str(arcname), recursive=False)
+                        except (OSError, PermissionError) as e:
+                            # Skip files that can't be read (permissions, etc.)
+                            continue
         
         return backup_path
     
@@ -612,15 +826,111 @@ class Doctor:
         data_dest.mkdir(parents=True, exist_ok=True)
         
         count = 0
-        for ext in ["*.csv", "*.db", "*.sqlite", "*.sqlite3", "*.jsonl"]:
+        total_size = 0
+        for ext in ["*.csv", "*.db", "*.sqlite", "*.sqlite3", "*.jsonl", "*.json"]:
             for f in self.project_path.rglob(ext):
                 if f.is_file() and f.stat().st_size > 1_000_000:
-                    dest = data_dest / f.name
-                    shutil.move(str(f), str(dest))
-                    count += 1
+                    if "venv" not in str(f) and "node_modules" not in str(f):
+                        # Skip protected files - NEVER touch these!
+                        if is_protected_file(f):
+                            continue
+                        size = f.stat().st_size
+                        dest = data_dest / f.name
+                        shutil.move(str(f), str(dest))
+                        self.changes.append(ChangeRecord(
+                            action="moved",
+                            item_type="data_file",
+                            source=f,
+                            destination=dest,
+                            size_bytes=size,
+                            description=f"Moved large data file to ../_data/"
+                        ))
+                        count += 1
+                        total_size += size
         
-        print(COLORS.success(f"Moved {count} large files to {data_dest}"))
-        return True
+        if count > 0:
+            print(COLORS.success(f"Moved {count} large files to {data_dest} ({self._format_size(total_size)})"))
+        return count > 0
+    
+    def fix_artifacts(self, issue: Issue) -> bool:
+        """Move artifact files (FULL_PROJECT_CODE.txt, etc.) to archive."""
+        self.archive_dir.mkdir(parents=True, exist_ok=True)
+        artifacts_subdir = self.archive_dir / "artifacts"
+        artifacts_subdir.mkdir(exist_ok=True)
+        
+        artifact_patterns = [
+            "*FULL_PROJECT*.txt",
+            "*_DUMP.txt",
+            "*_CODE.txt",
+            "*_BACKUP*.txt",
+            "*_EXPORT*.txt",
+            "*_ARCHIVE*.txt"
+        ]
+        
+        count = 0
+        total_size = 0
+        
+        for pattern in artifact_patterns:
+            for f in self.project_path.rglob(pattern):
+                if f.is_file() and "venv" not in str(f):
+                    # Skip protected files - NEVER touch these!
+                    if is_protected_file(f):
+                        continue
+                    size = f.stat().st_size
+                    dest = artifacts_subdir / f.name
+                    shutil.move(str(f), str(dest))
+                    self.changes.append(ChangeRecord(
+                        action="moved",
+                        item_type="artifact",
+                        source=f,
+                        destination=dest,
+                        size_bytes=size,
+                        description=f"Moved artifact file to archive"
+                    ))
+                    count += 1
+                    total_size += size
+        
+        if count > 0:
+            print(COLORS.success(f"Moved {count} artifact files to archive ({self._format_size(total_size)})"))
+        return count > 0
+    
+    def fix_large_docs(self, issue: Issue) -> bool:
+        """Move large documentation/log files to archive."""
+        self.archive_dir.mkdir(parents=True, exist_ok=True)
+        docs_subdir = self.archive_dir / "docs_logs"
+        docs_subdir.mkdir(exist_ok=True)
+        
+        count = 0
+        total_size = 0
+        
+        for f in self.project_path.rglob("*.md"):
+            if f.is_file() and "venv" not in str(f):
+                # Skip protected files - NEVER touch these!
+                if is_protected_file(f):
+                    continue
+                size = f.stat().st_size
+                # Check if it's a log file (large size + log-like name)
+                is_log = (
+                    size > 100_000 or  # > 100KB
+                    any(keyword in f.name.upper() for keyword in ["LOG", "HISTORY", "CHANGELOG", "PROJECT_LOG"])
+                )
+                if is_log and size > 50_000:  # > 50KB
+                    dest = docs_subdir / f.name
+                    shutil.move(str(f), str(dest))
+                    self.changes.append(ChangeRecord(
+                        action="moved",
+                        item_type="doc_log",
+                        source=f,
+                        destination=dest,
+                        size_bytes=size,
+                        description=f"Moved large documentation/log file to archive"
+                    ))
+                    count += 1
+                    total_size += size
+        
+        if count > 0:
+            print(COLORS.success(f"Moved {count} large doc/log files to archive ({self._format_size(total_size)})"))
+        return count > 0
     
     def fix_missing_ai_include(self, issue: Issue) -> bool:
         """Create _AI_INCLUDE folder with basic files."""
@@ -849,8 +1159,68 @@ Write-Host "✅ Done! Activate: $VENV_DIR\\Scripts\\Activate.ps1"
             return fix_method(issue)
         return False
     
-    def fix_all(self, report: DiagnosticReport, backup_path: Optional[Path] = None) -> bool:
+    def fix_all(self, report: DiagnosticReport, backup_path: Optional[Path] = None, auto: bool = False) -> bool:
         """Fix all issues in order of severity."""
+        
+        # === STEP 1: ARCHITECTURAL RESTRUCTURING (before any other fixes) ===
+        # Check if project has "architectural obesity" (venv/data files inside root)
+        has_architectural_issues = any(
+            issue.severity == Severity.CRITICAL and 
+            (issue.fix_function == "fix_venv_inside" or "venv" in issue.title.lower() or "data" in issue.title.lower())
+            for issue in report.issues
+        ) or any(
+            "large data files" in issue.title.lower() or 
+            "artifact" in issue.title.lower()
+            for issue in report.issues
+        )
+        
+        if has_architectural_issues and HAS_ARCHITECT:
+            # Ask user in interactive mode
+            if not auto:
+                print("\n" + COLORS.warning("⚠️  Critical Architecture Issue: Project contains heavy venv/data files inside the root."))
+                response = input("   Apply AI-Native restructuring (move to external folders)? [Y/n]: ").strip().upper()
+                if response and response != "Y":
+                    print(COLORS.info("   Skipping architectural restructuring."))
+                    has_architectural_issues = False
+            
+            if has_architectural_issues:
+                print(COLORS.info("\n🏗️  Running architectural restructuring..."))
+                try:
+                    # Run architectural restructuring
+                    restructure_project(str(self.project_path))
+                    
+                    # CRITICAL: Verify config_paths.py exists (the bridge file)
+                    config_paths_file = self.project_path / "config_paths.py"
+                    if not config_paths_file.exists():
+                        print(COLORS.warning("   ⚠️  config_paths.py not found after restructuring. Creating fallback..."))
+                        # Create the bridge file as fallback
+                        if create_config_paths:
+                            create_config_paths(self.project_path, self.project_name)
+                        else:
+                            # Manual fallback creation
+                            self._create_config_paths_fallback()
+                    
+                    # Verify it exists now
+                    if config_paths_file.exists():
+                        print(COLORS.success("   ✅ Bridge file (config_paths.py) verified."))
+                    else:
+                        print(COLORS.error("   ❌ Failed to create config_paths.py. Project may not function correctly."))
+                    
+                    # Record architectural restructuring in changes
+                    self.changes.append(ChangeRecord(
+                        action="restructured",
+                        item_type="architecture",
+                        source=self.project_path,
+                        destination=None,
+                        size_bytes=0,
+                        description="Applied AI-Native architectural restructuring (venv/data moved external)"
+                    ))
+                    
+                except Exception as e:
+                    print(COLORS.error(f"   ❌ Architectural restructuring failed: {e}"))
+                    print(COLORS.warning("   Continuing with standard fixes..."))
+        
+        # === STEP 2: STANDARD FIXES (after architectural restructuring) ===
         # Sort: CRITICAL first, then WARNING, then SUGGESTION
         sorted_issues = sorted(
             report.issues,
@@ -862,6 +1232,13 @@ Write-Host "✅ Done! Activate: $VENV_DIR\\Scripts\\Activate.ps1"
         
         success_count = 0
         for issue in sorted_issues:
+            # Skip issues that were already handled by architectural restructuring
+            if has_architectural_issues and HAS_ARCHITECT:
+                if issue.fix_function in ["fix_venv_inside", "fix_large_files"]:
+                    # These were handled by architect, but we still want to check if they need additional fixes
+                    # Skip only if architect successfully handled them
+                    continue
+            
             print(f"\n   [{issue.id}] Fixing: {issue.title}")
             if self.fix_issue(issue):
                 success_count += 1
@@ -900,6 +1277,90 @@ Write-Host "✅ Done! Activate: $VENV_DIR\\Scripts\\Activate.ps1"
                 print(COLORS.warning("Bootstrap failed — run manually: ./scripts/bootstrap.sh"))
         
         return success_count == len(sorted_issues)
+    
+    def _create_config_paths_fallback(self) -> None:
+        """Fallback method to create config_paths.py if architect module is not available."""
+        config_content = f'''import os
+from pathlib import Path
+
+# === AI-NATIVE PATH CONFIGURATION ===
+# Auto-generated by AI Toolkit Doctor
+
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_NAME = "{self.project_name}"
+EXTERNAL_ROOT = BASE_DIR.parent
+
+# 1. DATA (JSON, DB, CSV)
+DATA_DIR = EXTERNAL_ROOT / "_data" / PROJECT_NAME
+if not DATA_DIR.exists():
+    DATA_DIR = BASE_DIR / "data"
+
+# 2. LOGS
+LOGS_DIR = EXTERNAL_ROOT / "_logs" / PROJECT_NAME
+if not LOGS_DIR.exists():
+    LOGS_DIR = BASE_DIR / "logs"
+
+# 3. VENV (Reference only)
+VENV_DIR = EXTERNAL_ROOT / "_venvs" / PROJECT_NAME
+
+def get_path(filename, check_exists=False):
+    """Smart path resolver: External > Internal"""
+    external_path = DATA_DIR / filename
+    local_path = BASE_DIR / filename
+    
+    if check_exists:
+        if external_path.exists(): return external_path
+        if local_path.exists(): return local_path
+    
+    return external_path
+'''
+        config_path = self.project_path / "config_paths.py"
+        try:
+            config_path.write_text(config_content, encoding="utf-8")
+            print(COLORS.success(f"   ✅ Created fallback config_paths.py"))
+        except Exception as e:
+            print(COLORS.error(f"   ❌ Failed to create config_paths.py: {e}"))
+
+
+def _update_project_docs(project_path: Path) -> None:
+    """Update both PROJECT_STATUS.md and CURRENT_CONTEXT_MAP.md after changes."""
+    try:
+        # Update PROJECT_STATUS.md
+        update_status(project_path, skip_tests=True)
+        print(COLORS.success("✅ PROJECT_STATUS.md updated"))
+        
+        # Update CURRENT_CONTEXT_MAP.md
+        if HAS_CONTEXT_MAP and write_context_map:
+            try:
+                if write_context_map(project_path, "CURRENT_CONTEXT_MAP.md"):
+                    print(COLORS.success("✅ CURRENT_CONTEXT_MAP.md updated"))
+                else:
+                    print(COLORS.warning("⚠️  Could not update CURRENT_CONTEXT_MAP.md"))
+            except Exception as e:
+                print(COLORS.warning(f"⚠️  Could not update CURRENT_CONTEXT_MAP.md: {e}"))
+        else:
+            # Fallback: try to run generate_map.py script
+            try:
+                import subprocess
+                generate_map_script = project_path / "generate_map.py"
+                if generate_map_script.exists():
+                    result = subprocess.run(
+                        ["python3", str(generate_map_script)],
+                        cwd=project_path,
+                        check=False,
+                        capture_output=True,
+                        text=True
+                    )
+                    if result.returncode == 0:
+                        print(COLORS.success("✅ CURRENT_CONTEXT_MAP.md updated (via script)"))
+                    else:
+                        print(COLORS.warning("⚠️  Could not update CURRENT_CONTEXT_MAP.md (script failed)"))
+                else:
+                    print(COLORS.warning("⚠️  generate_map.py not found, skipping CURRENT_CONTEXT_MAP.md update"))
+            except Exception as e:
+                print(COLORS.warning(f"⚠️  Could not update CURRENT_CONTEXT_MAP.md: {e}"))
+    except Exception as e:
+        print(COLORS.error(f"❌ Error updating project docs: {e}"))
 
 
 def print_report(report: DiagnosticReport, show_menu: bool = True) -> None:
@@ -1208,9 +1669,8 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
         return True
     
     if not report.issues:
-        # Update status and exit
-        update_status(project_path, skip_tests=True)
-        print(COLORS.success("\nPROJECT_STATUS.md updated"))
+        # Update both docs and exit
+        _update_project_docs(project_path)
         return True
     
     if auto:
@@ -1220,7 +1680,7 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
         backup_path = doctor.create_backup()
         print(COLORS.success(f"Backup: {backup_path.name}"))
         
-        doctor.fix_all(report, backup_path)
+        doctor.fix_all(report, backup_path, auto=True)
         
         # Re-diagnose to get updated report with changes
         after = doctor.diagnose()
@@ -1231,9 +1691,8 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
         # Show detailed changes
         print_detailed_changes(after)
         
-        # Update status
-        update_status(project_path, skip_tests=True)
-        print(COLORS.success("\nPROJECT_STATUS.md updated"))
+        # Update both PROJECT_STATUS.md and CURRENT_CONTEXT_MAP.md
+        _update_project_docs(project_path)
         
         return True
     
@@ -1272,9 +1731,8 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
             # Show token breakdown
             print_token_breakdown(report)
         elif choice == "R":
-            # Just update status
-            update_status(project_path, skip_tests=True)
-            print(COLORS.success("PROJECT_STATUS.md updated"))
+            # Just update docs
+            _update_project_docs(project_path)
         elif choice == "A":
             # Fix all
             print(COLORS.info("\nFixing all issues..."))
@@ -1282,7 +1740,7 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
             backup_path = doctor.create_backup()
             print(COLORS.success(f"Backup: {backup_path.name}"))
             
-            doctor.fix_all(report, backup_path)
+            doctor.fix_all(report, backup_path, auto=False)
             
             # Re-diagnose to get updated report with changes
             after = doctor.diagnose()
@@ -1293,9 +1751,8 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
             # Show detailed changes
             print_detailed_changes(after)
             
-            # Update status
-            update_status(project_path, skip_tests=True)
-            print(COLORS.success("\nPROJECT_STATUS.md updated"))
+            # Update both docs
+            _update_project_docs(project_path)
             break
         elif choice.isdigit():
             issue_id = int(choice)

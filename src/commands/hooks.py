@@ -19,8 +19,16 @@ PRE_COMMIT_HOOK = '''#!/bin/sh
 
 echo "🦊 Fox is guarding your repo..."
 
-# Update context map if generator exists
-if [ -f "generate_map.py" ]; then
+# Update project docs (for AI Toolkit itself)
+if [ -f "src/utils/status_generator.py" ] && [ -f "src/utils/context_map.py" ]; then
+    echo "  📊 Updating PROJECT_STATUS.md and CURRENT_CONTEXT_MAP.md..."
+    python3 -m src.cli status . --skip-tests 2>/dev/null || python -m src.cli status . --skip-tests 2>/dev/null
+    if [ -f "generate_map.py" ]; then
+        python3 generate_map.py 2>/dev/null || python generate_map.py 2>/dev/null
+    fi
+    git add PROJECT_STATUS.md CURRENT_CONTEXT_MAP.md 2>/dev/null
+elif [ -f "generate_map.py" ]; then
+    # Fallback: update context map only (for other projects)
     echo "  📋 Updating context map..."
     python3 generate_map.py 2>/dev/null || python generate_map.py 2>/dev/null
     git add CURRENT_CONTEXT_MAP.md 2>/dev/null

@@ -374,6 +374,10 @@
     ƒ test_update_same_version_skips
     ƒ test_update_refreshes_scripts
 
+- `scripts/auto_update_docs.ps1`
+
+- `scripts/auto_update_docs.sh`
+
 - `scripts/build.sh`
 
 - `scripts/publish.sh`
@@ -448,6 +452,8 @@
     ƒ run_tests
     ƒ check_file_exists
     ƒ get_version
+    ƒ parse_technical_spec
+    ƒ check_manifesto_compliance
     ƒ generate_status_md
     ƒ update_status
 
@@ -562,6 +568,15 @@
 
 - `src/commands/__init__.py`
 
+- `src/commands/architect.py`
+    ƒ setup_logger
+    ƒ create_config_paths
+    ƒ get_path
+    ƒ restructure_project
+    ƒ fix_launch_scripts
+    ƒ update_cursor_ignore
+    ƒ run
+
 - `src/commands/cleanup.py`
   📦 Issue
     ƒ __str__
@@ -593,6 +608,7 @@
     ƒ cmd_create
 
 - `src/commands/doctor.py`
+    ƒ is_protected_file
   📦 Severity
   📦 Issue
   📦 FileTokens
@@ -611,18 +627,24 @@
     ƒ _format_tokens
     ƒ diagnose
     ƒ create_backup
+    ƒ should_exclude
     ƒ fix_venv_inside
     ƒ fix_pycache
     ƒ fix_logs
     ƒ fix_log_files
     ƒ fix_node_modules
     ƒ fix_large_files
+    ƒ fix_artifacts
+    ƒ fix_large_docs
     ƒ fix_missing_ai_include
     ƒ fix_missing_cursorignore
     ƒ fix_missing_bootstrap
     ƒ fix_create_venv
     ƒ fix_issue
     ƒ fix_all
+    ƒ _create_config_paths_fallback
+    ƒ get_path
+    ƒ _update_project_docs
     ƒ print_report
     ƒ print_token_breakdown
     ƒ print_detailed_changes
@@ -726,7 +748,9 @@
 
 - `plugins/installed/.gitkeep`
 
+- `.cursor/rules/auto_update.md`
+
 - `.cursor/rules/project.md`
 
 ---
-**Stats:** Scanned 127 files. Map size: ~3721 tokens.
+**Stats:** Scanned 131 files. Map size: ~3847 tokens.
