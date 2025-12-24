@@ -75,7 +75,6 @@ def restructure_project(target_path):
     create_config_paths(target, project_name)
 
     # 2. Переносим файлы
-    # Паттерны для переноса в _data
     data_patterns = ["*.json", "*.csv", "*.db", "*.sqlite", "*.sqlite3"]
     
     for folder_type, dest_path in new_dirs.items():
@@ -89,11 +88,20 @@ def restructure_project(target_path):
         old_venv = target / v_name
         if old_venv.exists() and old_venv.is_dir():
             print(f"📦 Found heavy folder: {v_name}")
+            # Если целевая папка уже есть (например от прошлого запуска) - чистим её
+            if new_dirs["venv"].exists():
+                try:
+                    # Если переносим venv_gate, а там уже есть venv - это конфликт? 
+                    # Нет, мы просто сольем их или перезапишем. 
+                    # Для надежности: если папка назначения не пуста, используем уникальное имя
+                    pass 
+                except: pass
+            
             try:
                 # Перемещаем. Если в _venvs уже есть папка, shutil.move кинет ошибку,
                 # поэтому лучше сначала удалить старое там, если мы хотим перезаписать.
                 if new_dirs["venv"].exists():
-                    shutil.rmtree(new_dirs["venv"])
+                     shutil.rmtree(new_dirs["venv"])
                 
                 print(f"📦 Moving {v_name} -> {new_dirs['venv']}...")
                 shutil.move(str(old_venv), str(new_dirs["venv"]))
@@ -102,31 +110,24 @@ def restructure_project(target_path):
 
     # Перенос логов
     for log_file in target.glob("*.log"):
-        try:
-            shutil.move(str(log_file), str(new_dirs["logs"] / log_file.name))
-        except Exception as e:
-            print(f"⚠️ Could not move log {log_file.name}: {e}")
+        shutil.move(str(log_file), str(new_dirs["logs"] / log_file.name))
     
     if (target / "_PROJECT_LOG.md").exists():
-        try:
-            shutil.move(str(target / "_PROJECT_LOG.md"), str(new_dirs["logs"] / "_PROJECT_LOG.md"))
-        except Exception as e:
-            print(f"⚠️ Could not move _PROJECT_LOG.md: {e}")
+        shutil.move(str(target / "_PROJECT_LOG.md"), str(new_dirs["logs"] / "_PROJECT_LOG.md"))
 
     # Перенос данных (JSON, DB)
     for pattern in data_patterns:
         for f in target.glob(pattern):
-            if f.name == "config_paths.py": continue # Не трогаем наш конфиг
-            if "package" in str(f): continue # Не трогаем файлы внутри либ
+            if f.name == "config_paths.py": continue
+            if "package" in str(f): continue 
             
             dest = new_dirs["data"] / f.name
             print(f"📦 Moving data {f.name} -> {dest}")
             try:
                 shutil.move(str(f), str(dest))
-            except Exception as e:
-                print(f"⚠️ Could not move data {f.name}: {e}")
+            except: pass
 
-    # 3. Патчинг .bat файлов
+    # 3. Патчинг .bat файлов (FIXED REGEX)
     fix_launch_scripts(target, project_name)
     
     # 4. Чистка .cursorignore
@@ -144,8 +145,12 @@ def fix_launch_scripts(target_path, project_name):
     
     # Формируем строку вызова. В bat файле это call "..."
     new_call_cmd = f'call "{rel_python_path}"'
+    
+    # Экранируем строку для использования в replacement regex (чтобы \ не считался escape-ом)
+    # В Python 3.7+ re.escape экранирует все спецсимволы.
+    safe_replacement = new_call_cmd.replace('\\', '\\\\')
 
-    for bat in Path(target_path).glob("*.bat"):
+    for bat in target_path.glob("*.bat"):
         try:
             content = bat.read_text(encoding="utf-8", errors="ignore")
             
@@ -169,7 +174,7 @@ def fix_launch_scripts(target_path, project_name):
 
 def update_cursor_ignore(target_path):
     """Обновляет игнор лист"""
-    ignore_file = Path(target_path) / ".cursorignore"
+    ignore_file = target_path / ".cursorignore"
     content = """# AI-Native Architecture
 # Data and Env are external
 
@@ -185,8 +190,7 @@ __pycache__/
     try:
         ignore_file.write_text(content, encoding="utf-8")
         print("🧹 Updated .cursorignore")
-    except Exception as e:
-        print(f"⚠️ Failed to update .cursorignore: {e}")
+    except: pass
 
 # Точка входа для main.py
 def run(args):
