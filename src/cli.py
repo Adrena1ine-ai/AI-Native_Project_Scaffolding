@@ -18,6 +18,13 @@ from .commands import (
     cmd_migrate,
     cmd_health,
     cmd_update,
+    cmd_review,
+    cmd_wizard,
+    run_wizard,
+    cmd_hooks,
+    cmd_pack,
+    pack_context,
+    cmd_trace,
     cmd_doctor,
     cmd_status,
     run_doctor_interactive,
@@ -111,11 +118,15 @@ def interactive_mode():
     select_ide()
     
     commands = {
-        "1": cmd_create,
-        "2": cmd_cleanup,
-        "3": cmd_migrate,
-        "4": cmd_health,
-        "5": cmd_update,
+        "1": cmd_wizard,
+        "2": cmd_create,
+        "3": cmd_cleanup,
+        "4": cmd_migrate,
+        "5": cmd_health,
+        "6": cmd_update,
+        "7": cmd_review,
+        "8": cmd_pack,
+        "9": cmd_trace,
         "d": run_doctor_interactive,
         "t": run_status_interactive,
         "s": select_ide,
@@ -247,6 +258,31 @@ def cli_mode():
     
     elif args.command == "update":
         update_project(args.path)
+    
+    elif args.command == "review":
+        cmd_review()
+    
+    elif args.command == "wizard":
+        cmd_wizard()
+    
+    elif args.command == "hooks":
+        cmd_hooks()
+    
+    elif args.command == "pack":
+        success, files_count, size = pack_context(args.path, args.output)
+        if success:
+            print(COLORS.success(f"Packed {files_count} files ({size:,} bytes) to {args.output}"))
+    
+    elif args.command == "trace":
+        from .commands.trace import trace_file
+        success, count, result = trace_file(args.entry, args.depth, args.output)
+        if success:
+            if args.output:
+                print(COLORS.success(f"Traced {count} files to {args.output}"))
+            else:
+                print(result)
+        else:
+            print(COLORS.error(result))
     
     elif args.command == "doctor":
         cmd_doctor(args)

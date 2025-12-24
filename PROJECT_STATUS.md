@@ -1,7 +1,7 @@
 # 📊 Project Status — AI Toolkit v3.0.0
 
 > ⚡ Auto-generated from codebase. Do not edit manually.
-> 🕐 Last updated: 2025-12-23 21:52:09
+> 🕐 Last updated: 2025-12-23 23:45:13
 
 ---
 
@@ -13,15 +13,23 @@
 | `create` | Interactive create command |
 | `doctor` | CLI entry point for doctor command. |
 | `health` | Interactive health check command |
+| `hooks` | Interactive hook management command |
 | `migrate` | Interactive migrate command |
+| `pack` | Interactive pack command |
+| `review` | Interactive review command (Fox) |
 | `status` | Regenerate PROJECT_STATUS.md from current codebase state. |
+| `trace` | Interactive trace command |
 | `update` | Interactive update command |
+| `wizard` | Interactive wizard command wrapper |
 
 ---
 
 ## 🛠️ Utilities
 
 - [x] `src/utils/status_generator.py` — Auto-generate PROJECT_STATUS.md from actual codebase state.
+- [x] `src/utils/metrics.py` — 📊 Metrics — Project scanning and token estimation
+- [x] `src/utils/cleaner.py` — 🧹 Cleaner — Archive artifacts and garbage files
+- [x] `src/utils/context_map.py` — 🧠 Context Map Generator — AST-based project mapping
 
 ---
 
@@ -41,13 +49,13 @@
 | Document | Status |
 |----------|--------|
 | `README.md` | ✅ Project overview |
-| `PROMPTS_LIBRARY.md` | ❌ Curated prompts for AI |
-| `TRADEOFFS.md` | ❌ Architectural decisions |
+| `PROMPTS_LIBRARY.md` | ✅ Curated prompts for AI |
+| `TRADEOFFS.md` | ✅ Architectural decisions |
 | `CLAUDE.md` | ✅ Claude AI instructions |
 | `CONTRIBUTING.md` | ✅ Contribution guide |
-| `_AI_INCLUDE/WHERE_THINGS_LIVE.md` | ❌ Location guide |
+| `_AI_INCLUDE/WHERE_THINGS_LIVE.md` | ✅ Location guide |
 | `_AI_INCLUDE/PROJECT_CONVENTIONS.md` | ✅ Project conventions |
-| `.cursor/rules/project.md` | ❌ Cursor project rules |
+| `.cursor/rules/project.md` | ✅ Cursor project rules |
 | `.cursor/rules/toolkit.md` | ❌ Cursor toolkit rules |
 | `docs/QUICK_START.md` | ✅ Quick start guide |
 | `docs/FAQ.md` | ✅ Frequently asked questions |
@@ -64,8 +72,8 @@ Tests: Skipped (use --run-tests to include)
 
 ## 📊 Quick Stats
 
-- **Commands:** 7
-- **Utilities:** 1
+- **Commands:** 12
+- **Utilities:** 4
 - **Generators:** 6
 - **Version:** 3.0.0
 
