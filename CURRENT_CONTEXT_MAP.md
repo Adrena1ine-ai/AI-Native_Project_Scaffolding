@@ -574,13 +574,6 @@
     ƒ get_path
     ƒ restructure_project
     ƒ fix_launch_scripts
-    ƒ setup_logger
-    ƒ create_config_paths
-    ƒ get_path
-    ƒ restructure_project
-    ƒ fix_launch_scripts
-    ƒ update_cursor_ignore
-    ƒ run
     ƒ update_cursor_ignore
     ƒ run
 
@@ -760,4 +753,4 @@
 - `.cursor/rules/project.md`
 
 ---
-**Stats:** Scanned 131 files. Map size: ~3884 tokens.
+**Stats:** Scanned 131 files. Map size: ~3847 tokens.
