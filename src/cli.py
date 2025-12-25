@@ -246,6 +246,12 @@ def cli_mode():
         action="store_true",
         help="Restore project from deep clean"
     )
+    doctor_p.add_argument(
+        "--garbage-clean",
+        action="store_true",
+        dest="garbage_clean",
+        help="Move garbage files (tmp, bak, old logs) to garbage_for_removal"
+    )
     
     # status
     status_p = subparsers.add_parser("status", help="Regenerate PROJECT_STATUS.md")

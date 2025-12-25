@@ -225,7 +225,8 @@ def scan_project(
     project_path: Path,
     threshold: int = 1000,
     include_code: bool = False,
-    extract_schemas: bool = True
+    extract_schemas: bool = True,
+    show_progress: bool = False
 ) -> ScanResult:
     """
     Scan project for files exceeding token threshold.
@@ -270,6 +271,11 @@ def scan_project(
                         continue
                     
                     result.total_files_scanned += 1
+                    
+                    # Show progress every 20 files
+                    if show_progress and result.total_files_scanned % 20 == 0:
+                        print(f"\r   Scanning... {result.total_files_scanned} files", end="", flush=True)
+                    
                     tokens = estimate_tokens(file_path)
                     result.total_tokens += tokens
                     
@@ -286,9 +292,14 @@ def scan_project(
                     result.errors.append(f"{file_path}: {str(e)}")
     except Exception as e:
         result.errors.append(f"Scan error: {str(e)}")
+        if show_progress:
+            print()  # New line after error
     
     # Sort heavy files by tokens (descending)
     result.heavy_files.sort(key=lambda x: x.estimated_tokens, reverse=True)
+    
+    if show_progress:
+        print(f"\r   Scanned {result.total_files_scanned} files (done)" + " " * 30)
     
     return result
 

@@ -39,6 +39,8 @@
 
 - `toolkit.yaml`
 
+- `toolkit_menu.bat`
+
 - `.github/FUNDING.yml`
 
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -681,7 +683,15 @@
     ƒ get_schema
     ƒ generate_manifest
     ƒ restore_files
+    ƒ update_cursorignore
     ƒ format_move_report
+    ƒ get_garbage_dir
+    ƒ find_garbage_files
+  📦 GarbageMoveResult
+    ƒ success_count
+    ƒ failed_count
+    ƒ move_garbage_files
+    ƒ format_garbage_report
 
 - `src/utils/metrics.py`
   📦 ScanResult
@@ -929,6 +939,7 @@
     ƒ run_doctor
     ƒ run_deep_clean
     ƒ run_restore
+    ƒ run_garbage_clean
     ƒ cmd_doctor
     ƒ run_doctor_interactive
   📦 Args
@@ -1032,4 +1043,4 @@
 - `.cursor/rules/project.md`
 
 ---
-**Stats:** Scanned 142 files. Map size: ~5513 tokens.
+**Stats:** Scanned 143 files. Map size: ~5571 tokens.

@@ -76,7 +76,8 @@ def _detect_usage_type(line: str) -> str:
 def find_file_usages(
     project_path: Path,
     file_path: str,
-    exclude_dirs: Optional[Set[str]] = None
+    exclude_dirs: Optional[Set[str]] = None,
+    show_progress: bool = False
 ) -> List[FileUsage]:
     """
     Find all places where a file path is referenced in Python code.
@@ -85,6 +86,7 @@ def find_file_usages(
         project_path: Project root
         file_path: Relative path to search for (e.g., "data/products.json")
         exclude_dirs: Directories to skip
+        show_progress: If True, show progress dots
     
     Returns:
         List of FileUsage showing where file is used
@@ -99,10 +101,19 @@ def find_file_usages(
         file_path.replace("\\", "/"),     # Unix paths
     ]
     
-    for py_file in project_path.rglob("*.py"):
+    # Get all Python files first for progress tracking
+    all_py_files = list(project_path.rglob("*.py"))
+    total_files = len([f for f in all_py_files if not any(exc in f.parts for exc in exclude_dirs)])
+    
+    processed = 0
+    for py_file in all_py_files:
         # Skip excluded dirs
         if any(exc in py_file.parts for exc in exclude_dirs):
             continue
+        
+        processed += 1
+        if show_progress and processed % 50 == 0:
+            print(f"   Scanning... {processed}/{total_files} files", end="\r", flush=True)
         
         try:
             content = py_file.read_text(encoding="utf-8")
@@ -124,6 +135,9 @@ def find_file_usages(
                         
         except Exception:
             continue
+    
+    if show_progress:
+        print(f"   Scanning... {processed}/{total_files} files done" + " " * 20)
     
     return usages
 
@@ -184,7 +198,8 @@ def generate_file_description(traced_file: TracedFile) -> str:
 
 def generate_fox_trace_map(
     project_path: Path,
-    moved_files: List[MovedFile]
+    moved_files: List[MovedFile],
+    show_progress: bool = True
 ) -> FoxTraceMap:
     """
     Generate complete Fox Trace Map.
@@ -195,6 +210,11 @@ def generate_fox_trace_map(
        - Find all usages in codebase
        - Generate description
     2. Compile into FoxTraceMap
+    
+    Args:
+        project_path: Path to project root
+        moved_files: List of moved files
+        show_progress: If True, show progress indicators
     """
     project_path = project_path.resolve()
     
@@ -205,9 +225,13 @@ def generate_fox_trace_map(
         total_tokens_saved=sum(mf.estimated_tokens for mf in moved_files)
     )
     
-    for mf in moved_files:
+    total = len(moved_files)
+    for idx, mf in enumerate(moved_files, 1):
+        if show_progress:
+            print(f"   Processing {idx}/{total}: {mf.original_relative[:50]}...", end="\r", flush=True)
+        
         # Find usages
-        usages = find_file_usages(project_path, mf.original_relative)
+        usages = find_file_usages(project_path, mf.original_relative, show_progress=False)
         
         # Generate schema markdown
         if mf.schema:
@@ -228,6 +252,9 @@ def generate_fox_trace_map(
         traced.description = generate_file_description(traced)
         trace_map.traced_files.append(traced)
     
+    if show_progress:
+        print(f"   Processed {total}/{total} files" + " " * 50)
+    
     return trace_map
 
 
@@ -247,13 +274,13 @@ def write_fox_trace_md(
     ## Summary
     - Files moved: 12
     - Tokens saved: 4.8M
-    - External storage: ../_data/project/LARGE_TOKENS/
+    - External storage: ../project_data/
     
     ## External Files
     
     ### 📦 data/products.json
     
-    **Location:** `../_data/project/LARGE_TOKENS/data/products.json`
+    **Location:** `../project_data/data/products.json`
     **Category:** Data (JSON)
     **Tokens:** ~50,000
     **Bridge:** `from config_paths import get_path; get_path("data/products.json")`
@@ -303,7 +330,7 @@ def write_fox_trace_md(
     lines.append(f"|--------|-------|")
     lines.append(f"| Files Moved | {trace_map.total_moved_files} |")
     lines.append(f"| Tokens Saved | ~{tokens_str} |")
-    lines.append(f"| External Storage | `../_data/{trace_map.project_name}/LARGE_TOKENS/` |")
+    lines.append(f"| External Storage | `../{trace_map.project_name}_data/` |")
     lines.append(f"| Bridge File | `config_paths.py` |")
     lines.append("")
     lines.append("---")
@@ -368,7 +395,7 @@ def write_fox_trace_md(
         tokens = f"{tf.estimated_tokens/1_000:.0f}K"
         lines.append(f"**Category:** {tf.category.title()}")
         lines.append(f"**Tokens:** ~{tokens}")
-        lines.append(f"**External:** `../_data/{trace_map.project_name}/LARGE_TOKENS/{tf.original_path}`")
+        lines.append(f"**External:** `../{trace_map.project_name}_data/{tf.original_path}`")
         lines.append("")
         
         # Access pattern
@@ -406,7 +433,7 @@ def write_fox_trace_md(
     lines.append("1. **Don't ask for file contents** — Use the schema above to understand structure")
     lines.append("2. **Use `get_path()`** — All moved files are accessed via config_paths")
     lines.append("3. **Check schema first** — Know what fields exist before writing code")
-    lines.append("4. **Files are external** — They exist in `../_data/`, not in project folder")
+    lines.append(f"4. **Files are external** — They exist in `../{trace_map.project_name}_data/`, not in project folder")
     lines.append("")
     lines.append("---")
     lines.append("")

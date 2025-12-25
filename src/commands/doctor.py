@@ -38,7 +38,10 @@ except ImportError:
 # Import Deep Clean utilities
 try:
     from ..utils.token_scanner import scan_project, get_moveable_files, format_scan_report
-    from ..utils.heavy_mover import move_heavy_files, restore_files, format_move_report
+    from ..utils.heavy_mover import (
+        move_heavy_files, restore_files, format_move_report,
+        move_garbage_files, format_garbage_report
+    )
     from ..utils.ast_patcher import patch_project, revert_patches, format_patch_report
     from ..utils.fox_trace_map import generate_fox_trace_map, write_fox_trace_md, write_cursor_rules
     HAS_DEEP_CLEAN = True
@@ -50,6 +53,8 @@ except ImportError:
     move_heavy_files = None
     restore_files = None
     format_move_report = None
+    move_garbage_files = None
+    format_garbage_report = None
     patch_project = None
     revert_patches = None
     format_patch_report = None
@@ -1847,7 +1852,7 @@ def run_deep_clean(
     
     # Step 1: Scan for heavy files
     print(COLORS.info("📊 Step 1/6: Scanning for heavy files..."))
-    scan_result = scan_project(project_path, threshold=threshold)
+    scan_result = scan_project(project_path, threshold=threshold, show_progress=True)
     moveable = get_moveable_files(scan_result)
     
     if not moveable:
@@ -1880,6 +1885,8 @@ def run_deep_clean(
     
     # Step 3: Move files
     print(COLORS.info("\n📦 Step 2/6: Moving heavy files to external storage..."))
+    if not dry_run and len(moveable) > 0:
+        print(COLORS.info(f"   Moving {len(moveable)} files..."))
     move_result = move_heavy_files(project_path, moveable, dry_run=dry_run)
     
     if move_result.failed_files:
@@ -1895,9 +1902,12 @@ def run_deep_clean(
     # Step 4: Patch code
     if patch_code and move_result.moved_files:
         print(COLORS.info("\n🔧 Step 3/6: Patching Python code to use bridges..."))
+        print(COLORS.info("   Scanning Python files..."), end="", flush=True)
         
         moved_paths = {mf.original_relative for mf in move_result.moved_files}
         patch_result = patch_project(project_path, moved_paths, dry_run=dry_run)
+        
+        print()  # New line after scanning
         
         if patch_result.total_patches > 0:
             print(format_patch_report(patch_result))
@@ -1913,14 +1923,17 @@ def run_deep_clean(
     print(COLORS.info("\n🦊 Step 4/6: Generating navigation map for AI..."))
     
     if not dry_run and move_result.moved_files:
-        trace_map = generate_fox_trace_map(project_path, move_result.moved_files)
+        print(COLORS.info(f"   Analyzing {len(move_result.moved_files)} moved files..."))
+        trace_map = generate_fox_trace_map(project_path, move_result.moved_files, show_progress=True)
+        print(COLORS.info("   Writing navigation map..."), end="", flush=True)
         trace_file = write_fox_trace_md(trace_map, project_path)
-        print(COLORS.success(f"   ✅ Created {trace_file.name}"))
+        print(COLORS.success(f" ✅ Created {trace_file.name}"))
         
         # Step 6: Update Cursor rules
         print(COLORS.info("\n📝 Step 5/6: Updating Cursor rules..."))
+        print(COLORS.info("   Generating rules..."), end="", flush=True)
         rules_file = write_cursor_rules(trace_map, project_path)
-        print(COLORS.success(f"   ✅ Created {rules_file.relative_to(project_path)}"))
+        print(COLORS.success(f" ✅ Created {rules_file.relative_to(project_path)}"))
     else:
         print(COLORS.info("   [DRY RUN] Would generate AST_FOX_TRACE.md"))
     
@@ -1947,7 +1960,8 @@ def run_deep_clean(
         print("║  📄 Generated Files:                                             ║")
         print("║  ├─ config_paths.py          (bridge to external files)          ║")
         print("║  ├─ AST_FOX_TRACE.md         (navigation map for AI)             ║")
-        print("║  └─ .cursor/rules/external_data.md                               ║")
+        print("║  ├─ .cursor/rules/external_data.md                               ║")
+        print("║  └─ .cursorignore             (updated to exclude moved files)     ║")
         print("╠══════════════════════════════════════════════════════════════════╣")
         print("║  💡 Your project is now AI-optimized!                            ║")
         print("║  💡 Restore: python main.py doctor . --restore                   ║")
@@ -2035,6 +2049,42 @@ def run_restore(project_path: Path) -> bool:
     return True
 
 
+def run_garbage_clean(project_path: Path, auto: bool = False, dry_run: bool = False) -> bool:
+    """
+    Move garbage files to garbage_for_removal directory.
+    
+    Process:
+    1. Scan for garbage files (tmp, bak, old logs, etc.)
+    2. Move to ../PROJECT_NAME_garbage_for_removal/
+    3. Show report
+    """
+    if not HAS_DEEP_CLEAN or move_garbage_files is None:
+        print(COLORS.error("❌ Garbage clean utilities not available. Please check installation."))
+        return False
+    
+    project_path = project_path.resolve()
+    
+    print(COLORS.info(f"\n🗑️  GARBAGE CLEAN — {project_path.name}"))
+    if dry_run:
+        print(COLORS.info("   Mode: Dry Run"))
+    print()
+    
+    # Move garbage files
+    print(COLORS.info("📦 Moving garbage files..."))
+    result = move_garbage_files(project_path, dry_run=dry_run)
+    
+    # Show report
+    print()
+    print(format_garbage_report(result, dry_run=dry_run))
+    
+    if not dry_run and result.success_count > 0:
+        # Update project documentation
+        print(COLORS.info("\n📝 Updating project documentation..."))
+        _update_project_docs(project_path)
+    
+    return True
+
+
 def cmd_doctor(args=None) -> bool:
     """CLI entry point for doctor command."""
     # Get project path
@@ -2050,6 +2100,12 @@ def cmd_doctor(args=None) -> bool:
     # Check for restore mode
     if args and hasattr(args, 'restore') and args.restore:
         return run_restore(project_path)
+    
+    # Check for garbage-clean mode
+    if args and hasattr(args, 'garbage_clean') and args.garbage_clean:
+        auto = getattr(args, 'auto', False)
+        dry_run = getattr(args, 'dry_run', False)
+        return run_garbage_clean(project_path, auto=auto, dry_run=dry_run)
     
     # Check for deep-clean mode
     if args and hasattr(args, 'deep_clean') and args.deep_clean:

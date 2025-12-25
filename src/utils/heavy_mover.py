@@ -64,13 +64,13 @@ def get_external_dir(project_path: Path) -> Path:
     Get external storage directory for project.
     
     Structure:
-        ../_data/PROJECT_NAME/LARGE_TOKENS/
+        ../PROJECT_NAME_data/
     
     Creates directory if not exists.
     """
     project_path = project_path.resolve()
     project_name = project_path.name
-    external = project_path.parent / "_data" / project_name / "LARGE_TOKENS"
+    external = project_path.parent / f"{project_name}_data"
     external.mkdir(parents=True, exist_ok=True)
     return external
 
@@ -106,8 +106,13 @@ def move_heavy_files(
         external_dir=external_dir
     )
     
-    for hf in heavy_files:
+    total = len(heavy_files)
+    for idx, hf in enumerate(heavy_files, 1):
         try:
+            # Show progress
+            if not dry_run and idx % 5 == 0:
+                print(f"   Moving files... {idx}/{total}", end="\r", flush=True)
+            
             # Calculate destination path (preserve structure)
             dest_path = external_dir / hf.relative_path
             
@@ -134,6 +139,9 @@ def move_heavy_files(
         except Exception as e:
             result.failed_files.append((hf.relative_path, str(e)))
     
+    if not dry_run and total > 0:
+        print(f"   Moved {total}/{total} files" + " " * 30)
+    
     if not dry_run and result.moved_files:
         # Generate config_paths.py
         result.config_paths_file = generate_config_paths(
@@ -144,6 +152,9 @@ def move_heavy_files(
         result.manifest_file = generate_manifest(
             project_path, result.moved_files, external_dir
         )
+        
+        # Update .cursorignore to exclude moved files
+        update_cursorignore(project_path, result.moved_files, external_dir)
     
     return result
 
@@ -164,7 +175,7 @@ def generate_config_paths(
     from pathlib import Path
     
     # External storage location
-    EXTERNAL_DATA = Path(__file__).parent.parent / "_data" / "PROJECT" / "LARGE_TOKENS"
+    EXTERNAL_DATA = Path(__file__).parent.parent / "PROJECT_data"
     
     # File mappings (original name → external path)
     FILES_MAP = {
@@ -220,8 +231,8 @@ Files moved: {len(moved_files)}
 from pathlib import Path
 
 # External storage location
-# Relative to project root: ../_data/{project_name}/LARGE_TOKENS/
-EXTERNAL_DATA = Path(__file__).parent.parent / "_data" / "{project_name}" / "LARGE_TOKENS"
+# Relative to project root: ../{project_name}_data/
+EXTERNAL_DATA = Path(__file__).parent.parent / "{project_name}_data"
 
 # File mappings (original relative path → external Path)
 FILES_MAP = {{
@@ -366,8 +377,7 @@ def restore_files(
     # Find manifest
     if manifest_path is None:
         manifest_path = (
-            project_path.parent / "_data" / project_path.name / 
-            "LARGE_TOKENS" / "manifest.json"
+            project_path.parent / f"{project_path.name}_data" / "manifest.json"
         )
     
     if not manifest_path.exists():
@@ -395,7 +405,128 @@ def restore_files(
     if config_paths.exists():
         config_paths.unlink()
     
+    # Remove Deep Clean section from .cursorignore
+    cursorignore_path = project_path / ".cursorignore"
+    if cursorignore_path.exists():
+        content = cursorignore_path.read_text(encoding="utf-8")
+        if "# Deep Clean - moved files" in content:
+            lines = content.split('\n')
+            new_lines = []
+            skip_section = False
+            for line in lines:
+                if "# Deep Clean - moved files" in line:
+                    skip_section = True
+                elif skip_section and line.strip() and not line.strip().startswith("#"):
+                    continue
+                elif skip_section and (not line.strip() or (line.strip().startswith("#") and "Deep Clean" not in line and "External storage" not in line)):
+                    skip_section = False
+                    if line.strip() and not line.strip().startswith("# Deep Clean") and "External storage" not in line:
+                        new_lines.append(line)
+                else:
+                    if not skip_section:
+                        new_lines.append(line)
+            cursorignore_path.write_text('\n'.join(new_lines).rstrip() + '\n', encoding="utf-8")
+    
     return restored
+
+
+def update_cursorignore(
+    project_path: Path,
+    moved_files: List[MovedFile],
+    external_dir: Path
+) -> None:
+    """
+    Update .cursorignore to exclude moved files from Cursor indexing.
+    
+    This is critical: even though files are moved, Cursor will still index
+    them if they're not in .cursorignore, wasting tokens.
+    
+    Args:
+        project_path: Project root
+        moved_files: List of moved files
+        external_dir: External storage directory
+    """
+    cursorignore_path = project_path / ".cursorignore"
+    
+    # Read existing content
+    existing_content = ""
+    if cursorignore_path.exists():
+        existing_content = cursorignore_path.read_text(encoding="utf-8")
+    
+    # Check if Deep Clean section already exists
+    if "# Deep Clean - moved files" in existing_content:
+        # Remove old Deep Clean section
+        lines = existing_content.split('\n')
+        new_lines = []
+        skip_section = False
+        for line in lines:
+            if "# Deep Clean - moved files" in line:
+                skip_section = True
+            elif skip_section and line.strip() and not line.strip().startswith("#"):
+                # Continue skipping until next section or empty line
+                continue
+            elif skip_section and (not line.strip() or (line.strip().startswith("#") and "Deep Clean" not in line)):
+                # End of Deep Clean section
+                skip_section = False
+                if line.strip() and not line.strip().startswith("# Deep Clean"):
+                    new_lines.append(line)
+            else:
+                if not skip_section:
+                    new_lines.append(line)
+        existing_content = '\n'.join(new_lines).rstrip()
+    
+    # Build new section
+    new_section = "\n\n# Deep Clean - moved files\n"
+    new_section += "# Files moved to external storage (excluded from Cursor indexing)\n"
+    new_section += "# Generated by: toolkit doctor --deep-clean\n"
+    
+    # Add external storage directory pattern
+    external_relative = None
+    try:
+        if external_dir.is_relative_to(project_path.parent):
+            external_relative = external_dir.relative_to(project_path.parent)
+        else:
+            # Try to construct relative path
+            external_relative = Path(f"../{project_path.name}_data")
+    except Exception:
+        external_relative = Path(f"../{project_path.name}_data")
+    
+    new_section += f"# External storage: {external_relative}\n"
+    new_section += "\n"
+    
+    # Add individual file paths (for files in root)
+    root_files = [mf for mf in moved_files if "/" not in mf.original_relative.replace("\\", "/") and "\\" not in mf.original_relative]
+    if root_files:
+        for mf in root_files:
+            path = mf.original_relative.replace("\\", "/")
+            new_section += f"{path}\n"
+    
+    # Add directory patterns for moved files
+    dirs_with_moved = set()
+    for mf in moved_files:
+        parts = mf.original_relative.replace("\\", "/").split("/")
+        if len(parts) > 1:
+            dir_path = "/".join(parts[:-1])
+            dirs_with_moved.add(dir_path)
+    
+    # Add directory patterns (if directories are mostly empty after move)
+    for dir_path in sorted(dirs_with_moved):
+        dir_full_path = project_path / dir_path
+        if dir_full_path.exists():
+            files_in_dir = [f for f in dir_full_path.rglob("*") if f.is_file()]
+            # If directory is empty or has very few files, add pattern
+            if len(files_in_dir) <= 2:
+                new_section += f"{dir_path}/*\n"
+    
+    # Add external storage directory
+    new_section += f"\n# External storage directory\n"
+    new_section += f"{external_relative}/\n"
+    
+    # Combine
+    final_content = existing_content.rstrip() + new_section
+    
+    # Write back
+    cursorignore_path.write_text(final_content, encoding="utf-8")
 
 
 def format_move_report(result: MoveResult) -> str:
@@ -407,12 +538,12 @@ def format_move_report(result: MoveResult) -> str:
     ║  📦 DEEP CLEAN — Files Moved to External Storage                 ║
     ╠══════════════════════════════════════════════════════════════════╣
     ║  Project: my_bot                                                 ║
-    ║  External: ../_data/my_bot/LARGE_TOKENS/                         ║
+    ║  External: ../my_bot_data/                                       ║
     ╠══════════════════════════════════════════════════════════════════╣
     ║  ✅ MOVED (12 files, 4.8M tokens):                               ║
-    ║  ├─ data/products.json        →  LARGE_TOKENS/data/products.json ║
-    ║  ├─ data/users.csv            →  LARGE_TOKENS/data/users.csv     ║
-    ║  └─ logs/app.log              →  LARGE_TOKENS/logs/app.log       ║
+    ║  ├─ data/products.json        →  my_bot_data/data/products.json  ║
+    ║  ├─ data/users.csv            →  my_bot_data/data/users.csv      ║
+    ║  └─ logs/app.log              →  my_bot_data/logs/app.log        ║
     ╠══════════════════════════════════════════════════════════════════╣
     ║  📄 Generated:                                                   ║
     ║  ├─ config_paths.py (bridge to external files)                   ║
@@ -430,7 +561,7 @@ def format_move_report(result: MoveResult) -> str:
     lines.append(f"║  Project: {result.project_name:<55}║")
     
     # Show external path relative to project
-    ext_rel = f"../_data/{result.project_name}/LARGE_TOKENS/"
+    ext_rel = f"../{result.project_name}_data/"
     lines.append(f"║  External: {ext_rel:<54}║")
     
     if result.moved_files:
@@ -445,8 +576,8 @@ def format_move_report(result: MoveResult) -> str:
             orig = mf.original_relative[:25]
             if len(mf.original_relative) > 25:
                 orig = orig[:22] + "..."
-            dest = f"LARGE_TOKENS/{mf.external_relative}"[:30]
-            if len(f"LARGE_TOKENS/{mf.external_relative}") > 30:
+            dest = f"{result.project_name}_data/{mf.external_relative}"[:30]
+            if len(f"{result.project_name}_data/{mf.external_relative}") > 30:
                 dest = dest[:27] + "..."
             line = f"║  {prefix} {orig:<25} → {dest:<30}"
             padding = 67 - len(line) + 1
@@ -468,11 +599,279 @@ def format_move_report(result: MoveResult) -> str:
     if result.config_paths_file:
         lines.append("║  ├─ config_paths.py (bridge to external files)                   ║")
     if result.manifest_file:
-        lines.append("║  └─ manifest.json (recovery info)                                ║")
+        lines.append("║  ├─ manifest.json (recovery info)                                ║")
+    lines.append("║  └─ .cursorignore (updated to exclude moved files)                ║")
     
     lines.append("╠══════════════════════════════════════════════════════════════════╣")
     lines.append("║  💡 Update imports: from config_paths import get_path            ║")
     lines.append("║  💡 Restore files:  toolkit doctor --restore                     ║")
+    lines.append("╚══════════════════════════════════════════════════════════════════╝")
+    
+    return "\n".join(lines)
+
+
+def get_garbage_dir(project_path: Path) -> Path:
+    """
+    Get garbage directory for project.
+    
+    Structure:
+        ../PROJECT_NAME_garbage_for_removal/
+    
+    Creates directory if not exists.
+    """
+    project_path = project_path.resolve()
+    project_name = project_path.name
+    garbage_dir = project_path.parent / f"{project_name}_garbage_for_removal"
+    garbage_dir.mkdir(parents=True, exist_ok=True)
+    return garbage_dir
+
+
+def find_garbage_files(project_path: Path) -> List[Path]:
+    """
+    Find garbage files that can be safely moved to garbage directory.
+    
+    Garbage patterns:
+    - Temporary files: *.tmp, *.temp, *.bak, *.old, *.backup
+    - Old logs: *.log.old, *.log.* (rotated logs)
+    - Cache: *.cache, *.pyc (if not in __pycache__)
+    - OS files: .DS_Store, Thumbs.db, desktop.ini
+    - Old backups: *_backup.*, *_old.*, *.bak
+    - Temporary directories: tmp/, temp/, .tmp/
+    """
+    project_path = project_path.resolve()
+    garbage_files = []
+    
+    # File patterns
+    patterns = [
+        "*.tmp",
+        "*.temp",
+        "*.bak",
+        "*.old",
+        "*.backup",
+        "*.cache",
+        "*.log.old",
+        "*.log.*",  # Rotated logs
+        ".DS_Store",
+        "Thumbs.db",
+        "desktop.ini",
+        "*_backup.*",
+        "*_old.*",
+        "*~",  # Editor backup files
+        "*.swp",  # Vim swap files
+        "*.swo",  # Vim swap files
+    ]
+    
+    # Directory patterns (to move entire directories)
+    dir_patterns = [
+        "tmp",
+        "temp",
+        ".tmp",
+        ".temp",
+    ]
+    
+    # Find files matching patterns
+    for pattern in patterns:
+        try:
+            for file in project_path.rglob(pattern):
+                if file.is_file():
+                    # Skip if in venv, .git, node_modules, or already in garbage
+                    rel_path = str(file.relative_to(project_path))
+                    if any(skip in rel_path for skip in ["venv", ".git", "node_modules", "garbage", "__pycache__"]):
+                        continue
+                    garbage_files.append(file)
+        except Exception:
+            pass  # Skip if there's an error
+    
+    # Find directories matching patterns
+    for dir_pattern in dir_patterns:
+        try:
+            for dir_path in project_path.rglob(dir_pattern):
+                if dir_path.is_dir():
+                    # Skip if in venv, .git, node_modules, or already in garbage
+                    rel_path = str(dir_path.relative_to(project_path))
+                    if any(skip in rel_path for skip in ["venv", ".git", "node_modules", "garbage", "__pycache__"]):
+                        continue
+                    # Only add if it's a direct match (not a subdirectory)
+                    if dir_path.name == dir_pattern:
+                        garbage_files.append(dir_path)
+        except Exception:
+            pass
+    
+    # Find old log files (older than 30 days)
+    try:
+        from datetime import timedelta
+        cutoff_date = datetime.now() - timedelta(days=30)
+        
+        for log_file in project_path.rglob("*.log"):
+            if log_file.is_file():
+                rel_path = str(log_file.relative_to(project_path))
+                if any(skip in rel_path for skip in ["venv", ".git", "node_modules", "garbage"]):
+                    continue
+                
+                # Check if file is old
+                try:
+                    mtime = datetime.fromtimestamp(log_file.stat().st_mtime)
+                    if mtime < cutoff_date:
+                        garbage_files.append(log_file)
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    
+    return list(set(garbage_files))  # Remove duplicates
+
+
+@dataclass
+class GarbageMoveResult:
+    """Result of moving garbage files."""
+    project_path: Path
+    project_name: str
+    garbage_dir: Path
+    moved_files: List[Path] = field(default_factory=list)
+    moved_dirs: List[Path] = field(default_factory=list)
+    failed: List[Tuple[str, str]] = field(default_factory=list)  # (path, error)
+    total_size: int = 0
+    
+    @property
+    def success_count(self) -> int:
+        return len(self.moved_files) + len(self.moved_dirs)
+    
+    @property
+    def failed_count(self) -> int:
+        return len(self.failed)
+
+
+def move_garbage_files(
+    project_path: Path,
+    dry_run: bool = False
+) -> GarbageMoveResult:
+    """
+    Move garbage files to garbage directory.
+    
+    Args:
+        project_path: Path to project root
+        dry_run: If True, only simulate (don't actually move)
+    
+    Returns:
+        GarbageMoveResult with list of moved files and any errors
+    """
+    project_path = project_path.resolve()
+    garbage_dir = get_garbage_dir(project_path)
+    
+    result = GarbageMoveResult(
+        project_path=project_path,
+        project_name=project_path.name,
+        garbage_dir=garbage_dir
+    )
+    
+    # Find garbage files
+    print(f"   🔍 Scanning for garbage files...", end="", flush=True)
+    garbage_files = find_garbage_files(project_path)
+    print(f" found {len(garbage_files)} items")
+    
+    if not garbage_files:
+        return result
+    
+    # Move files and directories
+    for idx, item in enumerate(garbage_files, 1):
+        try:
+            if idx % 10 == 0:
+                print(f"   Moving... {idx}/{len(garbage_files)}", end="\r", flush=True)
+            
+            rel_path = item.relative_to(project_path)
+            dest_path = garbage_dir / rel_path
+            
+            if not dry_run:
+                # Create parent directories
+                dest_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                # Move file or directory
+                if item.is_file():
+                    size = item.stat().st_size
+                    shutil.move(str(item), str(dest_path))
+                    result.moved_files.append(item)
+                    result.total_size += size
+                elif item.is_dir():
+                    size = sum(f.stat().st_size for f in item.rglob("*") if f.is_file())
+                    shutil.move(str(item), str(dest_path))
+                    result.moved_dirs.append(item)
+                    result.total_size += size
+            else:
+                # Dry run - just record
+                if item.is_file():
+                    size = item.stat().st_size
+                    result.moved_files.append(item)
+                    result.total_size += size
+                elif item.is_dir():
+                    size = sum(f.stat().st_size for f in item.rglob("*") if f.is_file())
+                    result.moved_dirs.append(item)
+                    result.total_size += size
+        
+        except Exception as e:
+            result.failed.append((str(item), str(e)))
+    
+    if not dry_run and garbage_files:
+        print(f"   Moved {len(garbage_files)}/{len(garbage_files)} items" + " " * 30)
+    
+    return result
+
+
+def format_garbage_report(result: GarbageMoveResult, dry_run: bool = False) -> str:
+    """
+    Format garbage move result as readable report.
+    """
+    lines = []
+    
+    mode = "DRY RUN" if dry_run else "COMPLETE"
+    lines.append("╔══════════════════════════════════════════════════════════════════╗")
+    lines.append(f"║  🗑️  GARBAGE CLEAN — {mode:<48}║")
+    lines.append("╠══════════════════════════════════════════════════════════════════╣")
+    
+    lines.append(f"║  Project: {result.project_name:<55}║")
+    
+    # Show garbage path relative to project
+    garbage_rel = f"../{result.project_name}_garbage_for_removal/"
+    lines.append(f"║  Garbage: {garbage_rel:<54}║")
+    
+    if result.moved_files or result.moved_dirs:
+        size_mb = result.total_size / (1024 * 1024)
+        size_str = f"{size_mb:.1f}MB" if size_mb >= 1 else f"{result.total_size / 1024:.1f}KB"
+        
+        lines.append("╠══════════════════════════════════════════════════════════════════╣")
+        lines.append(f"║  ✅ MOVED ({result.success_count} items, {size_str}):{' '*(40-len(size_str))}║")
+        
+        # Show first 10 files
+        for i, file in enumerate(result.moved_files[:10]):
+            prefix = "└─" if i == min(len(result.moved_files), 10) - 1 and not result.moved_dirs else "├─"
+            rel = str(file.relative_to(result.project_path))[:50]
+            if len(str(file.relative_to(result.project_path))) > 50:
+                rel = rel[:47] + "..."
+            lines.append(f"║  {prefix} {rel:<50}║")
+        
+        # Show directories
+        for i, dir_path in enumerate(result.moved_dirs[:5]):
+            prefix = "└─" if i == len(result.moved_dirs) - 1 else "├─"
+            rel = str(dir_path.relative_to(result.project_path))[:50]
+            if len(str(dir_path.relative_to(result.project_path))) > 50:
+                rel = rel[:47] + "..."
+            lines.append(f"║  {prefix} {rel}/ (directory){' '*(37-len(rel))}║")
+        
+        if len(result.moved_files) + len(result.moved_dirs) > 15:
+            remaining = len(result.moved_files) + len(result.moved_dirs) - 15
+            lines.append(f"║  ... and {remaining} more items{' '*45}║")
+    
+    if result.failed:
+        lines.append("╠══════════════════════════════════════════════════════════════════╣")
+        lines.append(f"║  ❌ FAILED ({len(result.failed)} items):{' '*44}║")
+        for path, error in result.failed[:5]:
+            path_short = path[:30]
+            error_short = error[:25]
+            lines.append(f"║  ├─ {path_short:<30}: {error_short:<25}{' '*5}║")
+    
+    if dry_run:
+        lines.append("╠══════════════════════════════════════════════════════════════════╣")
+        lines.append("║  Run without --dry-run to apply changes                       ║")
+    
     lines.append("╚══════════════════════════════════════════════════════════════════╝")
     
     return "\n".join(lines)
