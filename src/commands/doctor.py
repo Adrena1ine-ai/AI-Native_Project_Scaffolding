@@ -238,8 +238,16 @@ class Doctor:
             print(f"   [1/5] 📂 Scanning files...", end="", flush=True)
         
         # First, collect all files for progress tracking
+        # Include all text-based files (not just code) to get accurate token count
         all_files = []
-        for ext in ["*.py", "*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.toml"]:
+        # Code and documentation files
+        code_exts = ["*.py", "*.md", "*.txt", "*.json", "*.yaml", "*.yml", "*.toml"]
+        # Data files (for accurate token counting)
+        data_exts = ["*.csv", "*.jsonl", "*.log"]
+        # Database files (estimate tokens from size)
+        db_exts = ["*.sqlite", "*.sqlite3", "*.db"]
+        
+        for ext in code_exts + data_exts + db_exts:
             for file in self.project_path.rglob(ext):
                 if not any(p in str(file) for p in ["venv", "node_modules", "__pycache__", ".git"]):
                     all_files.append(file)
@@ -538,6 +546,26 @@ class Doctor:
             print(f"\r   [3/5] 🔍 Checking for issues... recommendations", end="", flush=True)
         
         # This will be populated after token counting, so we'll check it later
+        
+        # Check for external storage (if Deep Clean was run before)
+        if show_progress:
+            print(f"\r   [3/5] 🔍 Checking for issues... external storage", end="", flush=True)
+        
+        external_data_dir = self.project_path.parent / f"{self.project_name}_data"
+        if external_data_dir.exists():
+            # Count tokens in external storage
+            external_tokens = 0
+            try:
+                for file in external_data_dir.rglob("*"):
+                    if file.is_file():
+                        external_tokens += self._count_tokens(file)
+            except Exception:
+                pass
+            
+            if external_tokens > 0:
+                # Add info about external storage (not an issue, just info)
+                # We'll show this in the report separately
+                pass
         
         # Check for missing _AI_INCLUDE (fast - single check)
         if show_progress:
@@ -1415,15 +1443,44 @@ def print_report(report: DiagnosticReport, show_menu: bool = True) -> None:
     path_display = str(report.project_path)[:50]
     print(f"║  Path:    {path_display:<55} ║")
     
-    # Token status
-    if report.total_tokens > 1_000_000:
-        token_str = f"{report.total_tokens/1_000_000:.1f}M tokens (CRITICAL)"
-    elif report.total_tokens > 100_000:
-        token_str = f"{report.total_tokens/1_000:.0f}K tokens (HIGH)"
+    # Token status - check for external storage (Deep Clean)
+    external_data_dir = report.project_path.parent / f"{report.project_name}_data"
+    external_tokens = 0
+    if external_data_dir.exists():
+        try:
+            for file in external_data_dir.rglob("*"):
+                if file.is_file():
+                    try:
+                        content = file.read_text(encoding="utf-8", errors="ignore")
+                        external_tokens += len(content) // 4
+                    except Exception:
+                        # For binary files, estimate from size
+                        try:
+                            size = file.stat().st_size
+                            external_tokens += size // 4
+                        except Exception:
+                            pass
+        except Exception:
+            pass
+    
+    total_with_external = report.total_tokens + external_tokens
+    
+    if total_with_external > 1_000_000:
+        token_str = f"{total_with_external/1_000_000:.1f}M tokens (CRITICAL)"
+    elif total_with_external > 100_000:
+        token_str = f"{total_with_external/1_000:.0f}K tokens (HIGH)"
     else:
-        token_str = f"{report.total_tokens/1_000:.0f}K tokens (OK)"
+        token_str = f"{total_with_external/1_000:.0f}K tokens (OK)"
     
     print(f"║  Tokens:  {token_str:<55} ║")
+    
+    # Show breakdown if external storage exists
+    if external_tokens > 0:
+        internal_str = f"{report.total_tokens/1_000:.0f}K" if report.total_tokens < 1_000_000 else f"{report.total_tokens/1_000_000:.1f}M"
+        external_str = f"{external_tokens/1_000:.0f}K" if external_tokens < 1_000_000 else f"{external_tokens/1_000_000:.1f}M"
+        breakdown = f"  (Internal: {internal_str}, External: {external_str})"
+        print(f"║{breakdown:<67}║")
+    
     print("╠══════════════════════════════════════════════════════════════════╣")
     
     # Issues by severity
