@@ -1,7 +1,7 @@
 # 📊 Project Status — AI Toolkit v3.0.0
 
 > ⚡ Auto-generated from codebase. Do not edit manually.
-> 🕐 Last updated: 2025-12-24 17:09:07
+> 🕐 Last updated: 2025-12-25 10:25:10
 
 ---
 
@@ -53,10 +53,15 @@
 
 ## 🛠️ Utilities
 
+- [x] `src/utils/schema_extractor.py` — Schema Extractor — Extract structure from data files without loading full content.
 - [x] `src/utils/status_generator.py` — Auto-generate PROJECT_STATUS.md from actual codebase state.
+- [x] `src/utils/fox_trace_map.py` — Fox Trace Map Generator — Create navigation map for AI assistants.
+- [x] `src/utils/heavy_mover.py` — Heavy Mover — Move heavy files to external storage and generate bridges.
 - [x] `src/utils/metrics.py` — 📊 Metrics — Project scanning and token estimation
+- [x] `src/utils/ast_patcher.py` — AST Patcher — Automatically patch Python code to use config_paths bridges.
 - [x] `src/utils/cleaner.py` — 🧹 Cleaner — Archive artifacts and garbage files
 - [x] `src/utils/context_map.py` — 🧠 Context Map Generator — AST-based project mapping
+- [x] `src/utils/token_scanner.py` — Token Scanner — Find heavy files that exceed token threshold.
 
 ---
 
@@ -110,7 +115,7 @@ Tests: Skipped (use --run-tests to include)
 ## 📊 Quick Stats
 
 - **Commands:** 12
-- **Utilities:** 4
+- **Utilities:** 9
 - **Generators:** 6
 - **Version:** 3.0.0
 - **Current Phase:** Phase 2

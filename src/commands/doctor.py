@@ -35,6 +35,28 @@ except ImportError:
     HAS_CONTEXT_MAP = False
     write_context_map = None
 
+# Import Deep Clean utilities
+try:
+    from ..utils.token_scanner import scan_project, get_moveable_files, format_scan_report
+    from ..utils.heavy_mover import move_heavy_files, restore_files, format_move_report
+    from ..utils.ast_patcher import patch_project, revert_patches, format_patch_report
+    from ..utils.fox_trace_map import generate_fox_trace_map, write_fox_trace_md, write_cursor_rules
+    HAS_DEEP_CLEAN = True
+except ImportError:
+    HAS_DEEP_CLEAN = False
+    scan_project = None
+    get_moveable_files = None
+    format_scan_report = None
+    move_heavy_files = None
+    restore_files = None
+    format_move_report = None
+    patch_project = None
+    revert_patches = None
+    format_patch_report = None
+    generate_fox_trace_map = None
+    write_fox_trace_md = None
+    write_cursor_rules = None
+
 # Protected files that Doctor should NEVER touch
 PROTECTED_FILES = {
     "first manifesto.md",
@@ -1783,6 +1805,236 @@ def run_doctor(project_path: Path, auto: bool = False, report_only: bool = False
     return True
 
 
+def run_deep_clean(
+    project_path: Path,
+    threshold: int = 1000,
+    auto: bool = False,
+    dry_run: bool = False,
+    patch_code: bool = True
+) -> bool:
+    """
+    Run Deep Clean & Bridge — move heavy files and patch code.
+    
+    Process:
+    1. Scan project for heavy files (> threshold tokens)
+    2. Show report and ask for confirmation (unless auto)
+    3. Move heavy files to external storage
+    4. Generate config_paths.py bridge
+    5. Patch Python code to use bridges
+    6. Generate AST_FOX_TRACE.md navigation map
+    7. Update .cursor/rules/external_data.md
+    8. Show final report
+    
+    Args:
+        project_path: Path to project
+        threshold: Token threshold (default 1000)
+        auto: Auto-confirm all actions
+        dry_run: Preview only, don't make changes
+        patch_code: If True, patch Python files to use bridges
+    
+    Returns:
+        True if successful
+    """
+    if not HAS_DEEP_CLEAN:
+        print(COLORS.error("❌ Deep Clean utilities not available. Please check installation."))
+        return False
+    
+    project_path = project_path.resolve()
+    
+    print(COLORS.info(f"\n🧹 DEEP CLEAN — {project_path.name}"))
+    print(COLORS.info(f"   Threshold: {threshold} tokens"))
+    print(COLORS.info(f"   Mode: {'Dry Run' if dry_run else 'Live'}\n"))
+    
+    # Step 1: Scan for heavy files
+    print(COLORS.info("📊 Step 1/6: Scanning for heavy files..."))
+    scan_result = scan_project(project_path, threshold=threshold)
+    moveable = get_moveable_files(scan_result)
+    
+    if not moveable:
+        print(COLORS.success("\n✅ No heavy files found! Project is already clean."))
+        print(f"   Total tokens: {scan_result.total_tokens:,}")
+        return True
+    
+    # Show scan report
+    print(format_scan_report(scan_result))
+    
+    # Step 2: Confirm (unless auto)
+    if not auto and not dry_run:
+        print(f"\n🔴 Found {len(moveable)} files to move ({scan_result.heavy_tokens:,} tokens)")
+        print("   This will:")
+        print("   1. Move files to ../_data/PROJECT/LARGE_TOKENS/")
+        print("   2. Generate config_paths.py")
+        print("   3. Patch your Python code to use bridges")
+        print("   4. Generate navigation map for AI")
+        print()
+        
+        try:
+            confirm = input("   Continue? [y/N]: ").strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            print("\n   Cancelled.")
+            return False
+        
+        if confirm != 'y':
+            print("   Cancelled.")
+            return False
+    
+    # Step 3: Move files
+    print(COLORS.info("\n📦 Step 2/6: Moving heavy files to external storage..."))
+    move_result = move_heavy_files(project_path, moveable, dry_run=dry_run)
+    
+    if move_result.failed_files:
+        print(COLORS.warning(f"   ⚠️  {len(move_result.failed_files)} files failed to move"))
+        for path, error in move_result.failed_files[:5]:
+            print(COLORS.error(f"      {path}: {error}"))
+    
+    if not dry_run:
+        print(format_move_report(move_result))
+    else:
+        print(COLORS.info(f"   [DRY RUN] Would move {len(moveable)} files"))
+    
+    # Step 4: Patch code
+    if patch_code and move_result.moved_files:
+        print(COLORS.info("\n🔧 Step 3/6: Patching Python code to use bridges..."))
+        
+        moved_paths = {mf.original_relative for mf in move_result.moved_files}
+        patch_result = patch_project(project_path, moved_paths, dry_run=dry_run)
+        
+        if patch_result.total_patches > 0:
+            print(format_patch_report(patch_result))
+        else:
+            print(COLORS.info("   No code patches needed (files not referenced in Python code)"))
+        
+        if patch_result.errors:
+            print(COLORS.warning(f"   ⚠️  {len(patch_result.errors)} files had errors"))
+    else:
+        print(COLORS.info("\n🔧 Step 3/6: Skipping code patching"))
+    
+    # Step 5: Generate Fox Trace Map
+    print(COLORS.info("\n🦊 Step 4/6: Generating navigation map for AI..."))
+    
+    if not dry_run and move_result.moved_files:
+        trace_map = generate_fox_trace_map(project_path, move_result.moved_files)
+        trace_file = write_fox_trace_md(trace_map, project_path)
+        print(COLORS.success(f"   ✅ Created {trace_file.name}"))
+        
+        # Step 6: Update Cursor rules
+        print(COLORS.info("\n📝 Step 5/6: Updating Cursor rules..."))
+        rules_file = write_cursor_rules(trace_map, project_path)
+        print(COLORS.success(f"   ✅ Created {rules_file.relative_to(project_path)}"))
+    else:
+        print(COLORS.info("   [DRY RUN] Would generate AST_FOX_TRACE.md"))
+    
+    # Step 6: Final report
+    print(COLORS.info("\n📊 Step 6/6: Final report..."))
+    
+    if not dry_run:
+        # Re-scan to show improvement
+        after_scan = scan_project(project_path, threshold=threshold)
+        
+        print()
+        print("╔══════════════════════════════════════════════════════════════════╗")
+        print("║  🧹 DEEP CLEAN COMPLETE!                                         ║")
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print("║                        BEFORE          AFTER                     ║")
+        
+        before_str = f"{scan_result.total_tokens/1000:.0f}K"
+        after_str = f"{after_scan.total_tokens/1000:.0f}K"
+        reduction = int((1 - after_scan.total_tokens / scan_result.total_tokens) * 100) if scan_result.total_tokens > 0 else 0
+        
+        print(f"║  Tokens:              {before_str:>8}     →   {after_str:<8}  ({reduction}% reduction)  ║")
+        print(f"║  Heavy Files:         {len(moveable):>8}     →   {len(get_moveable_files(after_scan)):<8}                   ║")
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print("║  📄 Generated Files:                                             ║")
+        print("║  ├─ config_paths.py          (bridge to external files)          ║")
+        print("║  ├─ AST_FOX_TRACE.md         (navigation map for AI)             ║")
+        print("║  └─ .cursor/rules/external_data.md                               ║")
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print("║  💡 Your project is now AI-optimized!                            ║")
+        print("║  💡 Restore: python main.py doctor . --restore                   ║")
+        print("╚══════════════════════════════════════════════════════════════════╝")
+        
+        # Update project documentation
+        print(COLORS.info("\n📝 Updating project documentation..."))
+        _update_project_docs(project_path)
+    else:
+        print()
+        print("╔══════════════════════════════════════════════════════════════════╗")
+        print("║  🧹 DEEP CLEAN — DRY RUN COMPLETE                                ║")
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print(f"║  Files to move: {len(moveable):<50}║")
+        print(f"║  Tokens to save: {scan_result.heavy_tokens:,}{' '*(47-len(f'{scan_result.heavy_tokens:,}'))}║")
+        print("╠══════════════════════════════════════════════════════════════════╣")
+        print("║  Run without --dry-run to apply changes                          ║")
+        print("╚══════════════════════════════════════════════════════════════════╝")
+    
+    return True
+
+
+def run_restore(project_path: Path) -> bool:
+    """
+    Restore project from Deep Clean.
+    
+    Process:
+    1. Restore moved files from manifest
+    2. Revert code patches from .bak files
+    3. Remove generated files
+    """
+    if not HAS_DEEP_CLEAN:
+        print(COLORS.error("❌ Deep Clean utilities not available. Please check installation."))
+        return False
+    
+    project_path = project_path.resolve()
+    
+    print(COLORS.info(f"\n🔄 RESTORE — {project_path.name}\n"))
+    
+    # Step 1: Restore moved files
+    print(COLORS.info("📦 Step 1/3: Restoring moved files..."))
+    try:
+        restored_files = restore_files(project_path)
+        print(COLORS.success(f"   ✅ Restored {restored_files} files"))
+    except FileNotFoundError as e:
+        print(COLORS.warning(f"   ⚠️  No manifest found: {e}"))
+        restored_files = 0
+    
+    # Step 2: Revert code patches
+    print(COLORS.info("\n🔧 Step 2/3: Reverting code patches..."))
+    reverted = revert_patches(project_path)
+    print(COLORS.success(f"   ✅ Reverted {reverted} files"))
+    
+    # Step 3: Remove generated files
+    print(COLORS.info("\n🗑️  Step 3/3: Cleaning up generated files..."))
+    
+    files_to_remove = [
+        project_path / "config_paths.py",
+        project_path / "AST_FOX_TRACE.md",
+        project_path / ".cursor" / "rules" / "external_data.md",
+    ]
+    
+    removed = 0
+    for f in files_to_remove:
+        if f.exists():
+            f.unlink()
+            print(COLORS.success(f"   ✅ Removed {f.name}"))
+            removed += 1
+    
+    print()
+    print("╔══════════════════════════════════════════════════════════════════╗")
+    print("║  🔄 RESTORE COMPLETE!                                            ║")
+    print("╠══════════════════════════════════════════════════════════════════╣")
+    print(f"║  Files restored: {restored_files:<49}║")
+    print(f"║  Code reverted: {reverted:<50}║")
+    print(f"║  Cleanup files: {removed:<50}║")
+    print("╠══════════════════════════════════════════════════════════════════╣")
+    print("║  Your project is back to original state!                         ║")
+    print("╚══════════════════════════════════════════════════════════════════╝")
+    
+    # Update project documentation after restore
+    print(COLORS.info("\n📝 Updating project documentation..."))
+    _update_project_docs(project_path)
+    
+    return True
+
+
 def cmd_doctor(args=None) -> bool:
     """CLI entry point for doctor command."""
     # Get project path
@@ -1795,7 +2047,26 @@ def cmd_doctor(args=None) -> bool:
         print(COLORS.error(f"Path not found: {project_path}"))
         return False
     
-    # Check flags
+    # Check for restore mode
+    if args and hasattr(args, 'restore') and args.restore:
+        return run_restore(project_path)
+    
+    # Check for deep-clean mode
+    if args and hasattr(args, 'deep_clean') and args.deep_clean:
+        threshold = getattr(args, 'threshold', 1000)
+        auto = getattr(args, 'auto', False)
+        dry_run = getattr(args, 'dry_run', False)
+        no_patch = getattr(args, 'no_patch', False)
+        
+        return run_deep_clean(
+            project_path,
+            threshold=threshold,
+            auto=auto,
+            dry_run=dry_run,
+            patch_code=not no_patch
+        )
+    
+    # Existing doctor logic
     auto = args and hasattr(args, 'auto') and args.auto
     report_only = args and hasattr(args, 'report') and args.report
     

@@ -206,6 +206,43 @@
 
 - `tests/conftest.py`
 
+- `tests/test_ast_patcher.py`
+    ƒ temp_project
+    ƒ load_data
+    ƒ get_config
+    ƒ process
+    ƒ analyze
+    ƒ get_connection
+    ƒ moved_files
+  📦 TestAddImport
+    ƒ test_adds_import
+    ƒ test_no_duplicate
+    ƒ test_after_imports
+    ƒ test_handles_docstring
+  📦 TestPatchFile
+    ƒ test_patches_open
+    ƒ test_patches_path
+    ƒ test_patches_pandas
+    ƒ test_patches_sqlite
+    ƒ test_creates_backup
+    ƒ test_adds_import
+    ƒ test_dry_run_no_changes
+    ƒ test_valid_syntax_after_patch
+    ƒ test_skips_unmoved_files
+  📦 TestPatchProject
+    ƒ test_scans_all_files
+    ƒ test_patches_multiple_files
+    ƒ test_excludes_patterns
+    ƒ test_excludes_config_paths
+  📦 TestRevertPatches
+    ƒ test_reverts_files
+  📦 TestFormatReport
+    ƒ test_generates_report
+    ƒ test_shows_patches
+  📦 TestPathPatcher
+    ƒ test_identifies_moved_files
+    ƒ test_creates_get_path_call
+
 - `tests/test_cleanup.py`
   📦 TestAnalyzeProject
     ƒ test_detect_venv_inside_project
@@ -262,6 +299,22 @@
     ƒ test_scripts_created
     ƒ test_requirements_created
 
+- `tests/test_deep_clean_integration.py`
+    ƒ temp_project
+    ƒ load_products
+    ƒ get_product
+    ƒ main
+  📦 TestDeepClean
+    ƒ test_dry_run
+    ƒ test_full_deep_clean
+    ƒ test_code_patched
+    ƒ test_no_patch_mode
+  📦 TestRestore
+    ƒ test_restore_files
+    ƒ test_restore_reverts_code
+  📦 TestThreshold
+    ƒ test_high_threshold_moves_less
+
 - `tests/test_doctor.py`
     ƒ temp_project
     ƒ project_with_venv
@@ -287,6 +340,32 @@
   📦 TestDoctorReport
     ƒ test_report_properties
     ƒ test_token_estimation
+
+- `tests/test_fox_trace_map.py`
+    ƒ temp_project
+    ƒ get_products
+    ƒ process_order
+    ƒ load_products
+    ƒ moved_files
+  📦 TestFindFileUsages
+    ƒ test_finds_usages
+    ƒ test_detects_usage_type
+    ƒ test_finds_csv_usage
+  📦 TestGenerateFileDescription
+    ƒ test_generates_description
+  📦 TestGenerateFoxTraceMap
+    ƒ test_generates_map
+    ƒ test_finds_usages_in_map
+  📦 TestWriteFoxTraceMd
+    ƒ test_creates_file
+    ƒ test_contains_summary
+    ƒ test_contains_schemas
+    ƒ test_contains_access_pattern
+  📦 TestGenerateCursorContext
+    ƒ test_generates_table
+    ƒ test_compact_format
+  📦 TestWriteCursorRules
+    ƒ test_creates_file
 
 - `tests/test_generators.py`
   📦 TestAIConfigs
@@ -327,6 +406,36 @@
     ƒ test_detects_missing_env
     ƒ test_detects_missing_requirements
 
+- `tests/test_heavy_mover.py`
+    ƒ temp_project
+    ƒ heavy_files
+  📦 TestGetExternalDir
+    ƒ test_creates_directory
+    ƒ test_structure
+  📦 TestMoveHeavyFiles
+    ƒ test_moves_files
+    ƒ test_preserves_structure
+    ƒ test_dry_run
+    ƒ test_generates_config_paths
+    ƒ test_generates_manifest
+  📦 TestGenerateConfigPaths
+    ƒ test_creates_file
+    ƒ test_importable
+    ƒ test_contains_mappings
+    ƒ test_get_path_function_works
+  📦 TestGenerateManifest
+    ƒ test_creates_json
+    ƒ test_records_all_files
+    ƒ test_includes_metadata
+  📦 TestRestoreFiles
+    ƒ test_restores_files
+    ƒ test_removes_config_paths
+    ƒ test_restore_with_manifest_path
+  📦 TestFormatMoveReport
+    ƒ test_generates_report
+    ƒ test_shows_file_count
+    ƒ test_shows_generated_files
+
 - `tests/test_migrate.py`
   📦 TestMigrateProject
     ƒ test_migrate_adds_ai_configs
@@ -334,6 +443,50 @@
     ƒ test_migrate_adds_version
     ƒ test_migrate_skips_existing
     ƒ test_migrate_adds_ci_if_requested
+
+- `tests/test_schema_extractor.py`
+    ƒ temp_json
+    ƒ temp_csv
+    ƒ temp_sqlite
+  📦 TestTypeInference
+    ƒ test_infers_string
+    ƒ test_infers_integer
+    ƒ test_infers_float
+    ƒ test_infers_boolean
+    ƒ test_infers_null
+    ƒ test_infers_array
+    ƒ test_infers_object
+  📦 TestJsonSchema
+    ƒ test_extracts_keys
+    ƒ test_detects_array
+    ƒ test_no_values_in_output
+    ƒ test_detects_nested_structure
+  📦 TestCsvSchema
+    ƒ test_extracts_columns
+    ƒ test_infers_types
+    ƒ test_counts_rows
+    ƒ test_includes_sample
+  📦 TestSqliteSchema
+    ƒ test_extracts_tables
+    ƒ test_extracts_columns
+    ƒ test_detects_primary_key
+    ƒ test_counts_rows
+  📦 TestAutoDetect
+    ƒ test_detects_json
+    ƒ test_detects_csv
+    ƒ test_detects_sqlite
+    ƒ test_includes_metadata
+    ƒ test_returns_none_for_nonexistent_file
+  📦 TestMarkdown
+    ƒ test_generates_markdown
+    ƒ test_includes_token_estimate
+    ƒ test_csv_markdown_format
+    ƒ test_sqlite_markdown_format
+  📦 TestStructureExtraction
+    ƒ test_handles_empty_dict
+    ƒ test_handles_empty_list
+    ƒ test_respects_max_depth
+    ƒ test_preserves_array_length
 
 - `tests/test_status.py`
     ƒ temp_project
@@ -367,6 +520,51 @@
     ƒ test_update_status_creates_file
     ƒ test_update_status_writes_content
     ƒ test_update_status_overwrites_existing
+
+- `tests/test_token_scanner.py`
+    ƒ temp_project
+  📦 TestEstimateTokens
+    ƒ test_small_file
+    ƒ test_large_file
+    ƒ test_binary_file_returns_zero
+  📦 TestCategorizeFile
+    ƒ test_json_is_data
+    ƒ test_csv_is_data
+    ƒ test_py_is_code
+    ƒ test_log_is_log
+    ƒ test_sqlite_is_database
+    ƒ test_png_is_binary
+  📦 TestShouldSkipDir
+    ƒ test_skips_venv
+    ƒ test_skips_node_modules
+    ƒ test_skips_pycache
+    ƒ test_allows_normal_dir
+    ƒ test_skips_hidden
+    ƒ test_allows_github
+  📦 TestScanProject
+    ƒ test_finds_heavy_files
+    ƒ test_skips_venv
+    ƒ test_reports_total_tokens
+    ƒ test_sorts_by_size
+    ƒ test_extracts_schemas
+    ƒ test_includes_code_when_requested
+    ƒ test_excludes_code_by_default
+  📦 TestScanResult
+    ƒ test_heavy_tokens
+    ƒ test_potential_savings
+    ƒ test_light_tokens
+  📦 TestFormatReport
+    ƒ test_generates_report
+    ƒ test_shows_heavy_files
+    ƒ test_shows_statistics
+  📦 TestGetMoveableFiles
+    ƒ test_excludes_main_py
+    ƒ test_includes_data_files
+    ƒ test_excludes_protected_files
+  📦 TestScanFile
+    ƒ test_returns_none_for_small_file
+    ƒ test_returns_heavy_file_for_large_file
+    ƒ test_includes_schema_when_requested
 
 - `tests/test_update.py`
   📦 TestUpdateProject
@@ -416,6 +614,24 @@
 
 - `src/utils/__init__.py`
 
+- `src/utils/ast_patcher.py`
+  📦 PatchLocation
+  📦 PatchResult
+  📦 PatchReport
+  📦 PathPatcher
+    ƒ __init__
+    ƒ _normalize_path
+    ƒ _is_moved_file
+    ƒ _create_get_path_call
+    ƒ visit_Call
+    ƒ _apply_patches_to_source
+    ƒ _patch_line
+    ƒ add_import_statement
+    ƒ patch_file
+    ƒ patch_project
+    ƒ format_patch_report
+    ƒ revert_patches
+
 - `src/utils/cleaner.py`
   📦 ArchiveResult
     ƒ formatted_size
@@ -437,6 +653,36 @@
     ƒ generate_map
     ƒ write_context_map
 
+- `src/utils/fox_trace_map.py`
+  📦 FileUsage
+  📦 TracedFile
+  📦 FoxTraceMap
+    ƒ _detect_usage_type
+    ƒ find_file_usages
+    ƒ generate_file_description
+    ƒ generate_fox_trace_map
+    ƒ write_fox_trace_md
+    ƒ generate_cursor_context
+    ƒ write_cursor_rules
+
+- `src/utils/heavy_mover.py`
+  📦 MovedFile
+  📦 MoveResult
+    ƒ total_moved_tokens
+    ƒ success_count
+    ƒ failed_count
+    ƒ get_external_dir
+    ƒ move_heavy_files
+    ƒ generate_config_paths
+    ƒ get_path
+    ƒ get_path
+    ƒ exists
+    ƒ list_files
+    ƒ get_schema
+    ƒ generate_manifest
+    ƒ restore_files
+    ƒ format_move_report
+
 - `src/utils/metrics.py`
   📦 ScanResult
     ƒ formatted_tokens
@@ -444,6 +690,20 @@
     ƒ parse_cursorignore
     ƒ should_ignore
     ƒ scan_project
+
+- `src/utils/schema_extractor.py`
+    ƒ _infer_type
+    ƒ _extract_structure
+    ƒ extract_json_schema
+    ƒ _infer_csv_type
+    ƒ extract_csv_schema
+    ƒ extract_sqlite_schema
+    ƒ extract_yaml_schema
+    ƒ extract_python_dict_schema
+    ƒ estimate_tokens
+    ƒ extract_schema
+    ƒ schema_to_markdown
+    ƒ _format_json_schema
 
 - `src/utils/status_generator.py`
     ƒ scan_commands
@@ -456,6 +716,23 @@
     ƒ check_manifesto_compliance
     ƒ generate_status_md
     ƒ update_status
+
+- `src/utils/token_scanner.py`
+  📦 FileCategory
+  📦 HeavyFile
+    ƒ size_human
+    ƒ tokens_human
+  📦 ScanResult
+    ƒ heavy_tokens
+    ƒ light_tokens
+    ƒ potential_savings
+    ƒ categorize_file
+    ƒ estimate_tokens
+    ƒ should_skip_dir
+    ƒ scan_file
+    ƒ scan_project
+    ƒ format_scan_report
+    ƒ get_moveable_files
 
 - `src/generators/__init__.py`
 
@@ -650,6 +927,8 @@
     ƒ print_detailed_changes
     ƒ print_result
     ƒ run_doctor
+    ƒ run_deep_clean
+    ƒ run_restore
     ƒ cmd_doctor
     ƒ run_doctor_interactive
   📦 Args
@@ -753,4 +1032,4 @@
 - `.cursor/rules/project.md`
 
 ---
-**Stats:** Scanned 131 files. Map size: ~3847 tokens.
+**Stats:** Scanned 142 files. Map size: ~5513 tokens.

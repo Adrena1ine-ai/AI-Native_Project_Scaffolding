@@ -216,6 +216,36 @@ def cli_mode():
     doctor_p.add_argument("path", nargs="?", type=Path, default=Path.cwd(), help="Project path")
     doctor_p.add_argument("--auto", "-a", action="store_true", help="Auto-fix all issues without asking")
     doctor_p.add_argument("--report", "-r", action="store_true", help="Report only, don't offer fixes")
+    # Deep Clean arguments
+    doctor_p.add_argument(
+        "--deep-clean", "-D",
+        action="store_true",
+        dest="deep_clean",
+        help="Deep clean: move heavy files and patch code"
+    )
+    doctor_p.add_argument(
+        "--threshold", "-t",
+        type=int,
+        default=1000,
+        help="Token threshold for deep clean (default: 1000)"
+    )
+    doctor_p.add_argument(
+        "--dry-run",
+        action="store_true",
+        dest="dry_run",
+        help="Preview deep clean without making changes"
+    )
+    doctor_p.add_argument(
+        "--no-patch",
+        action="store_true",
+        dest="no_patch",
+        help="Skip code patching in deep clean"
+    )
+    doctor_p.add_argument(
+        "--restore",
+        action="store_true",
+        help="Restore project from deep clean"
+    )
     
     # status
     status_p = subparsers.add_parser("status", help="Regenerate PROJECT_STATUS.md")
