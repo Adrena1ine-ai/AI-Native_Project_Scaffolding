@@ -536,157 +536,313 @@ goto MAIN_MENU
 :HELP
 cls
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║  📖 ПОЛНОЕ ОПИСАНИЕ ВСЕХ ФУНКЦИЙ AI TOOLKIT                  ║
-echo ╚══════════════════════════════════════════════════════════════╝
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 1. 🔍 ДИАГНОСТИКА ПРОЕКТА (doctor --report)                 │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Сканирует проект и выявляет проблемы, влияющие на работу с AI.
-echo.
-echo    Проверяет:
-echo    • Виртуальные окружения внутри проекта (venv/, .venv/)
-echo    • Кэш Python (__pycache__/)
-echo    • Логи (logs/, *.log)
-echo    • node_modules/ внутри проекта
-echo    • Большие файлы данных (^>1MB: .csv, .db, .sqlite, .json)
-echo    • Артефакты (*FULL_PROJECT*.txt, *_DUMP.txt)
-echo    • Большие документы/логи (.md ^>50KB)
-echo    • Отсутствие _AI_INCLUDE/, .cursorignore, bootstrap-скриптов
-echo.
-echo    Режим: Только анализ, без изменений.
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 2. 🔧 АВТО-ИСПРАВЛЕНИЕ ПРОБЛЕМ (doctor --auto)                │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Выполняет диагностику и автоматически исправляет найденные проблемы.
-echo.
-echo    Исправления:
-echo    • Перемещает venv/ в ../_venvs/PROJECT_NAME-main/
-echo    • Удаляет __pycache__/ (переносит в архив)
-echo    • Архивирует logs/ в ../_FOR_DELETION/PROJECT_NAME/logs/
-echo    • Перемещает разрозненные .log в архив
-echo    • Добавляет node_modules/ в .cursorignore
-echo    • Перемещает большие файлы данных в ../_data/
-echo    • Архивирует артефакты
-echo    • Создает _AI_INCLUDE/, .cursorignore, bootstrap-скрипты
-echo.
-echo    Безопасность: Создает резервную копию перед изменениями.
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 3. 🧹 DEEP CLEAN - Переместить тяжелые файлы                  │
-echo │    (doctor --deep-clean)                                     │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Оптимизирует проект для AI: выносит тяжелые файлы и обновляет код.
-echo.
-echo    Процесс (6 шагов):
-echo    1. Сканирование - находит файлы с токенами ^> порога (1000)
-echo    2. Перемещение файлов в ../PROJECT_NAME_data/
-echo    3. Генерация моста (config_paths.py)
-echo    4. Патчинг кода - автоматически обновляет использование файлов
-echo    5. Генерация навигационной карты (AST_FOX_TRACE.md)
-echo    6. Обновление Cursor rules
-echo.
-echo    Результат: Снижение токенов на 70-95%%, проект остается рабочим.
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 4. 🗑️  ПЕРЕМЕСТИТЬ МУСОРНЫЕ ФАЙЛЫ В GARBAGE                  │
-echo │    (doctor --garbage-clean)                                  │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Находит и перемещает мусорные/временные файлы.
-echo.
-echo    Ищет:
-echo    • *.tmp, *.temp, *.bak, *.old, *.backup
-echo    • *.log.old, *.log.* (ротированные логи)
-echo    • .DS_Store, Thumbs.db, desktop.ini
-echo    • *_backup.*, *_old.*
-echo    • tmp/, temp/, .tmp/ (директории)
-echo    • Старые логи (старше 30 дней)
-echo.
-echo    Куда: ../PROJECT_NAME_garbage_for_removal/
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 5. 📊 ОБНОВИТЬ ДОКУМЕНТАЦИЮ (status)                         │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Генерирует/обновляет PROJECT_STATUS.md и CURRENT_CONTEXT_MAP.md.
-echo.
-echo    PROJECT_STATUS.md:
-echo    • Структура проекта
-echo    • Статистика файлов
-echo    • Зависимости
-echo    • Результаты тестов
-echo.
-echo    CURRENT_CONTEXT_MAP.md:
-echo    • Карта контекста для AI
-echo    • Ключевые файлы и их назначение
-echo    • Архитектура проекта
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 6. 🔄 ВОССТАНОВИТЬ ФАЙЛЫ ИЗ DEEP CLEAN (--restore)           │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Откатывает изменения Deep Clean, возвращая проект в исходное состояние.
-echo.
-echo    Процесс:
-echo    1. Восстанавливает файлы из manifest.json
-echo    2. Откатывает патчи кода из .bak файлов
-echo    3. Удаляет сгенерированные файлы
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 7. 📝 ПОКАЗАТЬ СТАТУС ПРОЕКТА (status)                       │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Показывает текущее состояние проекта:
-echo    • Путь к проекту
-echo    • Количество файлов
-echo    • Размер проекта
-echo    • Найденные проблемы (если есть)
-echo    • Статус тестов
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 8. 🏗️  АРХИТЕКТУРНАЯ РЕСТРУКТУРИЗАЦИЯ (architect)           │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Реструктурирует проект по AI-Native принципам.
-echo.
-echo    Процесс:
-echo    1. Создание моста (config_paths.py)
-echo    2. Перемещение тяжелых папок (venv/ → ../_venvs/)
-echo    3. Перемещение данных (*.json, *.csv, *.db → ../_data/)
-echo    4. Обновление скриптов запуска
-echo    5. Обновление .cursorignore
-echo.
-echo.
-echo ┌──────────────────────────────────────────────────────────────┐
-echo │ 9. 🚀 ПОЛНОЕ ЛЕЧЕНИЕ (все возможности)                      │
-echo └──────────────────────────────────────────────────────────────┘
-echo.
-echo    Выполняет полную оптимизацию проекта всеми доступными средствами:
-echo.
-echo    Шаги:
-echo    1. Диагностика проекта
-echo    2. Авто-исправление проблем
-echo    3. Перемещение мусорных файлов
-echo    4. Deep Clean - перемещение тяжелых файлов
-echo    5. Обновление документации
-echo.
-echo    Это самая полная оптимизация проекта для работы с AI.
-echo.
-echo.
+if "%LANGUAGE%"=="EN" (
+    echo ╔══════════════════════════════════════════════════════════════╗
+    echo ║  📖 COMPLETE DESCRIPTION OF ALL AI TOOLKIT FUNCTIONS         ║
+    echo ╚══════════════════════════════════════════════════════════════╝
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 1. 🔍 PROJECT DIAGNOSIS (doctor --report)                    │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Scans the project and identifies issues affecting AI work.
+    echo.
+    echo    Checks:
+    echo    • Virtual environments inside project (venv/, .venv/)
+    echo    • Python cache (__pycache__/)
+    echo    • Logs (logs/, *.log)
+    echo    • node_modules/ inside project
+    echo    • Large data files (^>1MB: .csv, .db, .sqlite, .json)
+    echo    • Artifacts (*FULL_PROJECT*.txt, *_DUMP.txt)
+    echo    • Large documents/logs (.md ^>50KB)
+    echo    • Missing _AI_INCLUDE/, .cursorignore, bootstrap scripts
+    echo.
+    echo    Mode: Analysis only, no changes.
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 2. 🔧 AUTO-FIX ISSUES (doctor --auto)                        │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Runs diagnosis and automatically fixes found issues.
+    echo.
+    echo    Fixes:
+    echo    • Moves venv/ to ../_venvs/PROJECT_NAME-main/
+    echo    • Removes __pycache__/ (moves to archive)
+    echo    • Archives logs/ to ../_FOR_DELETION/PROJECT_NAME/logs/
+    echo    • Moves scattered .log files to archive
+    echo    • Adds node_modules/ to .cursorignore
+    echo    • Moves large data files to ../_data/
+    echo    • Archives artifacts
+    echo    • Creates _AI_INCLUDE/, .cursorignore, bootstrap scripts
+    echo.
+    echo    Safety: Creates backup before changes.
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 3. 🧹 DEEP CLEAN - Move Heavy Files                          │
+    echo │    (doctor --deep-clean)                                     │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Optimizes project for AI: moves heavy files and updates code.
+    echo.
+    echo    Process (6 steps):
+    echo    1. Scanning - finds files with tokens ^> threshold (1000)
+    echo    2. Moving files to ../PROJECT_NAME_data/
+    echo    3. Generating bridge (config_paths.py)
+    echo    4. Code patching - automatically updates file usage
+    echo    5. Generating navigation map (AST_FOX_TRACE.md)
+    echo    6. Updating Cursor rules
+    echo.
+    echo    Result: 70-95%% token reduction, project remains functional.
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 4. 🗑️  MOVE GARBAGE FILES TO GARBAGE                        │
+    echo │    (doctor --garbage-clean)                                  │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Finds and moves temporary/old files.
+    echo.
+    echo    Searches for:
+    echo    • *.tmp, *.temp, *.bak, *.old, *.backup
+    echo    • *.log.old, *.log.* (rotated logs)
+    echo    • .DS_Store, Thumbs.db, desktop.ini
+    echo    • *_backup.*, *_old.*
+    echo    • tmp/, temp/, .tmp/ (directories)
+    echo    • Old logs (older than 30 days)
+    echo.
+    echo    Destination: ../PROJECT_NAME_garbage_for_removal/
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 5. 📊 UPDATE DOCUMENTATION (status)                          │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Generates/updates PROJECT_STATUS.md and CURRENT_CONTEXT_MAP.md.
+    echo.
+    echo    PROJECT_STATUS.md:
+    echo    • Project structure
+    echo    • File statistics
+    echo    • Dependencies
+    echo    • Test results
+    echo.
+    echo    CURRENT_CONTEXT_MAP.md:
+    echo    • Context map for AI
+    echo    • Key files and their purpose
+    echo    • Project architecture
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 6. 🔄 RESTORE FILES FROM DEEP CLEAN (--restore)             │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Reverts Deep Clean changes, returning project to original state.
+    echo.
+    echo    Process:
+    echo    1. Restores files from manifest.json
+    echo    2. Reverts code patches from .bak files
+    echo    3. Removes generated files
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 7. 📝 SHOW PROJECT STATUS (status)                          │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Shows current project state:
+    echo    • Project path
+    echo    • File count
+    echo    • Project size
+    echo    • Found issues (if any)
+    echo    • Test status
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 8. 🏗️  ARCHITECTURAL RESTRUCTURING (architect)             │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Restructures project according to AI-Native principles.
+    echo.
+    echo    Process:
+    echo    1. Creating bridge (config_paths.py)
+    echo    2. Moving heavy folders (venv/ → ../_venvs/)
+    echo    3. Moving data (*.json, *.csv, *.db → ../_data/)
+    echo    4. Updating startup scripts
+    echo    5. Updating .cursorignore
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 9. 🚀 FULL HEAL (all capabilities)                          │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Performs full project optimization with all available tools:
+    echo.
+    echo    Steps:
+    echo    1. Project diagnosis
+    echo    2. Auto-fix issues
+    echo    3. Move garbage files
+    echo    4. Deep Clean - move heavy files
+    echo    5. Update documentation
+    echo.
+    echo    This is the most complete project optimization for AI work.
+    echo.
+    echo.
+    echo ════════════════════════════════════════════════════════════
+    echo.
+    echo Press any key to return to menu...
+) else (
+    echo ╔══════════════════════════════════════════════════════════════╗
+    echo ║  📖 ПОЛНОЕ ОПИСАНИЕ ВСЕХ ФУНКЦИЙ AI TOOLKIT                  ║
+    echo ╚══════════════════════════════════════════════════════════════╝
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 1. 🔍 ДИАГНОСТИКА ПРОЕКТА (doctor --report)                 │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Сканирует проект и выявляет проблемы, влияющие на работу с AI.
+    echo.
+    echo    Проверяет:
+    echo    • Виртуальные окружения внутри проекта (venv/, .venv/)
+    echo    • Кэш Python (__pycache__/)
+    echo    • Логи (logs/, *.log)
+    echo    • node_modules/ внутри проекта
+    echo    • Большие файлы данных (^>1MB: .csv, .db, .sqlite, .json)
+    echo    • Артефакты (*FULL_PROJECT*.txt, *_DUMP.txt)
+    echo    • Большие документы/логи (.md ^>50KB)
+    echo    • Отсутствие _AI_INCLUDE/, .cursorignore, bootstrap-скриптов
+    echo.
+    echo    Режим: Только анализ, без изменений.
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 2. 🔧 АВТО-ИСПРАВЛЕНИЕ ПРОБЛЕМ (doctor --auto)                │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Выполняет диагностику и автоматически исправляет найденные проблемы.
+    echo.
+    echo    Исправления:
+    echo    • Перемещает venv/ в ../_venvs/PROJECT_NAME-main/
+    echo    • Удаляет __pycache__/ (переносит в архив)
+    echo    • Архивирует logs/ в ../_FOR_DELETION/PROJECT_NAME/logs/
+    echo    • Перемещает разрозненные .log в архив
+    echo    • Добавляет node_modules/ в .cursorignore
+    echo    • Перемещает большие файлы данных в ../_data/
+    echo    • Архивирует артефакты
+    echo    • Создает _AI_INCLUDE/, .cursorignore, bootstrap-скрипты
+    echo.
+    echo    Безопасность: Создает резервную копию перед изменениями.
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 3. 🧹 DEEP CLEAN - Переместить тяжелые файлы                  │
+    echo │    (doctor --deep-clean)                                     │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Оптимизирует проект для AI: выносит тяжелые файлы и обновляет код.
+    echo.
+    echo    Процесс (6 шагов):
+    echo    1. Сканирование - находит файлы с токенами ^> порога (1000)
+    echo    2. Перемещение файлов в ../PROJECT_NAME_data/
+    echo    3. Генерация моста (config_paths.py)
+    echo    4. Патчинг кода - автоматически обновляет использование файлов
+    echo    5. Генерация навигационной карты (AST_FOX_TRACE.md)
+    echo    6. Обновление Cursor rules
+    echo.
+    echo    Результат: Снижение токенов на 70-95%%, проект остается рабочим.
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 4. 🗑️  ПЕРЕМЕСТИТЬ МУСОРНЫЕ ФАЙЛЫ В GARBAGE                  │
+    echo │    (doctor --garbage-clean)                                  │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Находит и перемещает мусорные/временные файлы.
+    echo.
+    echo    Ищет:
+    echo    • *.tmp, *.temp, *.bak, *.old, *.backup
+    echo    • *.log.old, *.log.* (ротированные логи)
+    echo    • .DS_Store, Thumbs.db, desktop.ini
+    echo    • *_backup.*, *_old.*
+    echo    • tmp/, temp/, .tmp/ (директории)
+    echo    • Старые логи (старше 30 дней)
+    echo.
+    echo    Куда: ../PROJECT_NAME_garbage_for_removal/
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 5. 📊 ОБНОВИТЬ ДОКУМЕНТАЦИЮ (status)                         │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Генерирует/обновляет PROJECT_STATUS.md и CURRENT_CONTEXT_MAP.md.
+    echo.
+    echo    PROJECT_STATUS.md:
+    echo    • Структура проекта
+    echo    • Статистика файлов
+    echo    • Зависимости
+    echo    • Результаты тестов
+    echo.
+    echo    CURRENT_CONTEXT_MAP.md:
+    echo    • Карта контекста для AI
+    echo    • Ключевые файлы и их назначение
+    echo    • Архитектура проекта
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 6. 🔄 ВОССТАНОВИТЬ ФАЙЛЫ ИЗ DEEP CLEAN (--restore)           │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Откатывает изменения Deep Clean, возвращая проект в исходное состояние.
+    echo.
+    echo    Процесс:
+    echo    1. Восстанавливает файлы из manifest.json
+    echo    2. Откатывает патчи кода из .bak файлов
+    echo    3. Удаляет сгенерированные файлы
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 7. 📝 ПОКАЗАТЬ СТАТУС ПРОЕКТА (status)                       │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Показывает текущее состояние проекта:
+    echo    • Путь к проекту
+    echo    • Количество файлов
+    echo    • Размер проекта
+    echo    • Найденные проблемы (если есть)
+    echo    • Статус тестов
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 8. 🏗️  АРХИТЕКТУРНАЯ РЕСТРУКТУРИЗАЦИЯ (architect)           │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Реструктурирует проект по AI-Native принципам.
+    echo.
+    echo    Процесс:
+    echo    1. Создание моста (config_paths.py)
+    echo    2. Перемещение тяжелых папок (venv/ → ../_venvs/)
+    echo    3. Перемещение данных (*.json, *.csv, *.db → ../_data/)
+    echo    4. Обновление скриптов запуска
+    echo    5. Обновление .cursorignore
+    echo.
+    echo.
+    echo ┌──────────────────────────────────────────────────────────────┐
+    echo │ 9. 🚀 ПОЛНОЕ ЛЕЧЕНИЕ (все возможности)                      │
+    echo └──────────────────────────────────────────────────────────────┘
+    echo.
+    echo    Выполняет полную оптимизацию проекта всеми доступными средствами:
+    echo.
+    echo    Шаги:
+    echo    1. Диагностика проекта
+    echo    2. Авто-исправление проблем
+    echo    3. Перемещение мусорных файлов
+    echo    4. Deep Clean - перемещение тяжелых файлов
+    echo    5. Обновление документации
+    echo.
+    echo    Это самая полная оптимизация проекта для работы с AI.
+    echo.
+    echo.
     echo ════════════════════════════════════════════════════════════
     echo.
     echo Нажмите любую клавишу для возврата в меню...
