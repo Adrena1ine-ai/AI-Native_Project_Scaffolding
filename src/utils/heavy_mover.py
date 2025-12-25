@@ -59,20 +59,72 @@ class MoveResult:
         return len(self.failed_files)
 
 
-def get_external_dir(project_path: Path) -> Path:
+def get_external_dir(project_path: Path, create: bool = True) -> Path:
     """
     Get external storage directory for project.
     
-    Structure:
-        ../PROJECT_NAME_data/
+    Supports both old and new path formats for backward compatibility:
+    - NEW: ../PROJECT_NAME_data/
+    - OLD: ../_data/PROJECT_NAME/LARGE_TOKENS/
     
-    Creates directory if not exists.
+    Logic:
+    1. If OLD path exists and has files → use OLD (backward compat)
+    2. Otherwise → use NEW path
+    
+    Args:
+        project_path: Path to project root
+        create: If True, create directory if not exists
+    
+    Returns:
+        Path to external storage directory
     """
     project_path = project_path.resolve()
     project_name = project_path.name
-    external = project_path.parent / f"{project_name}_data"
-    external.mkdir(parents=True, exist_ok=True)
-    return external
+    
+    # New simplified path
+    new_path = project_path.parent / f"{project_name}_data"
+    
+    # Old path (for backward compatibility)
+    old_path = project_path.parent / "_data" / project_name / "LARGE_TOKENS"
+    
+    # Check if old path exists and has content
+    if old_path.exists():
+        # Check if it has files (not just empty dirs)
+        try:
+            has_files = any(old_path.rglob("*"))
+            if has_files:
+                return old_path  # Use old path for existing projects
+        except (OSError, PermissionError):
+            pass  # If we can't check, use new path
+    
+    # Use new path for new projects
+    if create:
+        new_path.mkdir(parents=True, exist_ok=True)
+    
+    return new_path
+
+
+def get_manifest_path(project_path: Path) -> Optional[Path]:
+    """
+    Find manifest.json in either old or new external storage.
+    
+    Returns:
+        Path to manifest.json or None if not found
+    """
+    project_path = project_path.resolve()
+    project_name = project_path.name
+    
+    # Check new path first
+    new_manifest = project_path.parent / f"{project_name}_data" / "manifest.json"
+    if new_manifest.exists():
+        return new_manifest
+    
+    # Check old path
+    old_manifest = project_path.parent / "_data" / project_name / "LARGE_TOKENS" / "manifest.json"
+    if old_manifest.exists():
+        return old_manifest
+    
+    return None
 
 
 def move_heavy_files(
@@ -98,7 +150,7 @@ def move_heavy_files(
         4. Generate config_paths.py
     """
     project_path = project_path.resolve()
-    external_dir = get_external_dir(project_path)
+    external_dir = get_external_dir(project_path, create=not dry_run)
     
     result = MoveResult(
         project_path=project_path,
@@ -374,14 +426,16 @@ def restore_files(
     """
     project_path = project_path.resolve()
     
-    # Find manifest
+    # Find manifest with compatibility check
     if manifest_path is None:
-        manifest_path = (
-            project_path.parent / f"{project_path.name}_data" / "manifest.json"
-        )
+        manifest_path = get_manifest_path(project_path)
     
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+    if manifest_path is None or not manifest_path.exists():
+        raise FileNotFoundError(
+            f"Manifest not found. Checked:\n"
+            f"  - ../{project_path.name}_data/manifest.json\n"
+            f"  - ../_data/{project_path.name}/LARGE_TOKENS/manifest.json"
+        )
     
     # Load manifest
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

@@ -39,9 +39,9 @@ except ImportError:
 try:
     from ..utils.token_scanner import scan_project, get_moveable_files, format_scan_report
     from ..utils.heavy_mover import (
-        move_heavy_files, restore_files, format_move_report,
-        move_garbage_files, format_garbage_report
+        move_heavy_files, restore_files, format_move_report
     )
+    from ..utils.garbage_cleaner import clean_garbage, format_garbage_report
     from ..utils.ast_patcher import patch_project, revert_patches, format_patch_report
     from ..utils.fox_trace_map import generate_fox_trace_map, write_fox_trace_md, write_cursor_rules
     HAS_DEEP_CLEAN = True
@@ -53,7 +53,7 @@ except ImportError:
     move_heavy_files = None
     restore_files = None
     format_move_report = None
-    move_garbage_files = None
+    clean_garbage = None
     format_garbage_report = None
     patch_project = None
     revert_patches = None
@@ -2106,37 +2106,79 @@ def run_restore(project_path: Path) -> bool:
     return True
 
 
-def run_garbage_clean(project_path: Path, auto: bool = False, dry_run: bool = False) -> bool:
+def run_garbage_clean(
+    project_path: Path,
+    auto: bool = False,
+    dry_run: bool = False,
+    include_old_logs: bool = True,
+    log_max_age: int = 30
+) -> bool:
     """
-    Move garbage files to garbage_for_removal directory.
+    Run garbage cleanup — move temp/backup files to garbage folder.
     
-    Process:
-    1. Scan for garbage files (tmp, bak, old logs, etc.)
-    2. Move to ../PROJECT_NAME_garbage_for_removal/
-    3. Show report
+    Args:
+        project_path: Project root
+        auto: Auto-confirm all actions
+        dry_run: Preview only, don't make changes
+        include_old_logs: Include old log files
+        log_max_age: Max age for logs in days
     """
-    if not HAS_DEEP_CLEAN or move_garbage_files is None:
+    if not HAS_DEEP_CLEAN or clean_garbage is None:
         print(COLORS.error("❌ Garbage clean utilities not available. Please check installation."))
         return False
     
     project_path = project_path.resolve()
     
     print(COLORS.info(f"\n🗑️  GARBAGE CLEAN — {project_path.name}"))
-    if dry_run:
-        print(COLORS.info("   Mode: Dry Run"))
-    print()
+    print(COLORS.info(f"   Mode: {'Dry Run' if dry_run else 'Live'}\n"))
     
-    # Move garbage files
-    print(COLORS.info("📦 Moving garbage files..."))
-    result = move_garbage_files(project_path, dry_run=dry_run)
+    # Scan/clean
+    result = clean_garbage(
+        project_path,
+        dry_run=dry_run,
+        include_old_logs=include_old_logs,
+        log_max_age=log_max_age
+    )
+    
+    if not result.files_found:
+        print(COLORS.success("\n✅ No garbage files found! Project is clean."))
+        return True
     
     # Show report
-    print()
     print(format_garbage_report(result, dry_run=dry_run))
     
-    if not dry_run and result.success_count > 0:
-        # Update project documentation
-        print(COLORS.info("\n📝 Updating project documentation..."))
+    # If dry run or already done, return
+    if dry_run:
+        return True
+    
+    # Confirm if not auto
+    if not auto and result.files_found:
+        print(f"\n🔴 Found {len(result.files_found)} garbage files")
+        print(f"   Will move to: {result.garbage_dir.name}/")
+        print()
+        
+        try:
+            confirm = input("   Continue? [y/N]: ").strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            print("\n   Cancelled.")
+            return False
+        
+        if confirm != 'y':
+            print("   Cancelled.")
+            return False
+        
+        # Run actual clean
+        result = clean_garbage(
+            project_path,
+            dry_run=False,
+            include_old_logs=include_old_logs,
+            log_max_age=log_max_age
+        )
+        print(format_garbage_report(result, dry_run=False))
+    
+    # Update documentation after cleanup
+    if result.files_moved:
+        print(COLORS.info("\n📝 Updating documentation..."))
         _update_project_docs(project_path)
     
     return True

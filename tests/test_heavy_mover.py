@@ -14,6 +14,7 @@ from src.utils.heavy_mover import (
     generate_manifest,
     restore_files,
     get_external_dir,
+    get_manifest_path,
     format_move_report,
     MovedFile,
     MoveResult
@@ -235,4 +236,48 @@ class TestFormatMoveReport:
         
         assert "config_paths.py" in report
         assert "manifest.json" in report
+
+
+class TestPathCompatibility:
+    def test_uses_new_path_for_new_projects(self, temp_project, heavy_files):
+        """New projects should use simplified path."""
+        result = move_heavy_files(temp_project, heavy_files)
+        
+        # Should use new path format
+        assert "_data" not in str(result.external_dir)
+        assert f"{temp_project.name}_data" in str(result.external_dir)
+    
+    def test_respects_old_path_if_exists(self, temp_project, heavy_files):
+        """Projects with old path should continue using it."""
+        # Create old-style directory with content
+        old_path = temp_project.parent / "_data" / temp_project.name / "LARGE_TOKENS"
+        old_path.mkdir(parents=True)
+        (old_path / "existing_file.json").write_text("{}")
+        
+        # Should detect and use old path
+        ext_dir = get_external_dir(temp_project, create=False)
+        assert "_data" in str(ext_dir)
+        assert "LARGE_TOKENS" in str(ext_dir)
+    
+    def test_manifest_found_in_old_path(self, temp_project):
+        """Should find manifest in old-style path."""
+        # Create old-style manifest
+        old_path = temp_project.parent / "_data" / temp_project.name / "LARGE_TOKENS"
+        old_path.mkdir(parents=True)
+        (old_path / "manifest.json").write_text('{"project": "test"}')
+        
+        manifest = get_manifest_path(temp_project)
+        assert manifest is not None
+        assert manifest.exists()
+    
+    def test_manifest_found_in_new_path(self, temp_project):
+        """Should find manifest in new-style path."""
+        # Create new-style manifest
+        new_path = temp_project.parent / f"{temp_project.name}_data"
+        new_path.mkdir(parents=True)
+        (new_path / "manifest.json").write_text('{"project": "test"}')
+        
+        manifest = get_manifest_path(temp_project)
+        assert manifest is not None
+        assert manifest.exists()
 

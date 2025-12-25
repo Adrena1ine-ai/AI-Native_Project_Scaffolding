@@ -9,6 +9,8 @@
 
 - `CONTRIBUTING.md`
 
+- `CURSOR_PROMPT_v3.6_FIXES.md`
+
 - `LICENSE`
 
 - `MANIFEST.in`
@@ -369,6 +371,38 @@
   📦 TestWriteCursorRules
     ƒ test_creates_file
 
+- `tests/test_garbage_cleaner.py`
+    ƒ temp_project
+    ƒ temp_project_with_old_logs
+  📦 TestIsOldLog
+    ƒ test_old_log_detected
+    ƒ test_recent_log_not_detected
+    ƒ test_non_log_file
+  📦 TestGetFileAgeDays
+    ƒ test_returns_age
+    ƒ test_nonexistent_file
+  📦 TestScanGarbage
+    ƒ test_finds_tmp_files
+    ƒ test_finds_bak_files
+    ƒ test_finds_system_files
+    ƒ test_finds_old_log_patterns
+    ƒ test_skips_normal_files
+    ƒ test_includes_subdirectories
+    ƒ test_sorted_by_size
+  📦 TestCleanGarbage
+    ƒ test_dry_run_doesnt_move
+    ƒ test_moves_garbage_files
+    ƒ test_creates_garbage_dir
+    ƒ test_preserves_structure
+    ƒ test_result_contains_stats
+  📦 TestFormatGarbageReport
+    ƒ test_dry_run_format
+    ƒ test_live_format
+  📦 TestGarbagePatterns
+    ƒ test_common_patterns_exist
+  📦 TestIntegration
+    ƒ test_full_workflow
+
 - `tests/test_generators.py`
   📦 TestAIConfigs
     ƒ test_common_rules_contains_project_name
@@ -437,6 +471,11 @@
     ƒ test_generates_report
     ƒ test_shows_file_count
     ƒ test_shows_generated_files
+  📦 TestPathCompatibility
+    ƒ test_uses_new_path_for_new_projects
+    ƒ test_respects_old_path_if_exists
+    ƒ test_manifest_found_in_old_path
+    ƒ test_manifest_found_in_new_path
 
 - `tests/test_migrate.py`
   📦 TestMigrateProject
@@ -667,6 +706,18 @@
     ƒ generate_cursor_context
     ƒ write_cursor_rules
 
+- `src/utils/garbage_cleaner.py`
+  📦 GarbageFile
+  📦 GarbageCleanResult
+    ƒ total_size
+    ƒ moved_size
+    ƒ success_count
+    ƒ is_old_log
+    ƒ get_file_age_days
+    ƒ scan_garbage
+    ƒ clean_garbage
+    ƒ format_garbage_report
+
 - `src/utils/heavy_mover.py`
   📦 MovedFile
   📦 MoveResult
@@ -674,6 +725,7 @@
     ƒ success_count
     ƒ failed_count
     ƒ get_external_dir
+    ƒ get_manifest_path
     ƒ move_heavy_files
     ƒ generate_config_paths
     ƒ get_path
@@ -1043,4 +1095,4 @@
 - `.cursor/rules/project.md`
 
 ---
-**Stats:** Scanned 143 files. Map size: ~5571 tokens.
+**Stats:** Scanned 146 files. Map size: ~5902 tokens.
