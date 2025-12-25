@@ -2,9 +2,9 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-3.4-blue.svg)](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding)
+[![Version](https://img.shields.io/badge/version-3.5-blue.svg)](https://github.com/Adrena1ine-ai/AI-Native_Project_Scaffolding)
 [![Python](https://img.shields.io/badge/python-3.10+-green.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-92%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-220%20passed-brightgreen.svg)](tests/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![AI-Ready](https://img.shields.io/badge/AI-Ready-purple.svg)](#-ai-assistant-support)
 
@@ -66,6 +66,17 @@ Result:       Slow, expensive, hallucinating AI
 | 🏥 Doctor | `doctor --auto` | Diagnose + fix ALL issues automatically |
 | 📊 Status | `status` | Auto-generate PROJECT_STATUS.md |
 | Auto-Update | `generate_map.py` | Updates context map AND status |
+
+### 🧹 Deep Clean & Bridge (v3.5) — Ultimate Token Optimization
+
+| Feature | Command | What It Does |
+|---------|---------|--------------|
+| 🧹 Deep Clean | `doctor --deep-clean` | Move ALL heavy files + auto-patch code |
+| 🔄 Restore | `doctor --restore` | Restore project to original state |
+| 📊 Threshold | `--threshold 500` | Custom token threshold |
+| 👁️ Preview | `--dry-run` | Preview changes without applying |
+
+**Result:** 5.1M tokens → 47K tokens (99% reduction!) + AI Navigation Map
 
 ---
 
@@ -154,6 +165,8 @@ python main.py doctor /path/to/messy/project --auto
 | Command | Description | Example |
 |---------|-------------|---------|
 | `doctor` | Diagnose + auto-fix issues | `python main.py doctor ./project --auto` |
+| `doctor --deep-clean` | 🧹 Move heavy files + patch code | `python main.py doctor ./project --deep-clean` |
+| `doctor --restore` | 🔄 Restore from deep clean | `python main.py doctor ./project --restore` |
 | `status` | Regenerate PROJECT_STATUS.md | `python main.py status . --preview` |
 | `hooks` | Git pre-commit hook management | `python main.py hooks install` |
 
@@ -306,6 +319,97 @@ python main.py doctor /path/to/project --auto
 
 ---
 
+## 🧹 Deep Clean & Bridge — Ultimate Token Optimization
+
+**NEW in v3.5!** The most powerful feature — automatically move heavy files AND patch your code!
+
+```bash
+# Preview what will be cleaned (dry run)
+python main.py doctor /path/to/project --deep-clean --dry-run
+
+# Full automatic deep clean
+python main.py doctor /path/to/project --deep-clean --auto
+
+# Custom threshold (default: 1000 tokens)
+python main.py doctor /path/to/project --deep-clean --threshold 500
+
+# Restore to original state
+python main.py doctor /path/to/project --restore
+```
+
+### How Deep Clean Works
+
+```
+BEFORE Deep Clean:                    AFTER Deep Clean:
+─────────────────────                ─────────────────────
+my_bot/                              my_bot/
+├── data/                            ├── config_paths.py      ← Bridge
+│   ├── products.json (50K tok)      ├── AST_FOX_TRACE.md     ← AI Map
+│   └── users.csv (100K tok)         ├── .cursor/rules/
+├── handlers/                        │   └── external_data.md
+│   └── shop.py                      ├── handlers/
+└── main.py                          │   └── shop.py          ← Patched!
+                                     └── main.py
+Total: 160K tokens
+                                     ../_data/my_bot/LARGE_TOKENS/
+                                     ├── data/products.json
+                                     └── data/users.csv
+                                     
+                                     Total: 10K tokens (94% reduction!)
+```
+
+### What Gets Generated
+
+| File | Purpose |
+|------|---------|
+| `config_paths.py` | Bridge to external files with `get_path()` |
+| `AST_FOX_TRACE.md` | Navigation map showing schemas WITHOUT data |
+| `.cursor/rules/external_data.md` | Compact context for Cursor AI |
+| `manifest.json` | Recovery info (in external storage) |
+
+### Code Auto-Patching
+
+Deep Clean automatically updates your Python code:
+
+```python
+# BEFORE
+with open("data/products.json") as f:
+    data = json.load(f)
+
+# AFTER (auto-patched!)
+from config_paths import get_path
+with open(get_path("data/products.json")) as f:
+    data = json.load(f)
+```
+
+**Supported patterns:**
+- `open("file.json")` → `open(get_path("file.json"))`
+- `Path("file.csv")` → `get_path("file.csv")`
+- `pd.read_csv("file.csv")` → `pd.read_csv(get_path("file.csv"))`
+- `sqlite3.connect("db.sqlite")` → `sqlite3.connect(get_path("db.sqlite"))`
+
+### AST_FOX_TRACE.md — AI Navigation Map
+
+Instead of loading 50K tokens of data, AI reads a 500-token map:
+
+```markdown
+## 📦 data/products.json
+
+**Tokens:** ~50K
+**External:** `../_data/my_bot/LARGE_TOKENS/data/products.json`
+
+**Schema (structure only, no data):**
+- type: array (1500 items)
+- fields: {id: integer, name: string, price: number}
+
+**Used in:**
+- `handlers/shop.py:23` — `products = json.load(...)`
+```
+
+Now when you ask Cursor *"How does the buy button work?"*, it reads the schema and understands WITHOUT loading the actual 50K-token file!
+
+---
+
 ## 🗺️ Roadmap
 
 ### ✅ Completed
@@ -315,20 +419,21 @@ python main.py doctor /path/to/project --auto
 | v3.0 | Core | CLI, 6 templates, multi-IDE, Docker, CI/CD |
 | v3.3 | The Fox Update | AST Map, Fox Trace, XML Packer, Secret Scanner |
 | v3.4 | The Doctor Update | Doctor command, Status generator, Auto-update |
+| v3.5 | Deep Clean & Bridge | Heavy file mover, Code auto-patcher, AI navigation map |
 
 ### 🔄 In Progress
 
 | Version | Name | Features | Status |
 |---------|------|----------|--------|
-| v3.5 | CLI Wizard | Questionary prompts, natural language, skill levels | 🔄 Partial |
+| v3.6 | CLI Wizard | Questionary prompts, natural language, skill levels | 🔄 Partial |
 
 ### ⬜ Planned
 
 | Version | Name | Features | Timeline |
 |---------|------|----------|----------|
-| v3.5 | TUI Dashboard | Textual full-screen UI, live tokens, keyboard nav | Week 4-5 |
-| v3.6 | Automation | Diff export, pre-commit integration, deps graph | Week 6-7 |
-| v3.7 | Quality & PyPI | 80% test coverage, mypy, `pip install ai-toolkit` | Week 8-9 |
+| v3.7 | TUI Dashboard | Textual full-screen UI, live tokens, keyboard nav | Week 4-5 |
+| v3.8 | Automation | Diff export, pre-commit integration, deps graph | Week 6-7 |
+| v3.9 | Quality & PyPI | 80% test coverage, mypy, `pip install ai-toolkit` | Week 8-9 |
 | v4.0 | Web UI | Browser dashboard, drag & drop, visual wizards | Week 10-13 |
 
 ### 💡 Future Ideas
@@ -350,14 +455,15 @@ python main.py doctor /path/to/project --auto
 v3.0  ████████████████████████████████████████ 54 features (Core)
 v3.3  ████████████████████████████████████████████ 62 features (+Fox Update)
 v3.4  ██████████████████████████████████████████████ 68 features (+Doctor)
+v3.5  ████████████████████████████████████████████████ 76 features (+Deep Clean)
       ─────────────────────────────────────────────────────────────────
-v3.5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 76 (+TUI)
+v3.7  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 84 (+TUI)
 v4.0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 98 (+Web)
 v4.2  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 110 (Full)
       ─────────────────────────────────────────────────────────────────
       0%              25%              50%              75%         100%
       
-Current: 68/110 features (62%)
+Current: 76/110 features (69%)
 ```
 
 ---
@@ -391,7 +497,7 @@ AI-Native_Project_Scaffolding/
 │   ├── commands/           # CLI commands (12 total)
 │   │   ├── create.py       # Project creation
 │   │   ├── cleanup.py      # Project cleanup
-│   │   ├── doctor.py       # 🏥 Diagnose & fix
+│   │   ├── doctor.py       # 🏥 Diagnose & fix + Deep Clean
 │   │   ├── trace.py        # 🔍 AST dependency tracker
 │   │   ├── pack.py         # 📦 XML context packer
 │   │   ├── review.py       # 🦊 Secret scanner
@@ -401,16 +507,21 @@ AI-Native_Project_Scaffolding/
 │   │   ├── scripts.py      # Bootstrap scripts
 │   │   ├── docker.py       # Docker files
 │   │   └── ...
-│   ├── utils/              # Utilities (4 total)
-│   │   ├── context_map.py  # 🧠 AST code mapping
-│   │   ├── metrics.py      # Token scanning
+│   ├── utils/              # Utilities (9 total)
+│   │   ├── context_map.py     # 🧠 AST code mapping
+│   │   ├── metrics.py         # Token scanning
 │   │   ├── status_generator.py # Auto-status
-│   │   └── ...
+│   │   ├── schema_extractor.py # 📊 JSON/CSV/SQLite schema
+│   │   ├── token_scanner.py    # 🔍 Find heavy files
+│   │   ├── heavy_mover.py      # 📦 Move + generate bridges
+│   │   ├── ast_patcher.py      # 🔧 Auto-refactor code
+│   │   ├── fox_trace_map.py    # 🦊 AI navigation map
+│   │   └── cleaner.py          # 🧹 Archive garbage
 │   └── core/               # Core modules
 │       ├── constants.py    # Templates, patterns
 │       └── config.py       # Configuration
 ├── templates/              # Project templates
-├── tests/                  # 92 tests
+├── tests/                  # 220 tests
 ├── docs/                   # Documentation
 └── scripts/                # Utility scripts
 ```
@@ -430,7 +541,7 @@ python -m pytest tests/test_doctor.py -v
 python -m pytest tests/ --cov=src --cov-report=html
 ```
 
-**Current status:** 92 tests passing ✅
+**Current status:** 220 tests passing ✅
 
 ---
 
@@ -478,24 +589,26 @@ Phase 1: Foundation (v3.1)      ████████████████
 Phase 2: CLI Wizard (v3.2)      ████████████████████████████ 100% ✅
 Phase 2.5: Fox Update (v3.3)    ████████████████████████████ 100% ✅
 Phase 2.6: Doctor Update (v3.4) ████████████████████████████ 100% ✅
-Phase 3: TUI Dashboard (v3.5)   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
-Phase 4: Automation (v3.6)      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
-Phase 5: Quality & PyPI (v3.7)  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
+Phase 2.7: Deep Clean (v3.5)    ████████████████████████████ 100% ✅
+Phase 3: TUI Dashboard (v3.7)   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
+Phase 4: Automation (v3.8)      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
+Phase 5: Quality & PyPI (v3.9)  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
 Phase 6: Web UI (v4.0)          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⬜
 Phase 7: Extensions (v4.1+)     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% 💡
 Phase 8: Localization (v4.2)    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% 💡
 
 ════════════════════════════════════════════════════════════════════
-TOTAL: 68/110 features (62%) | Next: Phase 3 (TUI Dashboard)
+TOTAL: 76/110 features (69%) | Next: Phase 3 (TUI Dashboard)
 ```
 
 ### 📊 Statistics
 
 | Metric | Current | Target |
 |--------|---------|--------|
-| Features Implemented | 68 | 110 |
+| Features Implemented | 76 | 110 |
 | Commands | 12 | 15+ |
-| Tests Passing | 92 | 150+ |
+| Utilities | 9 | 12+ |
+| Tests Passing | 220 | 250+ |
 | Templates | 6 | 10+ |
 | Supported IDEs | 5 | 5 |
 | Interfaces | CLI | CLI + TUI + Web |
