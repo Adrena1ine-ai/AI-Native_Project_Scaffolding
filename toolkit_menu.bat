@@ -91,12 +91,12 @@ echo ║  6. 🔄 Восстановить файлы из Deep Clean (--restore
 echo ║  7. 📝 Показать статус проекта (status)                    ║
 echo ║  8. 🏗️  Архитектурная реструктуризация (architect)          ║
 echo ║  9. 🚀 ПОЛНОЕ ЛЕЧЕНИЕ (все возможности)                      ║
-echo ║  H. 📖 Помощь - описание всех функций                       ║
-echo ║  C. 🔄 Сменить проект                                       ║
+echo ║ 10. 📖 Помощь - описание всех функций                       ║
+echo ║ 11. 🔄 Сменить проект                                       ║
 echo ║  0. ❌ Выход                                                 ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
-set /p CHOICE="Ваш выбор (0-9, H, C): "
+set /p CHOICE="Ваш выбор (0-11): "
 
 if "%CHOICE%"=="1" goto DIAGNOSTIC
 if "%CHOICE%"=="2" goto AUTO_FIX
@@ -107,8 +107,8 @@ if "%CHOICE%"=="6" goto RESTORE
 if "%CHOICE%"=="7" goto STATUS
 if "%CHOICE%"=="8" goto ARCHITECT
 if "%CHOICE%"=="9" goto FULL_HEAL
-if /i "%CHOICE%"=="H" goto HELP
-if /i "%CHOICE%"=="C" goto CHANGE_PROJECT
+if "%CHOICE%"=="10" goto HELP
+if "%CHOICE%"=="11" goto CHANGE_PROJECT
 if "%CHOICE%"=="0" goto EXIT
 
 echo.
