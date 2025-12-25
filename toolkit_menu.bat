@@ -7,6 +7,31 @@ setlocal enabledelayedexpansion
 
 title AI Toolkit - Interactive Menu
 
+:: Автоматическое обновление при первом запуске
+if not defined GIT_UPDATED (
+    echo.
+    echo 🔄 Обновление AI Toolkit из Git...
+    echo.
+    
+    :: Проверка, что мы в git репозитории
+    git rev-parse --git-dir >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo    Выполняется git pull...
+        git pull origin main
+        if %errorlevel% equ 0 (
+            echo    ✅ Обновление завершено
+        ) else (
+            echo    ⚠️  Ошибка при обновлении (возможно, нет подключения к интернету)
+        )
+    ) else (
+        echo    ⚠️  Не обнаружен git репозиторий, пропуск обновления
+    )
+    
+    echo.
+    timeout /t 2 >nul
+    set GIT_UPDATED=1
+)
+
 :MAIN_MENU
 cls
 echo.
